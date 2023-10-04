@@ -40,23 +40,37 @@
                 </div>
                 <div class="card-body">
                 <form>
-                    <div class="row mb-2 mt-2">
-                        <div class="col-md-4">
+                    <h4 id="titulo-register">Registrar Bebidas</h4>
+                    <div class="row mb-2 mt-3">
+                        <div class="col-md-3" id="view-marca">
                             <div class="form-floating mb-3">
-                                <input type="text" class="form-control" id="plato" name="Plato" placeholder="Plato">
-                                <label for="Plato" class="form-label">Plato</label>
+                                <select class="form-control" name="" id="marca">
+                                </select>
                             </div>
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-3" id="view-producto">
+                            <div class="form-floating mb-3">
+                                <input type="text" class="form-control" id="producto" name="Plato" placeholder="Plato">
+                                <label for="Plato" class="form-label">Producto</label>
+                            </div>
+                        </div>
+                        <div class="col-md-3" id="view-precio">
                             <div class="form-floating mb-3">
                                 <input type="number" class="form-control" id="precio" name="precio" placeholder="Precio">
                                 <label for="precio" class="form-label">Precio</label>
                             </div>
                         </div>
+                        <div class="col-md-3">
+                            <div class="form-floating mb-3" id="view-stock">
+                                <input type="number" class="form-control" id="stock" name="precio" placeholder="Precio">
+                                <label for="precio" class="form-label">Stock</label>
+                            </div>
+                        </div>
                     </div>
 
-                    <button type="button" id="registrar-plato"  class="btn btn-outline-primary">Agregar</button>
-
+                    <button type="button" id="registrar-producto"  class="btn btn-outline-primary">Agregar</button>
+                    <button type="button" id="vista-plato" class="btn btn-outline-success">Platos</button>
+                    <button type="button" id="vista-bebida" class="d-none btn btn-outline-success">Bebidas</button>
                 </form>
                 </div>
             </div>
@@ -116,6 +130,7 @@
                             <th>Plato</th>
                             <th>Precio</th>
                             <th>Fecha</th>
+                            <th>Stock</th>
                             <th>Estado</th>
                             <th>Acción</th>
                         </thead>
@@ -141,19 +156,25 @@
             <div class="modal-body">
                 <form>
                     <div class="row mb-2 mt-2">
-                        <div class="col-md-4">
+                        <div class="col-md-3">
                             <div class="form-floating mb-3">
-                                <input type="text" class="form-control" id="plato-editar" name="Plato" placeholder="Plato">
-                                <label for="Plato" class="form-label">Plato</label>
+                                <input type="text" class="form-control" id="producto-editar" name="producto" placeholder="Plato">
+                                <label for="Plato" class="form-label">Producto</label>
                             </div>
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-3">
                             <div class="form-floating mb-3">
                                 <input type="number" class="form-control" id="precio-editar" name="precio" placeholder="Precio">
                                 <label for="precio" class="form-label">Precio</label>
                             </div>
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-3">
+                            <div class="form-floating mb-3">
+                                <input type="number" class="form-control" id="stock-editar" name="precio" placeholder="Precio">
+                                <label for="precio" class="form-label">Stock</label>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
                             <div class="form-floating mb-3">
                                 <select class="form-control" name="" id="estado-editar">
                                     <option value="">Seleccione un estado</option>

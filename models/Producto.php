@@ -21,6 +21,46 @@ require_once 'Conexion.php';
             }
         }
 
+        public function listAll(){
+            try {
+                $query = "SELECT * FROM producto WHERE estado = 1";
+                $consulta = $this->conexion->prepare($query);
+                $consulta->execute();
+                $datos = $consulta->fetchAll(PDO::FETCH_ASSOC);
+                return $datos;
+            } catch (Exception $e) {
+                die($e->getMessage());
+            }
+        }
+
+        public function registerB($data = []){
+            try {
+                $query = "INSERT INTO producto(idmarca,producto,tipo,precio,stock) values(?,?,'B',?,?)";
+                $consulta = $this->conexion->prepare($query);
+                $consulta->execute(array(
+                    $data['idmarca'],
+                    $data['producto'],
+                    $data['precio'],
+                    $data['stock']
+                ));
+            } catch (Exception $e) {
+                die($e->getMessage());
+            }
+        }
+
+        public function registerP($data = []){
+            try {
+                $query = "INSERT INTO producto(producto,precio,tipo) values(?,?,'P')";
+                $consulta = $this->conexion->prepare($query);
+                $consulta->execute(array(
+                    $data['producto'],
+                    $data['precio']
+                ));
+            } catch (Exception $e) {
+                die($e->getMessage());
+            }
+        }
+
     }
 
 ?>
