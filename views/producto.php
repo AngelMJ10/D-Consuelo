@@ -78,8 +78,8 @@
 
                                     <div class="col-md-4">
                                         <div class="form-floating mb-3">
-                                            <input type="text" class="form-control" id="plato-buscar" name="Plato" placeholder="Plato">
-                                            <label for="Plato" class="form-label">Plato</label>
+                                            <input type="text" class="form-control" id="producto-buscar" name="Plato" placeholder="Plato">
+                                            <label for="Plato" class="form-label">Producto</label>
                                         </div>
                                     </div>
                                     <div class="col-md-4">
@@ -100,14 +100,15 @@
 
                                     </div>
                                     <button type="button" id="buscar-plato"  class="btn btn-outline-primary">Buscar</button>
-
+                                    <button type="button" id="list-platos"  class="btn btn-outline-success">Platos</button>
+                                    <button type="button" id="list-bebidas"  class="btn btn-outline-info">Bebidas</button>
                                 </form>
                             </div>
                         </div>
                     </div>
                 </div>
                 
-                <div class="table-responsive mt-3" id="tabla-plato">
+                <div class="table-responsive mt-3" id="tabla-producto">
                     <table class="table table-hover text-center"> 
 
                         <thead>
@@ -175,7 +176,7 @@
     </div>
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script src="js/plato.js"></script>
+<script src="js/producto.js"></script>
     
 </body>
 </html>
