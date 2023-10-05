@@ -61,6 +61,35 @@ require_once 'Conexion.php';
             }
         }
 
+        public function get($data = []){
+            try {
+                $query = "SELECT * FROM producto WHERE idproducto = ?";
+                $consulta = $this->conexion->prepare($query);
+                $consulta->execute(array($data['idproducto']));
+                $datos = $consulta->fetch(PDO::FETCH_ASSOC);
+                return $datos;
+            } catch (Exception $e) {
+                die($e->getMessage());
+            }
+        }
+
+        public function edit($data = []){
+            try {
+                $query = "UPDATE producto SET idmarca = ?, producto = ?, precio = ?, stock = ?, estado = ? where idproducto = ?";
+                $consulta = $this->conexion->prepare($query);
+                $consulta->execute(array(
+                    $data['idmarca'],
+                    $data['producto'],
+                    $data['precio'],
+                    $data['stock'],
+                    $data['estado'],
+                    $data['idproducto']
+                ));
+            } catch (Exception $e) {
+                die($e->getMessage());
+            }
+        }
+
     }
 
 ?>

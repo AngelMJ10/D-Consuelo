@@ -128,7 +128,7 @@
                         <thead>
                             <th>#</th>
                             <th>Plato</th>
-                            <th>Precio</th>
+                            <th>Precio S/</th>
                             <th>Fecha</th>
                             <th>Stock</th>
                             <th>Estado</th>
@@ -156,22 +156,22 @@
             <div class="modal-body">
                 <form>
                     <div class="row mb-2 mt-2">
-                        <div class="col-md-3">
+                        <div class="col-md-3" id="view-marca-editar">
+                            <div class="form-floating mb-3">
+                                <select class="form-control" name="" id="marca-editar">
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-3" id="view-producto-editar">
                             <div class="form-floating mb-3">
                                 <input type="text" class="form-control" id="producto-editar" name="producto" placeholder="Plato">
                                 <label for="Plato" class="form-label">Producto</label>
                             </div>
                         </div>
-                        <div class="col-md-3">
+                        <div class="col-md-3" id="view-precio-editar">
                             <div class="form-floating mb-3">
                                 <input type="number" class="form-control" id="precio-editar" name="precio" placeholder="Precio">
                                 <label for="precio" class="form-label">Precio</label>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="form-floating mb-3">
-                                <input type="number" class="form-control" id="stock-editar" name="precio" placeholder="Precio">
-                                <label for="precio" class="form-label">Stock</label>
                             </div>
                         </div>
                         <div class="col-md-3">
@@ -184,8 +184,16 @@
                             </div>
                         </div>
                     </div>
+                    <div class="row mb-2 mt-2">
+                        <div class="col-md-3" id="view-stock-editar">
+                            <div class="form-floating mb-3">
+                                <input type="number" class="form-control" id="stock-editar" name="precio" placeholder="Precio">
+                                <label for="precio" class="form-label">Stock</label>
+                            </div>
+                        </div>
+                    </div>
 
-                    <button type="button" id="editar-plato"  class="btn btn-outline-primary">Editar</button>
+                    <button type="button" id="editar-producto"  class="btn btn-outline-primary">Editar</button>
 
                 </form>
             </div>
