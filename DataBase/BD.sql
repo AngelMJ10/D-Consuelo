@@ -104,7 +104,7 @@ VALUES	('Sopa Seca con Carapulcra','20','P'),
 	('Chilcano','7','P'),
 	('Ceviche con chicharron','12','P'),
 	('Ceviche','10','P');
-	
+	UPDATE producto SET estado = 1 WHERE idproducto = 5
 ----------------------------------------
 
 CREATE TABLE pedido

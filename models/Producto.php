@@ -90,6 +90,32 @@ require_once 'Conexion.php';
             }
         }
 
+        public function deleteStock($data = []){
+            try {
+                $query = "UPDATE producto set stock = ? where idproducto = ?";
+                $consulta = $this->conexion->prepare($query);
+                $consulta->execute(array(
+                    $data['stock'],
+                    $data['idproducto']
+                ));
+            } catch (Exception $e) {
+                die($e->getMessage());
+            }
+        }
+
+        public function disable_product($data = []){
+            try {
+                $query = "UPDATE producto set estado = ? where idproducto = ?";
+                $consulta = $this->conexion->prepare($query);
+                $consulta->execute(array(
+                    $data['estado'],
+                    $data['idproducto']
+                ));
+            } catch (Exception $e) {
+                die($e->getMessage());
+            }
+        }
+
     }
 
 ?>

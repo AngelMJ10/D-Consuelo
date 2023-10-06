@@ -138,23 +138,39 @@ function realizar_pedido(idpedido, idP, cantidad){
 let contadorCarrito = 1;
 let tbody = "";
 
+// Función que le aumenta un numero al carrito
 function numerarPedidos() {
-    let filasExistente = tbodyCarro.querySelectorAll("tr");
+    const filasExistente = tbodyCarro.querySelectorAll("tr");
     const carritoCantidad = document.getElementById("carritoCantidad");
-    let contador = 1;
+    let contador = 0;
 
     for (let i = 0; i < filasExistente.length; i++) {
         const fila = filasExistente[i];
-        let inputCantidad = fila.querySelector("input");
+        const cantidad = parseInt(fila.querySelector("td:nth-child(4) input").value);
 
-        if (!isNaN(inputCantidad)) {
-            contador += inputCantidad;
+        if (!isNaN(cantidad)) {
+            contador += cantidad;
         }
     }
 
     console.log(contador);
     // Actualiza el elemento HTML con el contador
     carritoCantidad.textContent = contador;
+}
+
+function total(){
+    let labelTotal = document.querySelector("#total");
+    const filasExistente = tbodyCarro.querySelectorAll("tr");
+    let sumaTotal = 0;
+
+    for (let i = 0;  i< filasExistente.length; i++) {
+        const fila = filasExistente[i];
+        const valorT = parseFloat(fila.querySelector("td:nth-child(5)").textContent);
+        if (!isNaN(valorT)) {
+            sumaTotal += valorT;
+        }
+    }
+    labelTotal.value = sumaTotal.toFixed(2);
 }
 
 function ordenar(id) {
@@ -165,6 +181,7 @@ function ordenar(id) {
         let fila = filasExistente[i];
         let idfila = fila.getAttribute("data-id");
         if (idfila == id) {
+            numerarPedidos();
             filaExistente = fila;
             break;
         }
@@ -178,6 +195,8 @@ function ordenar(id) {
         const precioSinDecimales = parseFloat(filaExistente.querySelector("td:nth-child(3)").textContent);
         let totalV = nuevaCantidad * precioSinDecimales;
         filaExistente.querySelector("td:nth-child(5)").textContent = totalV.toFixed(2);
+        total();
+        numerarPedidos();
     } else {
         const parametros = new URLSearchParams();
         parametros.append("op", "get");
@@ -199,22 +218,65 @@ function ordenar(id) {
                     <td data-label='Producto'>${datos.producto}</td>
                     <td data-label='Precio'>${precioSinDecimales.toFixed(2)}</td>
                     <td data-label='Cantidad'>
-                            <button type='button' class='btn btn-sm btn-outline-primary'>+</button>
-                            <input class='form-control-sm' type="number" value="${cantidadPedido}">
-                            <button type='button' class='btn btn-sm btn-outline-danger'>-</button>
+                        <button type='button' class='btn btn-sm btn-outline-primary' onclick="subirCantidad(this)">+</button>
+                        <input class='form-control-sm' type="number" value="${cantidadPedido}" oninput="validarCantidad(this)">
+                        <button type='button' class='btn btn-sm btn-outline-danger' onclick="bajarCantidad(this)">-</button>
                     </td>
                     <td data-label='Total'>${total1.toFixed(2)}</td>
+                    <td data-label='Eliminar'><button title='Eliminar selección' class='btn btn-outline-danger btn-sm' onclick="eliminarFila(this)"> - </button></td>
                 </tr>
             `;
 
             // Agregar la nueva fila al final del tbody sin eliminar las anteriores
             tbodyCarro.insertAdjacentHTML('beforeend', nuevaFila);
-
+            numerarPedidos();
+            total();
             contadorCarrito++;
         });
     }
 }
 
+function eliminarFila(botonEliminar) {
+    const fila = botonEliminar.closest("tr");
+    fila.remove();
+    // Llama a la función para actualizar el total u otros cálculos si es necesario
+    total();
+}
+
+function subirCantidad(button) {
+    const inputCantidad = button.parentElement.querySelector("input");
+    let cantidad = parseInt(inputCantidad.value) || 0;
+    cantidad += 1;
+    inputCantidad.value = cantidad;
+    actualizarTotal(button.parentElement.parentElement);
+}
+
+function bajarCantidad(button){
+    const inputCantidad = button.parentElement.querySelector("input");
+    let cantidad = parseInt(inputCantidad.value) || 0;
+    if (cantidad > 1) {
+        cantidad -= 1;
+        inputCantidad.value = cantidad;
+        actualizarTotal(button.parentElement.parentElement);
+    }
+}
+
+function validarCantidad(input) {
+    let cantidad = parseInt(input.value) || 0;
+    if (cantidad < 1) {
+        input.value = 1;
+    }
+    actualizarTotal(input.parentElement.parentElement);
+}
+
+function actualizarTotal(fila) {
+    const precio = parseFloat(fila.querySelector("td:nth-child(3)").textContent);
+    const cantidad = parseInt(fila.querySelector("td:nth-child(4) input").value);
+    const totalElement = fila.querySelector("td:nth-child(5)");
+    const totalV = precio * cantidad;
+    totalElement.textContent = totalV;
+    total();
+}
 
 function abrirCarrito(){
     const bootstrapModal = new bootstrap.Modal(modalCarrito);
