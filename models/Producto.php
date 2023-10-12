@@ -92,7 +92,7 @@ require_once 'Conexion.php';
 
         public function deleteStock($data = []){
             try {
-                $query = "UPDATE producto set stock = ? where idproducto = ?";
+                $query = "UPDATE producto set stock = ? where idproducto = ? and tipo = 'B'";
                 $consulta = $this->conexion->prepare($query);
                 $consulta->execute(array(
                     $data['stock'],
@@ -103,12 +103,23 @@ require_once 'Conexion.php';
             }
         }
 
+        public function empty_stock(){
+            try {
+                $query = "SELECT * FROM producto where stock = 0 and tipo = 'B'";
+                $consulta = $this->conexion->prepare($query);
+                $consulta->execute();
+                $datos = $consulta->fetchAll(PDO::FETCH_ASSOC);
+                return $datos;
+            } catch (Exception $e) {
+                die($e->getMessage());
+            }
+        }
+
         public function disable_product($data = []){
             try {
-                $query = "UPDATE producto set estado = ? where idproducto = ?";
+                $query = "UPDATE producto set estado = 0 where idproducto = ?";
                 $consulta = $this->conexion->prepare($query);
                 $consulta->execute(array(
-                    $data['estado'],
                     $data['idproducto']
                 ));
             } catch (Exception $e) {

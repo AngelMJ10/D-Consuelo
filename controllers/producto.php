@@ -76,18 +76,13 @@
                 "stock" => $newStock
             ];
             $producto->deleteStock($datos);
-
         }
 
-        if ($_POST['op'] == "validate_Stock") {
-            $idproducto = ["idproducto" => $_POST['idproducto']];
-            $datosP = $producto->get($idproducto);
-            if ($datosP['stock'] == 0 && $datosP['tipo'] == "B") {
-                $data = [
-                    "idproducto"    => $_POST['idproducto'],
-                    "estado"        => 0
-                ];
-                $producto->disable_product($data);
+        if ($_POST['op'] == 'disable_product') {
+            $datosBebida = $producto->empty_stock();
+            foreach ($datosBebida as $registro) {
+                $datos = ["idproducto" => $registro['idproducto']];
+                $producto->disable_product($datos);
             }
         }
 

@@ -97,6 +97,7 @@ VALUES(1,'Inka kola 1/2 litro','B',2,9),(2,'Cerveza Cristal 650 ml','B',6,12),
 	(3,'Cifrut 1/2 litro','B',1.50,9);
 SELECT * FROM producto WHERE tipo = 'B';
 SELECT * FROM producto WHERE tipo = 'P';
+SELECT * FROM producto WHERE stock = 0 AND tipo = 'B'
 
 -- Insertando Platos
 INSERT INTO producto(producto,precio,tipo)
@@ -156,7 +157,7 @@ SELECT ven.idventa,ped.idpedido,pro.idproducto,pro.producto,pro.precio,dtp.canti
  INNER JOIN pedido ped ON ped.idpedido = ven.idpedido
  INNER JOIN detalle_pedido dtp ON dtp.idpedido = ven.idpedido
  INNER JOIN producto pro ON pro.idproducto = dtp.idproducto
-  WHERE idventa = 5;
+  WHERE idventa = 7;
   
  -- Para mostrar solo la venta
 SELECT ven.idventa, COUNT(dtp.idproducto) AS productos, ven.total, ven.fecha_creacion

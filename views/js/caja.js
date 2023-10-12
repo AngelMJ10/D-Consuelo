@@ -119,8 +119,29 @@ function limpiarP() {
     listaP.classList.add('d-none');
 }
 
-let idPedido = 0;
+function validarStock(){
+    const parametros = new URLSearchParams();
+    parametros.append("op", "disable_product")
+    fetch("../controllers/producto.php", {
+        method: 'POST',
+        body: parametros
+    })
+    .then(respuesta => respuesta)
+}
 
+function deleteStock(id,cantidad) {
+    const parametros = new URLSearchParams();
+    parametros.append("op", "deleteStock");
+    parametros.append("idproducto", id);
+    parametros.append("cantidad", cantidad);
+    fetch("../controllers/producto.php", {
+        method: 'POST',
+        body: parametros
+    })
+    .then(respuesta => respuesta.ok);
+}
+
+let idPedido = 0;
 
 // Para registrar un pedido
 function pedir() {
@@ -168,6 +189,7 @@ async function register_order(){
         let cantidad = fila.querySelector("td:nth-child(4) input");
         let cantidadActual = parseInt(cantidad.value);
         realizar_pedido(idproducto, cantidadActual);
+        deleteStock(idproducto,cantidadActual);
     }
 }
 
@@ -188,6 +210,7 @@ async function venta() {
             await getIDP();
             await register_order();
             await realizar_venta(txtTotal);
+            validarStock();
             location.reload();
         }
     });
@@ -372,6 +395,7 @@ function abrirCarrito(){
     bootstrapModal.show();
 }
 
+validarStock();
 listB();
 listP();
 
