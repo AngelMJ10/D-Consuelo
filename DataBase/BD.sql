@@ -148,13 +148,26 @@ CREATE TABLE venta
 )
 INSERT INTO venta(idpedido,total,idusuario)
 VALUES(1,44,1);
-SELECT ven.idventa,pro.idproducto,pro.producto,pro.precio,dtp.cantidad,
+
+-- Para obtener una venta
+SELECT ven.idventa,ped.idpedido,pro.idproducto,pro.producto,pro.precio,dtp.cantidad,
 	(pro.precio * dtp.cantidad)'total',ven.total AS 'totalV',ven.fecha_creacion
  FROM venta ven
  INNER JOIN pedido ped ON ped.idpedido = ven.idpedido
  INNER JOIN detalle_pedido dtp ON dtp.idpedido = ven.idpedido
  INNER JOIN producto pro ON pro.idproducto = dtp.idproducto
+  WHERE idventa = 5;
+  
+ -- Para mostrar solo la venta
+SELECT ven.idventa, COUNT(dtp.idproducto) AS productos, ven.total, ven.fecha_creacion
+FROM venta ven
+INNER JOIN pedido ped ON ped.idpedido = ven.idpedido
+INNER JOIN detalle_pedido dtp ON dtp.idpedido = ped.idpedido
+INNER JOIN producto pro ON pro.idproducto = dtp.idproducto
+GROUP BY ven.idventa, ven.total, ven.fecha_creacion
+ORDER BY ven.idventa;
  
+SELECT * FROM venta 
 
 --------------------
 CREATE TABLE deuda

@@ -23,9 +23,13 @@
             $data = [
                 "idpedido"      => $_POST["idpedido"],
                 "total"         => $_POST["total"],
-                "idusuario"     => $_POST["idusuario"]
+                "idusuario"     => $_SESSION["idusuario"]
             ];
             $venta->register_Venta($data);
+        }
+
+        if ($_POST['op'] == "get_pedido") {
+            echo json_encode($venta->get_pedido());
         }
 
     }

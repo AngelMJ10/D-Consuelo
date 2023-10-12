@@ -4,6 +4,7 @@ const modalCarrito = document.querySelector("#modal-carrito");
 const listaB = document.querySelector("#lista-bebidas");
 const listaP = document.querySelector("#lista-platos");
 
+// Listar platos
 function listP(){
     const parametros = new URLSearchParams();
     parametros.append("op", "list");
@@ -54,6 +55,7 @@ function listP(){
     })
 }
 
+// Listar bebidas
 function listB(){
     const parametros = new URLSearchParams();
     parametros.append("op", "list");
@@ -117,9 +119,39 @@ function limpiarP() {
     listaP.classList.add('d-none');
 }
 
-function pedir(){
+let idPedido = 0;
+
+
+// Para registrar un pedido
+function pedir() {
     const parametros = new URLSearchParams();
     parametros.append("op", "register_Pedido");
+    return fetch("../controllers/venta.php", {
+        method: 'POST',
+        body: parametros
+    })
+    .then(respuesta => respuesta.ok);
+}
+
+// Para obtener el ultimo pedido registrado
+async function getIDP() {
+    const parametrosP = new URLSearchParams();
+    parametrosP.append("op", "get_pedido");
+    const respuesta = await fetch("../controllers/venta.php", {
+        method: 'POST',
+        body: parametrosP
+    });
+    const datos = await respuesta.json();
+    idPedido = datos.idpedido;
+}
+
+// Pare registrar las ordenes del pedido
+function realizar_pedido(idP, cantidad){
+    const parametros = new URLSearchParams();
+    parametros.append("op", "register_Detalle_Pedido");
+    parametros.append("idpedido", idPedido);
+    parametros.append("idproducto", idP);
+    parametros.append("cantidad", cantidad);
     fetch("../controllers/venta.php", {
         method: 'POST',
         body: parametros
@@ -127,12 +159,64 @@ function pedir(){
     .then(respuesta => respuesta.ok)
 }
 
-function realizar_pedido(idpedido, idP, cantidad){
+// Para ejecutar la función realizar_pedido(), el numero de veces que las filas de la tabla
+async function register_order(){
+    let filasExistente = tbodyCarro.querySelectorAll("tr");
+    for (let i = 0; i < filasExistente.length; i++) {
+        let fila = filasExistente[i];
+        let idproducto = fila.getAttribute("data-id")
+        let cantidad = fila.querySelector("td:nth-child(4) input");
+        let cantidadActual = parseInt(cantidad.value);
+        realizar_pedido(idproducto, cantidadActual);
+    }
+}
+
+// Se ejecutan las 4 funciones(pedir(),getIDP(), registerORder() y realizar_venta())
+async function venta() {
+    let txtTotal = document.querySelector("#total").value;
+    Swal.fire({
+        icon: 'question',
+        title: 'Confirmación',
+        text: '¿Está seguro de los datos ingresados?',
+        showCancelButton: true,
+        confirmButtonText: 'Si',
+        cancelButtonText: 'No',
+    })
+    .then(async (result) => { // Marca la función como async aquí
+        if (result.isConfirmed) {
+            await pedir();
+            await getIDP();
+            await register_order();
+            await realizar_venta(txtTotal);
+            location.reload();
+        }
+    });
+}
+
+// Se registra la venta
+async function realizar_venta(total) {
     const parametros = new URLSearchParams();
-    parametros.append("op", "register_Detalle_Pedido");
-    parametros.append("idpedido", );
-    parametros.append("idproducto", );
-    parametros.append("cantidad", );
+    parametros.append("op", "register_Venta");
+    parametros.append("idpedido", idPedido);
+    parametros.append("total", total);
+    fetch("../controllers/venta.php", {
+        method: 'POST',
+        body: parametros
+    })
+    .then(respuesta => {
+        if (respuesta.ok) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Venta realizada',
+                html: 'Se ha registrado la venta'
+            })
+        } else {
+            throw new Error('Error en la solicitud');
+        }
+    })
+    .catch(error => {
+        console.error(error);
+    });
 }
 
 let contadorCarrito = 1;
@@ -152,12 +236,11 @@ function numerarPedidos() {
             contador += cantidad;
         }
     }
-
-    console.log(contador);
     // Actualiza el elemento HTML con el contador
     carritoCantidad.textContent = contador;
 }
 
+// Calcular el total de las venta
 function total(){
     let labelTotal = document.querySelector("#total");
     const filasExistente = tbodyCarro.querySelectorAll("tr");
@@ -173,6 +256,7 @@ function total(){
     labelTotal.value = sumaTotal.toFixed(2);
 }
 
+// Crea las ordenes
 function ordenar(id) {
     let filasExistente = tbodyCarro.querySelectorAll("tr");
     let filaExistente = null;
@@ -236,13 +320,16 @@ function ordenar(id) {
     }
 }
 
+// Elimina una fila
 function eliminarFila(botonEliminar) {
     const fila = botonEliminar.closest("tr");
     fila.remove();
     // Llama a la función para actualizar el total u otros cálculos si es necesario
+    numerarPedidos();
     total();
 }
 
+// Sube la cantidad
 function subirCantidad(button) {
     const inputCantidad = button.parentElement.querySelector("input");
     let cantidad = parseInt(inputCantidad.value) || 0;
@@ -251,6 +338,7 @@ function subirCantidad(button) {
     actualizarTotal(button.parentElement.parentElement);
 }
 
+// Baja la cantidad
 function bajarCantidad(button){
     const inputCantidad = button.parentElement.querySelector("input");
     let cantidad = parseInt(inputCantidad.value) || 0;
@@ -261,6 +349,7 @@ function bajarCantidad(button){
     }
 }
 
+// Valida que la cantidad nunca sea 0
 function validarCantidad(input) {
     let cantidad = parseInt(input.value) || 0;
     if (cantidad < 1) {
@@ -293,3 +382,6 @@ btnVistaP.addEventListener("click", limpiarB);
 
 const btnCarrito = document.querySelector("#carrito");
 btnCarrito.addEventListener("click", abrirCarrito);
+
+const btnVenta = document.querySelector("#realizar-venta");
+btnVenta.addEventListener("click", venta);
