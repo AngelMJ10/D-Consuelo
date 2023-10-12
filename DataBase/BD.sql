@@ -168,7 +168,9 @@ INNER JOIN producto pro ON pro.idproducto = dtp.idproducto
 GROUP BY ven.idventa, ven.total, ven.fecha_creacion
 ORDER BY ven.idventa;
  
-SELECT * FROM venta 
+SELECT * FROM venta ORDER BY idventa DESC LIMIT 1;
+SELECT * FROM detalle_pedido ORDER BY idDetallePedido DESC LIMIT 1;
+SELECT * FROM pedido ORDER BY idpedido DESC LIMIT 1;
 
 --------------------
 CREATE TABLE deuda

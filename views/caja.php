@@ -110,7 +110,7 @@
                     </div>
                 </div>
                 <button type="button" class="btn btn-outline-primary" id="realizar-venta">Realizar Venta</button>
-                <!-- <button type="button" class="btn btn-outline-success" id="prueba">Realizar Prueba</button> -->
+                <button type="button" class="btn btn-outline-success" id="prueba">Realizar Prueba</button>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>

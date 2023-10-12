@@ -119,7 +119,7 @@ function limpiarP() {
     listaP.classList.add('d-none');
 }
 
-function validarStock(){
+function validarStocks(){
     const parametros = new URLSearchParams();
     parametros.append("op", "disable_product")
     fetch("../controllers/producto.php", {
@@ -180,6 +180,63 @@ function realizar_pedido(idP, cantidad){
     .then(respuesta => respuesta.ok)
 }
 
+let validacionStock = false;
+
+// Para controlar que la cantidad no sobrepase el stock
+async function validarStock(id, cantidad) {
+    const parametros = new URLSearchParams();
+    parametros.append("op", "get");
+    parametros.append("idproducto", id);
+
+    try {
+        const respuesta = await fetch("../controllers/producto.php", {
+            method: 'POST',
+            body: parametros
+        });
+
+        if (!respuesta.ok) {
+            // Manejar errores de la solicitud
+            console.log("Error al obtener datos del producto.");
+            return;
+        }
+
+        const datos = await respuesta.json();
+
+        if (datos.tipo == "B" && datos.stock < cantidad) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Stock insuficiente',
+                html: `Stock insuficiente para la bebida <b>${datos.producto}</b>. Stock disponible: <b>${datos.stock}</b>`,
+            });
+            console.log("HOLI");
+            validacionStock = false;
+            throw new Error("Stock insuficiente"); // Lanzar una excepción si el stock es insuficiente
+        }else{
+            validacionStock = true;
+        }
+    } catch (error) {
+        throw error; // Relanzar la excepción para manejarla en la función que llama validarStock
+    }
+}
+
+async function validarCantidadStock() {
+    let filasExistente = tbodyCarro.querySelectorAll("tr");
+    for (let i = 0; i < filasExistente.length; i++) {
+        let fila = filasExistente[i];
+        let idproducto = fila.getAttribute("data-id")
+        let cantidad = fila.querySelector("td:nth-child(4) input");
+        let cantidadActual = parseInt(cantidad.value);
+
+        try {
+            await validarStock(idproducto, cantidadActual);
+        } catch (error) {
+            // Mostrar una alerta en caso de stock insuficiente
+            console.log(error.message);
+            return; // Termina la función si hay un error de stock insuficiente
+        }
+    }
+}
+
 // Para ejecutar la función realizar_pedido(), el numero de veces que las filas de la tabla
 async function register_order(){
     let filasExistente = tbodyCarro.querySelectorAll("tr");
@@ -195,25 +252,27 @@ async function register_order(){
 
 // Se ejecutan las 4 funciones(pedir(),getIDP(), registerORder() y realizar_venta())
 async function venta() {
-    let txtTotal = document.querySelector("#total").value;
-    Swal.fire({
-        icon: 'question',
-        title: 'Confirmación',
-        text: '¿Está seguro de los datos ingresados?',
-        showCancelButton: true,
-        confirmButtonText: 'Si',
-        cancelButtonText: 'No',
-    })
-    .then(async (result) => { // Marca la función como async aquí
-        if (result.isConfirmed) {
-            await pedir();
-            await getIDP();
-            await register_order();
-            await realizar_venta(txtTotal);
-            validarStock();
-            location.reload();
-        }
-    });
+    await validarCantidadStock();
+    if (validacionStock) {
+        let txtTotal = document.querySelector("#total").value;
+        
+        Swal.fire({
+            icon: 'question',
+            title: 'Confirmación',
+            text: '¿Está seguro de los datos ingresados?',
+            showCancelButton: true,
+            confirmButtonText: 'Si',
+            cancelButtonText: 'No',
+        })
+        .then(async (result) => { // Marca la función como async aquí
+            if (result.isConfirmed) {
+                await pedir();
+                await getIDP();
+                await register_order();
+                await realizar_venta(txtTotal);
+            }
+        });
+    }
 }
 
 // Se registra la venta
@@ -395,7 +454,7 @@ function abrirCarrito(){
     bootstrapModal.show();
 }
 
-validarStock();
+validarStocks();
 listB();
 listP();
 
@@ -409,3 +468,7 @@ btnCarrito.addEventListener("click", abrirCarrito);
 
 const btnVenta = document.querySelector("#realizar-venta");
 btnVenta.addEventListener("click", venta);
+
+// Test
+const btnTest = document.querySelector("#prueba");
+btnTest.addEventListener("click", validarCantidadStock);
