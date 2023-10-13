@@ -63,6 +63,24 @@
             }
         }
 
+        public function list(){
+            try {
+                $query = "SELECT ven.idventa,ped.idpedido, COUNT(dtp.idproducto) AS productos, ven.total, ven.fecha_creacion
+                FROM venta ven
+                INNER JOIN pedido ped ON ped.idpedido = ven.idpedido
+                INNER JOIN detalle_pedido dtp ON dtp.idpedido = ped.idpedido
+                INNER JOIN producto pro ON pro.idproducto = dtp.idproducto
+                GROUP BY ven.idventa, ven.total, ven.fecha_creacion
+                ORDER BY ven.idventa";
+                $consulta = $this->conexion->prepare($query);
+                $consulta->execute();
+                $datos = $consulta->fetchAll(PDO::FETCH_ASSOC);
+                return $datos;
+            } catch (Exception $e) {
+                die($e->getMessage());
+            }
+        }
+
     }
 
 ?>

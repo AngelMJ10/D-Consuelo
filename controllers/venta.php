@@ -32,6 +32,10 @@
             echo json_encode($venta->get_pedido());
         }
 
+        if ($_POST['op'] == "list") {
+            echo json_encode($venta->list());
+        }
+
     }
 
 ?>
