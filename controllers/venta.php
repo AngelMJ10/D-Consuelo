@@ -36,6 +36,21 @@
             echo json_encode($venta->list());
         }
 
+        if ($_POST['op'] == "getVenta") {
+            $data = ['idventa' => $_POST["idventa"]];
+            echo json_encode($datos = $venta->getVenta($data));
+        }
+
+        if ($_POST['op'] == "search") {
+            $data = [
+                "idproducto"    => isset($_POST['idproducto']) ? $_POST['idproducto'] : '',
+                "total"         => isset($_POST['total']) ? $_POST['total'] : '',
+                "fecha"         => isset($_POST['fecha']) ? $_POST['fecha'] : ''
+            ];
+            $datos = $venta->search($data);
+            echo json_encode($datos);
+        }
+
     }
 
 ?>

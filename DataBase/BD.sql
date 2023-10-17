@@ -157,7 +157,7 @@ SELECT ven.idventa,ped.idpedido,pro.idproducto,pro.producto,pro.precio,dtp.canti
  INNER JOIN pedido ped ON ped.idpedido = ven.idpedido
  INNER JOIN detalle_pedido dtp ON dtp.idpedido = ven.idpedido
  INNER JOIN producto pro ON pro.idproducto = dtp.idproducto
-  WHERE idventa = 7;
+  WHERE idventa = 1;
   
  -- Para mostrar solo la venta
 SELECT ven.idventa, COUNT(dtp.idproducto) AS productos, ven.total, ven.fecha_creacion
@@ -168,10 +168,30 @@ INNER JOIN producto pro ON pro.idproducto = dtp.idproducto
 GROUP BY ven.idventa, ven.total, ven.fecha_creacion
 ORDER BY ven.idventa;
  
-SELECT * FROM venta ORDER BY idventa DESC LIMIT 1;
-SELECT * FROM detalle_pedido ORDER BY idDetallePedido DESC LIMIT 1;
-SELECT * FROM pedido ORDER BY idpedido DESC LIMIT 1;
-
+SELECT ven.idventa,ped.idpedido,dtp.idDetallePedido, pro.idproducto,pro.producto,pro.precio,dtp.cantidad,
+                        (pro.precio * dtp.cantidad)'total',ven.total AS 'totalV',ven.fecha_creacion
+                        FROM venta ven
+                        INNER JOIN pedido ped ON ped.idpedido = ven.idpedido
+                        INNER JOIN detalle_pedido dtp ON dtp.idpedido = ven.idpedido
+                        INNER JOIN producto pro ON pro.idproducto = dtp.idproducto
+                        WHERE idventa = 5
+SELECT * FROM venta            
+                        
+                        
+ SELECT ven.idventa,ped.idpedido,dtp.idDetallePedido, pro.idproducto,pro.producto,pro.precio,dtp.cantidad,
+                (pro.precio * dtp.cantidad)'total',ven.total AS 'totalV',ven.fecha_creacion
+                FROM venta ven
+                INNER JOIN pedido ped ON ped.idpedido = ven.idpedido
+                INNER JOIN detalle_pedido dtp ON dtp.idpedido = ven.idpedido
+                INNER JOIN producto pro ON pro.idproducto = dtp.idproducto
+                WHERE pro.idproducto = 5
+                
+SELECT ven.idventa,ped.idpedido,dtp.idDetallePedido, COUNT(dtp.idproducto) AS productos, ven.total, ven.fecha_creacion
+                FROM venta ven
+                INNER JOIN pedido ped ON ped.idpedido = ven.idpedido
+                INNER JOIN detalle_pedido dtp ON dtp.idpedido = ped.idpedido
+                INNER JOIN producto pro ON pro.idproducto = dtp.idproducto
+                WHERE pro.idproducto = 5
 --------------------
 CREATE TABLE deuda
 (
