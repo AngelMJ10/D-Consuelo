@@ -135,6 +135,45 @@
             }
         }
 
+        // Cambia el estado 2 (es para una venta fiada)
+        public function change_debt($data = []){
+            try {
+                $query = "UPDATE venta set estado = 2 where idventa = ?";
+                $consulta = $this->conexion->prepare($query);
+                $consulta->execute(array($data['idventa']));
+            } catch (Exception $e) {
+                die($e->getMessage());
+            }
+        }
+
+        // Registra la venta pero con estado 2
+        public function register_sale_debt($data = []) {
+            try {
+                $query = "INSERT INTO venta(idpedido,total,idusuario,estado)
+                VALUES(?,?,?,2)";
+                $consulta = $this->conexion->prepare($query);
+                $consulta->execute(array(
+                    $data['idpedido'],
+                    $data['total'],
+                    $data['idusuario']
+                ));
+            } catch (Exception $e) {
+                die($e->getMessage());
+            }
+        }
+
+        public function get_last_sale(){
+            try {
+                $query = "SELECT * FROM venta where estado = 2 ORDER BY idventa DESC LIMIT 1";
+                $consulta = $this->conexion->prepare($query);
+                $consulta->execute();
+                $datos = $consulta->fetch(PDO::FETCH_ASSOC);
+                return $datos;
+            } catch (Exception $e) {
+                die($e->getMessage());
+            }
+        }
+
     }
 
 ?>

@@ -60,6 +60,9 @@ CREATE TABLE deudores
 	CONSTRAINT fk_idusuario_d FOREIGN KEY (usuario_creador) REFERENCES usuario (idusuario)
 ) ENGINE = INNODB;
 
+SELECT * FROM deudores;
+SELECT * FROM persona;
+
 ------------------------------------
 
 CREATE TABLE marcas
@@ -142,7 +145,7 @@ CREATE TABLE venta
 	idpedido		SMALLINT	NOT NULL,
 	total			DECIMAL(6,2)	NOT NULL,
 	idusuario		SMALLINT	NOT NULL,
-	estado			CHAR 		NOT NULL DEFAULT(1),
+	estado			CHAR 		NOT NULL DEFAULT(1),  -- 1 es venta normal, 2 es venta con deuda
 	fecha_creacion		DATETIME 	NOT NULL DEFAULT NOW(),
 	CONSTRAINT fk_idpedido_v FOREIGN KEY (idpedido) REFERENCES pedido(idpedido),
 	CONSTRAINT fk_idproducto_v FOREIGN KEY (idusuario) REFERENCES usuario(idusuario)
@@ -169,12 +172,12 @@ GROUP BY ven.idventa, ven.total, ven.fecha_creacion
 ORDER BY ven.idventa;
  
 SELECT ven.idventa,ped.idpedido,dtp.idDetallePedido, pro.idproducto,pro.producto,pro.precio,dtp.cantidad,
-                        (pro.precio * dtp.cantidad)'total',ven.total AS 'totalV',ven.fecha_creacion
+                        (pro.precio * dtp.cantidad)'total',ven.total AS 'totalV',ven.fecha_creacion,ven.estado
                         FROM venta ven
                         INNER JOIN pedido ped ON ped.idpedido = ven.idpedido
                         INNER JOIN detalle_pedido dtp ON dtp.idpedido = ven.idpedido
                         INNER JOIN producto pro ON pro.idproducto = dtp.idproducto
-                        WHERE idventa = 5
+                        WHERE idventa = 66
 SELECT * FROM venta            
                         
                         
@@ -204,3 +207,9 @@ CREATE TABLE deuda
 	fecha_update		DATETIME	NULL DEFAULT NOW(),
 	CONSTRAINT fk_iddeudor_d FOREIGN KEY (iddeudor) REFERENCES deudores (iddeudor)
 )
+
+INSERT INTO deuda (iddeudor,idventa,comentario)
+VALUES(2,65,"Pagará el 30 de octubre");
+
+SELECT * FROM deuda
+SELECT * FROM deudores
