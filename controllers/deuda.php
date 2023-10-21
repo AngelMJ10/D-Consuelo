@@ -66,8 +66,6 @@
                                 $totalVentas += $ventas['total'];
                             }
                         }
-                    }else{
-                        $deudor['deudas'] = 0;
                     }
                 }
                 $deudor['total'] = $totalVentas;

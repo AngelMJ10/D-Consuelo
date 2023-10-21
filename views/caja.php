@@ -89,6 +89,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
+                
                 <div class="table-responsive">
                     <table class="table table-hover" id="tabla-carrito">
                         <thead>
@@ -101,6 +102,7 @@
                         <tbody></tbody>
                     </table>
                 </div>
+
                 <div class="row">
                     <div class="col-md-4">
                         <div class="form-floating mb-3">
@@ -109,8 +111,28 @@
                         </div>
                     </div>
                 </div>
+
+                <div class="row d-none" id="venta-deuda">
+
+                    <div class="col-md-4">
+                        <div class="form-floating mb-3">
+                            <select class="form-control" name="" id="deudores">
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="form-floating mb-3">
+                            <textarea class="form-control" id="comentario" placeholder="comentario" name="comentario"></textarea>
+                            <label for="comentario" class="form-label">Comentario</label>
+                        </div>
+                    </div>
+                </div>
+
                 <button type="button" class="btn btn-outline-primary" id="realizar-venta">Realizar Venta</button>
-                <button type="button" class="btn btn-outline-success" id="prueba">Realizar Prueba</button>
+                <button type="button" class="btn btn-outline-warning" id="btn-fiar">Fiar</button>
+                <button type="button" class="btn btn-outline-success d-none" id="prueba">Realizar Prueba</button>
+                <button type="button" class="btn btn-outline-warning d-none" id="btn-venta-normal">Venta Normal</button>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>

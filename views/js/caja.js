@@ -275,6 +275,32 @@ async function venta() {
     }
 }
 
+// Se ejecutan las 4 funciones(pedir(),getIDP(), registerORder() y realizar_venta())
+async function venta_debt() {
+    await validarCantidadStock();
+    if (validacionStock) {
+        let txtTotal = document.querySelector("#total").value;
+        
+        Swal.fire({
+            icon: 'question',
+            title: 'Confirmación',
+            text: '¿Está seguro de los datos ingresados?',
+            showCancelButton: true,
+            confirmButtonText: 'Si',
+            cancelButtonText: 'No',
+        })
+        .then(async (result) => { // Marca la función como async aquí
+            if (result.isConfirmed) {
+                await pedir();
+                await getIDP();
+                await register_order();
+                await sale_debt(txtTotal);
+                await register_debt();
+            }
+        });
+    }
+}
+
 // Se registra la venta
 async function realizar_venta(total) {
     const parametros = new URLSearchParams();
@@ -299,6 +325,81 @@ async function realizar_venta(total) {
     .catch(error => {
         console.error(error);
     });
+}
+
+// Se registra la venta con deuda
+async function sale_debt(total) {
+    const parametros = new URLSearchParams();
+    parametros.append("op", "register_sale_debt");
+    parametros.append("idpedido", idPedido);
+    parametros.append("total", total);
+    fetch("../controllers/venta.php", {
+        method: 'POST',
+        body: parametros
+    })
+    .then(respuesta => {
+        if (respuesta.ok) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Venta realizada',
+                html: 'Se ha registrado la venta'
+            })
+        } else {
+            throw new Error('Error en la solicitud');
+        }
+    })
+    .catch(error => {
+        console.error(error);
+    });
+}
+
+// Se registrar deuda
+async function register_debt() {
+    const txtDeudores = document.querySelector("#deudores");
+    const txtComentario = document.querySelector("#comentario");
+    const parametros = new URLSearchParams();
+    parametros.append("op", "register_debt");
+    parametros.append("iddeudor", txtDeudores.value);
+    parametros.append("comentario", txtComentario.value);
+    parametros.append("total", total);
+    fetch("../controllers/deuda.php", {
+        method: 'POST',
+        body: parametros
+    })
+    .then(respuesta => {
+        if (respuesta.ok) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Deuda Cargada',
+                html: 'Se ha cargado la deuda'
+            })
+        } else {
+            throw new Error('Error en la solicitud');
+        }
+    })
+    .catch(error => {
+        console.error(error);
+    });
+}
+
+function list_depdtors(){
+    const txtDeudores = document.querySelector("#deudores");
+    const parametros = new URLSearchParams();
+    parametros.append("op", "listDepdtors")
+    fetch("../controllers/deuda.php", {
+        method: 'POST',
+        body: parametros
+    })
+    .then(respuesta => respuesta.json())
+    .then(datos => {
+        let options = "<option value='0'>Seleccione el deudor</option>";
+        datos.forEach(element => {
+            options += `
+                <option value='${element.iddeudor}'>${element.apellidos}, ${element.nombre}</option>
+            `;
+        });
+        txtDeudores.innerHTML = options;
+    })
 }
 
 let contadorCarrito = 1;
@@ -454,6 +555,26 @@ function abrirCarrito(){
     bootstrapModal.show();
 }
 
+// Funciones para fiar
+function habilitarBtn(){
+    const txtDeudores = document.querySelector("#venta-deuda");
+    btnFiar.classList.add("d-none");
+    btnVenta.classList.add("d-none");
+    btnTest.classList.remove("d-none");
+    btnVentaN.classList.remove("d-none");
+    txtDeudores.classList.remove("d-none");
+}
+
+function deshabilitar_Venta(){
+    const txtDeudores = document.querySelector("#venta-deuda");
+    btnFiar.classList.remove("d-none");
+    btnVenta.classList.remove("d-none");
+    btnTest.classList.add("d-none");
+    btnVentaN.classList.add("d-none")
+    txtDeudores.classList.add("d-none");
+}
+
+list_depdtors();
 validarStocks();
 listB();
 listP();
@@ -469,6 +590,12 @@ btnCarrito.addEventListener("click", abrirCarrito);
 const btnVenta = document.querySelector("#realizar-venta");
 btnVenta.addEventListener("click", venta);
 
-// Test
+// Test de venta de deuda
+const btnVentaN = document.querySelector("#btn-venta-normal");
+btnVentaN.addEventListener("click", deshabilitar_Venta);
+
+const btnFiar = document.querySelector("#btn-fiar");
+btnFiar.addEventListener("click", habilitarBtn);
+
 const btnTest = document.querySelector("#prueba");
-btnTest.addEventListener("click", validarCantidadStock);
+btnTest.addEventListener("click", venta_debt);

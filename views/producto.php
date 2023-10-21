@@ -33,48 +33,48 @@
         <!-- Tabs -->
         <div class="tab-content" id="myTabContent">
 
-        <div class="tab-pane fade mb-5" id="registrar" role="tabpanel" aria-labelledby="registrar-tab">
-            <div class="card shadow-lg border-0">
-                <div class="card-header text-white capa-listar py-3" style="background: #005478">
-                    
-                </div>
-                <div class="card-body">
-                <form>
-                    <h4 id="titulo-register">Registrar Bebidas</h4>
-                    <div class="row mb-2 mt-3">
-                        <div class="col-md-3" id="view-marca">
-                            <div class="form-floating mb-3">
-                                <select class="form-control" name="" id="marca">
-                                </select>
-                            </div>
-                        </div>
-                        <div class="col-md-3" id="view-producto">
-                            <div class="form-floating mb-3">
-                                <input type="text" class="form-control" id="producto" name="Plato" placeholder="Plato">
-                                <label for="Plato" class="form-label">Producto</label>
-                            </div>
-                        </div>
-                        <div class="col-md-3" id="view-precio">
-                            <div class="form-floating mb-3">
-                                <input type="number" class="form-control" id="precio" name="precio" placeholder="Precio">
-                                <label for="precio" class="form-label">Precio</label>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="form-floating mb-3" id="view-stock">
-                                <input type="number" class="form-control" id="stock" name="precio" placeholder="Precio">
-                                <label for="precio" class="form-label">Stock</label>
-                            </div>
-                        </div>
+            <div class="tab-pane fade mb-5" id="registrar" role="tabpanel" aria-labelledby="registrar-tab">
+                <div class="card shadow-lg border-0">
+                    <div class="card-header text-white capa-listar py-3" style="background: #005478">
+                        
                     </div>
+                    <div class="card-body">
+                    <form>
+                        <h4 id="titulo-register">Registrar Bebidas</h4>
+                        <div class="row mb-2 mt-3">
+                            <div class="col-md-3" id="view-marca">
+                                <div class="form-floating mb-3">
+                                    <select class="form-control" name="" id="marca">
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-3" id="view-producto">
+                                <div class="form-floating mb-3">
+                                    <input type="text" class="form-control" id="producto" name="Plato" placeholder="Plato">
+                                    <label for="Plato" class="form-label">Producto</label>
+                                </div>
+                            </div>
+                            <div class="col-md-3" id="view-precio">
+                                <div class="form-floating mb-3">
+                                    <input type="number" class="form-control" id="precio" name="precio" placeholder="Precio">
+                                    <label for="precio" class="form-label">Precio</label>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-floating mb-3" id="view-stock">
+                                    <input type="number" class="form-control" id="stock" name="precio" placeholder="Precio">
+                                    <label for="precio" class="form-label">Stock</label>
+                                </div>
+                            </div>
+                        </div>
 
-                    <button type="button" id="registrar-producto"  class="btn btn-outline-primary">Agregar</button>
-                    <button type="button" id="vista-plato" class="btn btn-outline-success">Platos</button>
-                    <button type="button" id="vista-bebida" class="d-none btn btn-outline-success">Bebidas</button>
-                </form>
+                        <button type="button" id="registrar-producto"  class="btn btn-outline-primary">Agregar</button>
+                        <button type="button" id="vista-plato" class="btn btn-outline-success">Platos</button>
+                        <button type="button" id="vista-bebida" class="d-none btn btn-outline-success">Bebidas</button>
+                    </form>
+                    </div>
                 </div>
             </div>
-        </div>
 
             <div class="tab-pane fade show active" id="listar" role="tabpanel" aria-labelledby="listar-tab">
 

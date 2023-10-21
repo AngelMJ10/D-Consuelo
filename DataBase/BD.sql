@@ -211,5 +211,11 @@ CREATE TABLE deuda
 INSERT INTO deuda (iddeudor,idventa,comentario)
 VALUES(2,65,"Pagará el 30 de octubre");
 
+SELECT deu.iddeudor, db.iddeuda, ven.idventa, db.comentario
+FROM deudores deu
+INNER JOIN deuda db ON deu.iddeudor = db.iddeudor
+INNER JOIN venta ven ON db.idventa = ven.idventa
+GROUP BY deu.`iddeudor`
+
 SELECT * FROM deuda
 SELECT * FROM deudores
