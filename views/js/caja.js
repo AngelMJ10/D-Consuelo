@@ -291,6 +291,16 @@ async function venta_debt() {
         })
         .then(async (result) => { // Marca la función como async aquí
             if (result.isConfirmed) {
+                const txtDeudores = document.querySelector("#deudores");
+                const txtComentario = document.querySelector("#comentario");
+                if (!txtDeudores.value || !txtComentario.value) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Campos incompletos',
+                        text: 'Por favor, completa todos los campos.',
+                    });
+                    return;
+                }
                 await pedir();
                 await getIDP();
                 await register_order();

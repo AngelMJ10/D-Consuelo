@@ -145,6 +145,35 @@
 
     </div>
 
+    <!-- Modal de deudas -->
+    <div class="modal fade" id="modal-deudas" tabindex="-1" aria-labelledby="modalEditarLabel" aria-hidden="true" data-bs-backdrop="static">
+        <div class="modal-dialog modal-fullscreen">
+        <div class="modal-content">
+            <div class="modal-header text-light" style='background-color: #005478;'>
+                <h1 class="modal-title fs-5" id="modalEditarLabel">Deudas</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <h4>Deuda</h4>
+                <div class="table-responsive mt-3" id="tabla-deudas">
+                    <table class="table table-hover text-center">
+                        <thead>
+                            <th>#</th>
+                            <th>Productos</th>
+                            <th>Total</th>
+                            <th>Fecha</th>
+                            <th>Estado</th>
+                            <th>Acción</th>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        </div>
+    </div>
+
+    <!-- Modal de ventas que debe -->
     <div class="modal fade" id="modal-editar" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
@@ -153,48 +182,26 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form>
-                    <div class="row mb-2 mt-2">
-                        <div class="col-md-3" id="view-marca-editar">
-                            <div class="form-floating mb-3">
-                                <select class="form-control" name="" id="marca-editar">
-                                </select>
-                            </div>
-                        </div>
-                        <div class="col-md-3" id="view-producto-editar">
-                            <div class="form-floating mb-3">
-                                <input type="text" class="form-control" id="producto-editar" name="producto" placeholder="Plato">
-                                <label for="Plato" class="form-label">Producto</label>
-                            </div>
-                        </div>
-                        <div class="col-md-3" id="view-precio-editar">
-                            <div class="form-floating mb-3">
-                                <input type="number" class="form-control" id="precio-editar" name="precio" placeholder="Precio">
-                                <label for="precio" class="form-label">Precio</label>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="form-floating mb-3">
-                                <select class="form-control" name="" id="estado-editar">
-                                    <option value="">Seleccione un estado</option>
-                                    <option value="0">Inactivo</option>
-                                    <option value="1">Activo</option>
-                                </select>
-                            </div>
+                <div class="table-responsive">
+                    <table class="table table-hover" id="tabla-ventas">
+                        <thead>
+                            <th>#</th>
+                            <th>Comida</th>
+                            <th>Precio S/.</th>
+                            <th>Cantidad</th>
+                            <th>Total S/.</th>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-floating mb-3">
+                            <input type="number" readonly class="form-control" id="total" name="precio" placeholder="Precio">
+                            <label for="precio" class="form-label">Total S/.</label>
                         </div>
                     </div>
-                    <div class="row mb-2 mt-2">
-                        <div class="col-md-3" id="view-stock-editar">
-                            <div class="form-floating mb-3">
-                                <input type="number" class="form-control" id="stock-editar" name="precio" placeholder="Precio">
-                                <label for="precio" class="form-label">Stock</label>
-                            </div>
-                        </div>
-                    </div>
-
-                    <button type="button" id="editar-producto"  class="btn btn-outline-primary">Editar</button>
-
-                </form>
+                </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>

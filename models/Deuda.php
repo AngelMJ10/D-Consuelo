@@ -93,6 +93,19 @@ require_once 'Conexion.php';
             }
         }
 
+        // Lista las deudas por el iddeudor
+        public function get_debts($data = []){
+            try {
+                $query = "SELECT * FROM deuda WHERE iddeudor = ?";
+                $consulta = $this->conexion->prepare($query);
+                $consulta->execute(array($data['iddeudor']));
+                $datos = $consulta->fetchAll(PDO::FETCH_ASSOC);
+                return $datos;
+            } catch (Exception $e) {
+                die($e->getMessage());
+            }
+        }
+
         // Cambiar el estado del deudor a 2 si en caso este esté en 1
         public function change_estate($data = []){
             try {

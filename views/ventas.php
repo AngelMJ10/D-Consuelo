@@ -49,7 +49,7 @@
                             <form>
                                 <div class="row mb-2 mt-2">
 
-                                    <div class="col-md-4">
+                                    <div class="col-md-3">
                                         <div class="form-floating mb-3">
                                             <select class="form-control" name="" id="producto-buscar">
                                                 <option value="0">Seleccione un producto</option>
@@ -57,17 +57,28 @@
                                         </div>
                                     </div>
 
-                                    <div class="col-md-4">
+                                    <div class="col-md-3">
                                         <div class="form-floating mb-3">
                                             <input type="number" class="form-control" id="total-buscar" name="Plato" placeholder="Plato">
                                             <label for="total" class="form-label">Total</label>
                                         </div>
                                     </div>
 
-                                    <div class="col-md-4">
+                                    <div class="col-md-3">
                                         <div class="form-floating mb-3">
                                             <input type="date" class="form-control" id="fecha-buscar" name="precio" placeholder="Precio">
                                             <label for="precio" class="form-label">Fecha</label>
+                                        </div>
+                                    </div>
+
+                                    
+                                    <div class="col-md-3">
+                                        <div class="form-floating mb-3">
+                                            <select class="form-control" name="" id="estado-buscar">
+                                                <option value="0">Seleccione un estado</option>
+                                                <option value="1">Pagado</option>
+                                                <option value="2">Fiado</option>
+                                            </select>
                                         </div>
                                     </div>
 
@@ -87,6 +98,7 @@
                         <th>Productos</th>
                         <th>Fecha</th>
                         <th>Total</th>
+                        <th>Estado</th>
                         <th>Acción</th>
                     </thead>
 
@@ -123,9 +135,12 @@
                 <div class="row">
                     <div class="col-md-4">
                         <div class="form-floating mb-3">
-                            <input type="number" class="form-control" id="total" name="precio" placeholder="Precio">
+                            <input type="number" class="form-control" readonly id="total" name="precio" placeholder="Precio">
                             <label for="precio" class="form-label">Total S/.</label>
                         </div>
+                    </div>
+                    <div class="col-md-4" id="datos-deudor">
+                        
                     </div>
                 </div>
             </div>

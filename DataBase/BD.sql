@@ -138,6 +138,7 @@ INSERT INTO detalle_pedido(idpedido,idproducto,cantidad)
 VALUES(1,1,2),(1,4,2);
 SELECT * FROM detalle_pedido WHERE idpedido = 1;
 SELECT * FROM producto WHERE idproducto = 4
+
 ---------------------------
 CREATE TABLE venta
 (
@@ -152,49 +153,6 @@ CREATE TABLE venta
 )
 INSERT INTO venta(idpedido,total,idusuario)
 VALUES(1,44,1);
-
--- Para obtener una venta
-SELECT ven.idventa,ped.idpedido,pro.idproducto,pro.producto,pro.precio,dtp.cantidad,
-	(pro.precio * dtp.cantidad)'total',ven.total AS 'totalV',ven.fecha_creacion
- FROM venta ven
- INNER JOIN pedido ped ON ped.idpedido = ven.idpedido
- INNER JOIN detalle_pedido dtp ON dtp.idpedido = ven.idpedido
- INNER JOIN producto pro ON pro.idproducto = dtp.idproducto
-  WHERE idventa = 1;
-  
- -- Para mostrar solo la venta
-SELECT ven.idventa, COUNT(dtp.idproducto) AS productos, ven.total, ven.fecha_creacion
-FROM venta ven
-INNER JOIN pedido ped ON ped.idpedido = ven.idpedido
-INNER JOIN detalle_pedido dtp ON dtp.idpedido = ped.idpedido
-INNER JOIN producto pro ON pro.idproducto = dtp.idproducto
-GROUP BY ven.idventa, ven.total, ven.fecha_creacion
-ORDER BY ven.idventa;
- 
-SELECT ven.idventa,ped.idpedido,dtp.idDetallePedido, pro.idproducto,pro.producto,pro.precio,dtp.cantidad,
-                        (pro.precio * dtp.cantidad)'total',ven.total AS 'totalV',ven.fecha_creacion,ven.estado
-                        FROM venta ven
-                        INNER JOIN pedido ped ON ped.idpedido = ven.idpedido
-                        INNER JOIN detalle_pedido dtp ON dtp.idpedido = ven.idpedido
-                        INNER JOIN producto pro ON pro.idproducto = dtp.idproducto
-                        WHERE idventa = 66
-SELECT * FROM venta            
-                        
-                        
- SELECT ven.idventa,ped.idpedido,dtp.idDetallePedido, pro.idproducto,pro.producto,pro.precio,dtp.cantidad,
-                (pro.precio * dtp.cantidad)'total',ven.total AS 'totalV',ven.fecha_creacion
-                FROM venta ven
-                INNER JOIN pedido ped ON ped.idpedido = ven.idpedido
-                INNER JOIN detalle_pedido dtp ON dtp.idpedido = ven.idpedido
-                INNER JOIN producto pro ON pro.idproducto = dtp.idproducto
-                WHERE pro.idproducto = 5
-                
-SELECT ven.idventa,ped.idpedido,dtp.idDetallePedido, COUNT(dtp.idproducto) AS productos, ven.total, ven.fecha_creacion
-                FROM venta ven
-                INNER JOIN pedido ped ON ped.idpedido = ven.idpedido
-                INNER JOIN detalle_pedido dtp ON dtp.idpedido = ped.idpedido
-                INNER JOIN producto pro ON pro.idproducto = dtp.idproducto
-                WHERE pro.idproducto = 5
 --------------------
 CREATE TABLE deuda
 (
@@ -204,18 +162,13 @@ CREATE TABLE deuda
 	comentario		VARCHAR(200)	NULL,
 	estado			CHAR(1)		NOT NULL DEFAULT'1',
 	fecha_creacion		DATETIME	NOT NULL DEFAULT NOW(),
-	fecha_update		DATETIME	NULL DEFAULT NOW(),
+	fecha_update		DATETIME	NULL,
 	CONSTRAINT fk_iddeudor_d FOREIGN KEY (iddeudor) REFERENCES deudores (iddeudor)
 )
 
 INSERT INTO deuda (iddeudor,idventa,comentario)
 VALUES(2,65,"Pagará el 30 de octubre");
 
-SELECT deu.iddeudor, db.iddeuda, ven.idventa, db.comentario
-FROM deudores deu
-INNER JOIN deuda db ON deu.iddeudor = db.iddeudor
-INNER JOIN venta ven ON db.idventa = ven.idventa
-GROUP BY deu.`iddeudor`
-
 SELECT * FROM deuda
 SELECT * FROM deudores
+SELECT * FROM venta WHERE estado = 2

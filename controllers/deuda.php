@@ -32,9 +32,13 @@
         }
 
         if ($_POST['op'] == "listDepdtors") {
+            // liista los deudores
             $datos = $deuda->listDepdtors();
+            // Lista los datos de los deudores
             $datosP = $deuda->listPersons();
+            // Lista las deudas de los deudores
             $datosD = $deuda->listDebt();
+            // Lista las ventas
             $datosV = $venta->list();
             $data = [];
             foreach ($datos as $registro) {
@@ -71,6 +75,63 @@
                 $deudor['total'] = $totalVentas;
                 $data[] = $deudor;
             }
+            echo json_encode($data);
+        }
+
+        if ($_POST['op'] == "get_debts") {
+            $idDeudor = ["iddeudor" => $_POST['iddeudor']];
+            $datos = $deuda->get_debts($idDeudor);
+            $datosV = $venta->list();
+            $data = [];
+            foreach ($datos as $deudas) {
+                foreach ($datosV as $ventas) {
+                    if ($deudas['idventa'] == $ventas['idventa']) {
+                        $datav = [
+                            "idventa"           => $ventas['idventa'],
+                            "iddeudor"          => $deudas['iddeudor'],
+                            "iddeuda"           => $deudas['iddeuda'],
+                            "productos"         => $ventas['productos'],
+                            "total"             => $ventas['total'],
+                            "estado"            => $deudas['estado'],
+                            "fecha_creacion"    => $ventas['fecha_creacion']
+                        ];
+                    }
+                }
+                $data[] = $datav;
+            }
+            echo json_encode($data);
+        }
+
+        if ($_POST['op'] == "get_sale_debts") {
+            // liista los deudores
+            $datos = $deuda->listDepdtors();
+            // Lista los datos de los deudores
+            $datosP = $deuda->listPersons();
+            // Lista las deudas de los deudores
+            $datosD = $deuda->listDebt();
+            $idventa = ["idventa"     => $_POST['idventa']];
+            $datosV = $venta->getVenta($idventa);
+            $data = [];
+            foreach ($datosD as $deudas) {
+                if ($idventa['idventa'] == $deudas['idventa']) {
+                    $idDeudor = $deudas['iddeudor'];
+                    foreach ($datos as $deudores) {
+                        if ($idDeudor == $deudores['iddeudor']) {
+                            foreach ($datosP as $personas) {
+                                if ($deudores['idpersona'] == $personas['idpersona']) {
+                                    $data = [
+                                        "idpersona"         => $personas['idpersona'],
+                                        "iddeudor"          => $deudores['iddeudor'],
+                                        "nombre"            => $personas['nombre'],
+                                        "apellidos"         => $personas['apellidos'],
+                                    ];
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
             echo json_encode($data);
         }
 

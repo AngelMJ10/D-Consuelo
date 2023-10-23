@@ -65,7 +65,7 @@
 
         public function list(){
             try {
-                $query = "SELECT ven.idventa,ped.idpedido, COUNT(dtp.idproducto) AS productos, ven.total, ven.fecha_creacion
+                $query = "SELECT ven.idventa,ped.idpedido, COUNT(dtp.idproducto) AS productos, ven.total, ven.fecha_creacion,ven.estado
                 FROM venta ven
                 INNER JOIN pedido ped ON ped.idpedido = ven.idpedido
                 INNER JOIN detalle_pedido dtp ON dtp.idpedido = ped.idpedido
@@ -84,7 +84,7 @@
         public function getVenta($data = []){
             try {
                 $query = "SELECT ven.idventa,ped.idpedido,pro.idproducto,pro.producto,pro.precio,dtp.cantidad,
-                        (pro.precio * dtp.cantidad)'total',ven.total AS 'totalV',ven.fecha_creacion
+                        (pro.precio * dtp.cantidad)'total',ven.total AS 'totalV',ven.fecha_creacion,ven.estado
                         FROM venta ven
                         INNER JOIN pedido ped ON ped.idpedido = ven.idpedido
                         INNER JOIN detalle_pedido dtp ON dtp.idpedido = ven.idpedido
@@ -101,7 +101,7 @@
 
         public function search($data = []){
             try {
-                $query = "SELECT ven.idventa,ped.idpedido, COUNT(dtp.idproducto) AS productos, ven.total, ven.fecha_creacion
+                $query = "SELECT ven.idventa,ped.idpedido, COUNT(dtp.idproducto) AS productos, ven.total, ven.fecha_creacion,ven.estado
                 FROM venta ven
                 INNER JOIN pedido ped ON ped.idpedido = ven.idpedido
                 INNER JOIN detalle_pedido dtp ON dtp.idpedido = ped.idpedido
@@ -122,6 +122,11 @@
                 if (!empty($data["fecha"])) {
                     $query .= " AND DATE(ven.fecha_creacion) = DATE(?)";
                     $params[] = $data['fecha'];
+                }
+
+                if (!empty($data["estado"])) {
+                    $query .= " AND ven.estado = ?";
+                    $params[] = $data['estado'];
                 }
 
                 $query .= " GROUP BY ven.idventa, ven.total, ven.fecha_creacion";

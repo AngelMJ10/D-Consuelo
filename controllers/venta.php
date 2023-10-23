@@ -54,7 +54,8 @@
             $data = [
                 "idproducto"    => isset($_POST['idproducto']) ? $_POST['idproducto'] : '',
                 "total"         => isset($_POST['total']) ? $_POST['total'] : '',
-                "fecha"         => isset($_POST['fecha']) ? $_POST['fecha'] : ''
+                "fecha"         => isset($_POST['fecha']) ? $_POST['fecha'] : '',
+                "estado"        => isset($_POST['estado']) ? $_POST['estado'] : ''
             ];
             $datos = $venta->search($data);
             echo json_encode($datos);
