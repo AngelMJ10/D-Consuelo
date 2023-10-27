@@ -100,7 +100,9 @@ VALUES(1,'Inka kola 1/2 litro','B',2,9),(2,'Cerveza Cristal 650 ml','B',6,12),
 	(3,'Cifrut 1/2 litro','B',1.50,9);
 SELECT * FROM producto WHERE tipo = 'B';
 SELECT * FROM producto WHERE tipo = 'P';
-SELECT * FROM producto WHERE stock = 0 AND tipo = 'B'
+SELECT * FROM producto WHERE tipo = 'M';
+SELECT * FROM producto WHERE idproducto = 6 OR idproducto = 5;
+
 
 -- Insertando Platos
 INSERT INTO producto(producto,precio,tipo)

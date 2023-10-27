@@ -11,6 +11,7 @@
             $this->conexion = parent::getConexion();
         }
 
+        // Registra el pedido
         public function register_Pedido($data = []){
             try {
                 $query = "INSERT INTO pedido (idusuario) values(?)";
@@ -21,6 +22,7 @@
             }
         }
 
+        // Registra el detalle del pedido
         public function register_Detalle_Pedido($data = []){
             try {
                 $query = "INSERT INTO detalle_pedido(idpedido,idproducto,cantidad)
@@ -36,6 +38,7 @@
             }
         }
 
+        // Registra la venta
         public function register_Venta($data = []) {
             try {
                 $query = "INSERT INTO venta(idpedido,total,idusuario)
@@ -51,6 +54,7 @@
             }
         }
 
+        // Obtiene el ultimo id del pedido registrado
         public function get_pedido(){
             try {
                 $query = "SELECT * FROM pedido ORDER BY idpedido DESC LIMIT 1";
@@ -63,6 +67,7 @@
             }
         }
 
+        // Lista la venta con la cantidad de productos y total
         public function list(){
             try {
                 $query = "SELECT ven.idventa,ped.idpedido, COUNT(dtp.idproducto) AS productos, ven.total, ven.fecha_creacion,ven.estado
@@ -81,6 +86,7 @@
             }
         }
 
+        // Obtiene los detalles de la venta
         public function getVenta($data = []){
             try {
                 $query = "SELECT ven.idventa,ped.idpedido,pro.idproducto,pro.producto,pro.precio,dtp.cantidad,
@@ -99,6 +105,7 @@
             }
         }
 
+        // Para buscar las ventas por : Fecha,total ,productos y estado
         public function search($data = []){
             try {
                 $query = "SELECT ven.idventa,ped.idpedido, COUNT(dtp.idproducto) AS productos, ven.total, ven.fecha_creacion,ven.estado
@@ -141,11 +148,14 @@
         }
 
         // Cambia el estado 2 (es para una venta fiada)
-        public function change_debt($data = []){
+        public function change_estate($data = []){
             try {
-                $query = "UPDATE venta set estado = 2 where idventa = ?";
+                $query = "UPDATE venta set estado = ? where idventa = ?";
                 $consulta = $this->conexion->prepare($query);
-                $consulta->execute(array($data['idventa']));
+                $consulta->execute(array(
+                    $data['estado'],
+                    $data['idventa']
+                ));
             } catch (Exception $e) {
                 die($e->getMessage());
             }
@@ -167,12 +177,26 @@
             }
         }
 
+        // Obtiene el ultimo registro de la venta fiada
         public function get_last_sale(){
             try {
                 $query = "SELECT * FROM venta where estado = 2 ORDER BY idventa DESC LIMIT 1";
                 $consulta = $this->conexion->prepare($query);
                 $consulta->execute();
                 $datos = $consulta->fetch(PDO::FETCH_ASSOC);
+                return $datos;
+            } catch (Exception $e) {
+                die($e->getMessage());
+            }
+        }
+
+        // Select * from normal de venta
+        public function list_all(){
+            try {
+                $query = "SELECT * FROM venta";
+                $consulta = $this->conexion->prepare($query);
+                $consulta->execute();
+                $datos = $consulta->fetchAll(PDO::FETCH_ASSOC);
                 return $datos;
             } catch (Exception $e) {
                 die($e->getMessage());

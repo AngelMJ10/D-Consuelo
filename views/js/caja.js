@@ -3,6 +3,7 @@ const tbodyCarro = tablaCarro.querySelector("tbody");
 const modalCarrito = document.querySelector("#modal-carrito");
 const listaB = document.querySelector("#lista-bebidas");
 const listaP = document.querySelector("#lista-platos");
+const listaC = document.querySelector("#lista-combos");
 
 // Listar platos
 function listP(){
@@ -67,6 +68,7 @@ function listB(){
     .then(respuesta => respuesta.json())
     .then(data => {
         listaP.classList.add('d-none')
+        listaC.classList.add('d-none')
         let contador = 1;
         let cardRow = '<div class="row">'; // Iniciar una nueva fila de tarjetas
 
@@ -107,9 +109,62 @@ function listB(){
     })
 }
 
+// Listar combos
+function listC(){
+    const parametros = new URLSearchParams();
+    parametros.append("op", "list");
+    parametros.append("tipo", "M");
+    fetch('../controllers/producto.php', {
+        method: 'POST',
+        body: parametros
+    })
+    .then(respuesta => respuesta.json())
+    .then(data => {
+        let contador = 1;
+        let cardRow = '<div class="row">'; // Iniciar una nueva fila de tarjetas
+
+        data.forEach(element => {
+            const estado = element.estado == 1 ? 'Activo' : element.estado == 0 ? 'Inactivo' : element.estado;
+            // Formatear el precio con dos decimales fijos
+            const precioSinDecimales = parseFloat(element.precio).toString();
+            
+            // Agregar una tarjeta a la fila actual
+            cardRow += `
+                <div class='col-md-3 mt-3' onclick='ordenar(${element.idproducto})'>
+                    <div class="card card-hover border-success" id='carrito-flotante'>
+                        <div class='card-header text-bg-warning'>
+                            <p class='fs-5'><b>${element.producto}</b> </p>
+                        </div>
+                        <div class="card-body">
+                            <p class='fs-5'>Precio: <b>S/. ${precioSinDecimales} </b></p>
+                            <p class='fs-5'>Estado: <span class='badge rounded-pill bg-success'>${estado}</td></p>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // Si se han agregado 4 tarjetas, cerrar la fila actual y comenzar una nueva
+            if (contador % 4 === 0) {
+                cardRow += '</div>'; // Cerrar la fila actual
+                listaC.innerHTML += cardRow; // Agregar la fila al contenedor
+                cardRow = '<div class="row">'; // Iniciar una nueva fila
+            }
+            contador++;
+        });
+
+        // Si queda alguna fila sin cerrar, ciérrala
+        if (contador % 4 !== 1) {
+            cardRow += '</div>';
+            listaC.innerHTML += cardRow;
+        }
+        
+    })
+}
+
 // Función para cambiar a la vista de platos
 function limpiarB() {
     listaB.classList.add('d-none');
+    listaC.classList.add('d-none');
     listaP.classList.remove('d-none');
 }
 
@@ -117,6 +172,14 @@ function limpiarB() {
 function limpiarP() {
     listaB.classList.remove('d-none');
     listaP.classList.add('d-none');
+    listaC.classList.add('d-none');
+}
+
+// Funciñon para cambiar a la vista de combos
+function limpiarC() {
+    listaB.classList.add('d-none');
+    listaP.classList.add('d-none');
+    listaC.classList.remove('d-none');
 }
 
 function validarStocks(){
@@ -588,11 +651,14 @@ list_depdtors();
 validarStocks();
 listB();
 listP();
+listC();
 
 const btnVistaB = document.querySelector("#bebidas-vista");
 btnVistaB.addEventListener("click", limpiarP);
 const btnVistaP = document.querySelector("#platos-vista");
 btnVistaP.addEventListener("click", limpiarB);
+const btnVistaC = document.querySelector("#combos-vista");
+btnVistaC.addEventListener("click", limpiarC);
 
 const btnCarrito = document.querySelector("#carrito");
 btnCarrito.addEventListener("click", abrirCarrito);

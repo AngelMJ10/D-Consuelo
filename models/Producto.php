@@ -9,6 +9,7 @@ require_once 'Conexion.php';
             $this->conexion = parent::getConexion();
         }
 
+        // Listar pero solo un tipo
         public function list($data = []){
             try {
                 $query = "SELECT * FROM producto WHERE tipo = ? and estado = 1";
@@ -21,6 +22,25 @@ require_once 'Conexion.php';
             }
         }
 
+        // Listar dos registros especificos por sus ids
+        public function list_by_ids($data = []){
+            try {
+                $query = "SELECT * FROM producto WHERE idproducto = ?
+                        UNION
+                        SELECT * FROM producto WHERE idproducto = ?";
+                $consulta = $this->conexion->prepare($query);
+                $consulta->execute(array(
+                    $data['idproducto1'],
+                    $data['idproducto2'],
+                ));
+                $datos = $consulta->fetchAll(PDO::FETCH_ASSOC);
+                return $datos;
+            } catch (Exception $e) {
+                die($e->getMessage());
+            }
+        }
+
+        // Listar todos los tipos
         public function listAll(){
             try {
                 $query = "SELECT * FROM producto WHERE estado = 1";
@@ -33,6 +53,7 @@ require_once 'Conexion.php';
             }
         }
 
+        // Registrar Bebidas
         public function registerB($data = []){
             try {
                 $query = "INSERT INTO producto(idmarca,producto,tipo,precio,stock) values(?,?,'B',?,?)";
@@ -48,6 +69,7 @@ require_once 'Conexion.php';
             }
         }
 
+        // Registrar Platos
         public function registerP($data = []){
             try {
                 $query = "INSERT INTO producto(producto,precio,tipo) values(?,?,'P')";
@@ -61,6 +83,21 @@ require_once 'Conexion.php';
             }
         }
 
+        // Registra el combo o menú
+        public function register_combo($data = []){
+            try {
+                $query = "INSERT INTO producto(producto,precio,tipo) values(?,?,'M')";
+                $consulta = $this->conexion->prepare($query);
+                $consulta->execute(array(
+                    $data['producto'],
+                    $data['precio']
+                ));
+            } catch (Exception $e) {
+                die($e->getMessage());
+            }
+        }
+
+        // Obtiene el producto
         public function get($data = []){
             try {
                 $query = "SELECT * FROM producto WHERE idproducto = ?";
@@ -73,6 +110,7 @@ require_once 'Conexion.php';
             }
         }
 
+        // Edita el producto
         public function edit($data = []){
             try {
                 $query = "UPDATE producto SET idmarca = ?, producto = ?, precio = ?, stock = ?, estado = ? where idproducto = ?";
@@ -90,6 +128,7 @@ require_once 'Conexion.php';
             }
         }
 
+        //  Descuenta el stock
         public function deleteStock($data = []){
             try {
                 $query = "UPDATE producto set stock = ? where idproducto = ? and tipo = 'B'";
@@ -103,6 +142,7 @@ require_once 'Conexion.php';
             }
         }
 
+        // Detecta los productos de stock 0
         public function empty_stock(){
             try {
                 $query = "SELECT * FROM producto where stock = 0 and tipo = 'B'";
@@ -115,6 +155,7 @@ require_once 'Conexion.php';
             }
         }
 
+        // Inhabilita los productos de stock 0
         public function disable_product($data = []){
             try {
                 $query = "UPDATE producto set estado = 0 where idproducto = ?";
@@ -126,6 +167,7 @@ require_once 'Conexion.php';
                 die($e->getMessage());
             }
         }
+
 
     }
 

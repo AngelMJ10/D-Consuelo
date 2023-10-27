@@ -106,6 +106,16 @@
                 
                 </table>
             </div>
+
+            <div class="row mt-3">
+                <div class="col-md-3">
+                    <div class="form-floating mb-3">
+                        <input type="text" class="form-control" id="total_day" readonly name="total" placeholder="Total del día">
+                        <label for="precio" class="form-label">Total de día:</label>
+                    </div>
+                </div>
+            </div>
+            
         </div>
 
         </div>

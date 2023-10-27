@@ -7,6 +7,7 @@
         $deuda = new Deuda();
         $venta = new Venta();
 
+        // Registra a la persona
         if ($_POST['op'] == "registerPerson") {
             $datos = [
                 "nombre"            => $_POST['nombre'],
@@ -18,6 +19,7 @@
             $deuda->registerPerson($datos);
         }
 
+        // Registra al deudor
         if ($_POST['op'] == "registerDebtor") {
             $datos = [
                 "idpersona"                 => $_POST['idpersona'],
@@ -26,11 +28,13 @@
             $deuda->registerDebtor($datos);
         }
 
+        // Obtiene el id de la persona registra de úlltimo
         if ($_POST['op'] == "getPersona") {
             $datos = $deuda->getPersona();
             echo json_encode($datos);
         }
 
+        // Lista los deudores con los datos personales y el total de su deuda
         if ($_POST['op'] == "listDepdtors") {
             // liista los deudores
             $datos = $deuda->listDepdtors();
@@ -66,7 +70,7 @@
                     if ($registro['iddeudor'] == $registroDeuda['iddeudor']) {
                         $deudor['deudas']++;
                         foreach ($datosV as $ventas) {
-                            if ($registroDeuda['idventa'] == $ventas['idventa']) {
+                            if ($registroDeuda['idventa'] == $ventas['idventa'] && $ventas['estado'] == 2) {
                                 $totalVentas += $ventas['total'];
                             }
                         }
@@ -78,6 +82,7 @@
             echo json_encode($data);
         }
 
+        // Obtiene las deudas de los deudores
         if ($_POST['op'] == "get_debts") {
             $idDeudor = ["iddeudor" => $_POST['iddeudor']];
             $datos = $deuda->get_debts($idDeudor);
@@ -102,6 +107,7 @@
             echo json_encode($data);
         }
 
+        // Obtener los datos del deudor con el id de la venta
         if ($_POST['op'] == "get_sale_debts") {
             // liista los deudores
             $datos = $deuda->listDepdtors();
@@ -135,6 +141,7 @@
             echo json_encode($data);
         }
 
+        // Registra la deuda
         if ($_POST['op'] == "register_debt") {
             $datosV = $venta->get_last_sale();
             $idventa = $datosV['idventa'];
@@ -154,10 +161,22 @@
 
             if ($confirmar == false) {
                 $deuda->register_debt($data);
-                $deuda->change_estate(["iddeudor"      => $_POST['iddeudor']]);
+                $deuda->change_estate([
+                    "iddeudor"      => $_POST['iddeudor'],
+                    "estado"        => 2
+                ]);
             }else{
                 echo "Venta ya registrada.";
             }
+        }
+
+        // Cambia el estado de la deuda
+        if ($_POST['op'] == "change_estate") {
+            $datos = [
+                "iddeuda"       => $_POST['iddeuda'],
+                "estado"        => $_POST['estado']
+            ];
+            $deuda->change_estate_debt($datos);
         }
 
     }

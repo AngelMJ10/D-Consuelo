@@ -78,8 +78,10 @@
 
     <button type="button" class="btn btn-outline-primary mt-3" id="bebidas-vista">Bebidas <i class="fa-solid fa-wine-bottle"></i></button>
     <button type="button" class="btn btn-outline-success mt-3" id="platos-vista">Platos <i class="fa-solid fa-bowl-food"></i></button>
+    <button type="button" class="btn btn-outline-warning mt-3" id="combos-vista">Combos <i class="fa-solid fa-bowl-food"></i></button>
     <div id="lista-bebidas"></div>
     <div id="lista-platos"></div>
+    <div id="lista-combos"></div>
 
     <div class="modal fade" id="modal-carrito" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg">

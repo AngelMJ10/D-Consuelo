@@ -167,6 +167,20 @@ function listProducts() {
     })
 }
 
+function total_day(){
+    const txtTotal = document.querySelector("#total_day")
+    const params = new URLSearchParams();
+    params.append("op", "total_day");
+    fetch("../controllers/venta.php", {
+        method: 'POST',
+        body: params
+    })
+    .then(respuesta => respuesta.json())
+    .then(datos => {
+        txtTotal.value = `S/ ${datos.total}`;
+    })
+}
+total_day();
 listProducts();
 listar();
 

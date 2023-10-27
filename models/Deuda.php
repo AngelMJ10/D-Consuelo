@@ -11,6 +11,7 @@ require_once 'Conexion.php';
             $this->conexion = parent::getConexion();
         }
 
+        // Registra una nueva persona
         public function registerPerson($data = []){
             try {
                 $query = "INSERT INTO persona(nombre,apellidos,dni,telefono,direccion)
@@ -28,6 +29,7 @@ require_once 'Conexion.php';
             }
         }
 
+        // Registra un nuevo deudor
         public function registerDebtor($data = []){
             try {
                 $query = "INSERT INTO deudores(idpersona,usuario_creador)
@@ -42,6 +44,7 @@ require_once 'Conexion.php';
             }
         }
 
+        // Obtiene el id de la última persona registrada
         public function getPersona(){
             try {
                 $query = "SELECT * FROM persona ORDER BY idpersona DESC limit 1";
@@ -109,14 +112,32 @@ require_once 'Conexion.php';
         // Cambiar el estado del deudor a 2 si en caso este esté en 1
         public function change_estate($data = []){
             try {
-                $query = "UPDATE deudores set estado = 2 where iddeudor = ?";
+                $query = "UPDATE deudores set estado = ? where iddeudor = ?";
                 $consulta = $this->conexion->prepare($query);
-                $consulta->execute(array($data['iddeudor']));
+                $consulta->execute(array(
+                    $data['iddeudor'],
+                    $data['estado']
+                ));
             } catch (Exception $e) {
                 die($e->getMessage());
             }
         }
 
+        // Cambiar el estado del deudor a 2 si en caso este esté en 1
+        public function change_estate_debt($data = []){
+            try {
+                $query = "UPDATE deuda set estado = ? where iddeuda = ?";
+                $consulta = $this->conexion->prepare($query);
+                $consulta->execute(array(
+                    $data['estado'],
+                    $data['iddeuda']
+                ));
+            } catch (Exception $e) {
+                die($e->getMessage());
+            }
+        }
+
+        // Registra una deeuda
         public function register_debt($data = []){
             try {
                 $query = "INSERT INTO deuda (iddeudor,idventa,comentario)
