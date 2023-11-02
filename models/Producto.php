@@ -53,6 +53,19 @@ require_once 'Conexion.php';
             }
         }
 
+        // Listar todo *
+        public function list_All_estate(){
+            try {
+                $query = "SELECT * FROM producto order by producto ASC";
+                $consulta = $this->conexion->prepare($query);
+                $consulta->execute();
+                $datos = $consulta->fetchAll(PDO::FETCH_ASSOC);
+                return $datos;
+            } catch (Exception $e) {
+                die($e->getMessage());
+            }
+        }
+
         // Registrar Bebidas
         public function registerB($data = []){
             try {
@@ -128,6 +141,50 @@ require_once 'Conexion.php';
             }
         }
 
+        // Busca los productos
+        public function search($data = []){
+            try {
+                $query = "SELECT * FROM producto
+                        WHERE 1 = 1";
+                $params = [];
+
+                if (!empty($data["idproducto"])) {
+                    $query .= " AND idproducto = ?";
+                    $params[] = $data['idproducto'];
+                }
+
+                if (!empty($data["tipo"])) {
+                    $query .= " AND tipo = ?";
+                    $params[] = $data['tipo'];
+                }
+
+                if ($data['estado'] >= 0) {
+                    $query .= " AND estado = ?";
+                    $params[] = $data['estado'];
+                }             
+
+                if (!empty($data["idmarca"])) {
+                    $query .= " AND idmarca = ?";
+                    $params[] = $data['idmarca'];
+                }
+
+                if (!empty($data["precio"])) {
+                    $query .= " AND precio = ?";
+                    $params[] = $data['precio'];
+                }
+
+                $query .= " GROUP BY idproducto, fecha_creacion";
+
+                $consulta = $this->conexion->prepare($query);
+                $consulta->execute($params);
+                $datos = $consulta->fetchAll(PDO::FETCH_ASSOC);
+                return $datos;
+
+            } catch (Exception $e) {
+                die($e->getMessage());
+            }
+        }
+
         //  Descuenta el stock
         public function deleteStock($data = []){
             try {
@@ -168,6 +225,16 @@ require_once 'Conexion.php';
             }
         }
 
+        // Deshabilita los productos de tipo "M" y "P"
+        public function disable_products(){
+            try {
+                $query = "UPDATE producto set estado = 0 where tipo = 'M' OR tipo = 'P' ";
+                $consulta = $this->conexion->prepare($query);
+                $consulta->execute();
+            } catch (Exception $e) {
+                die($e->getMessage());
+            }
+        }
 
     }
 

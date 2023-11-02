@@ -14,13 +14,12 @@ require_once 'Conexion.php';
         // Registra una nueva persona
         public function registerPerson($data = []){
             try {
-                $query = "INSERT INTO persona(nombre,apellidos,dni,telefono,direccion)
-                VALUES(?,?,?,?,?)";
+                $query = "INSERT INTO persona(nombre,apellidos,telefono,direccion)
+                VALUES(?,?,?,?)";
                 $consulta = $this->conexion->prepare($query);
                 $consulta->execute(array(
                     $data['nombre'],
                     $data['apellidos'],
-                    $data['dni'],
                     $data['telefono'],
                     $data['direccion']
                 ));
@@ -52,6 +51,36 @@ require_once 'Conexion.php';
                 $consulta->execute();
                 $datos = $consulta->fetch(PDO::FETCH_ASSOC);
                 return $datos;
+            } catch (Exception $e) {
+                die($e->getMessage());
+            }
+        }
+
+        // Obtiene los datos segund el id de la persona
+        public function get($data = []){
+            try {
+                $query = "SELECT * FROM persona where idpersona = ?";
+                $consulta = $this->conexion->prepare($query);
+                $consulta->execute(array($data['idpersona']));
+                $datos = $consulta->fetch(PDO::FETCH_ASSOC);
+                return $datos;
+            } catch (Exception $e) {
+                die($e->getMessage());
+            }
+        }
+
+        // Edita a la persona
+        public function edit_person($data = []){
+            try {
+                $query = "UPDATE persona set nombre = ?, apellidos = ?, telefono = ?, direccion = ? WHERE idpersona = ?";
+                $consulta = $this->conexion->prepare($query);
+                $consulta->execute(array(
+                    $data['nombre'],
+                    $data['apellidos'],
+                    $data['telefono'],
+                    $data['direccion'],
+                    $data['idpersona']
+                ));
             } catch (Exception $e) {
                 die($e->getMessage());
             }

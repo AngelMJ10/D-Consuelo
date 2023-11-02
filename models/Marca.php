@@ -13,7 +13,7 @@
 
         public function listar(){
             try {
-                $consulta = $this->conexion->prepare("SELECT * FROM marcas WHERE estado = 1");
+                $consulta = $this->conexion->prepare("SELECT * FROM marcas WHERE estado = 1 ORDER BY marca asc");
                 $consulta->execute();
                 $datos = $consulta->fetchAll(PDO::FETCH_ASSOC);
                 return $datos;

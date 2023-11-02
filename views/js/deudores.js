@@ -1,5 +1,6 @@
 const tablaD = document.querySelector("#tabla-deudores");
 const tbodyD = tablaD.querySelector("tbody");
+let idPersona = 0;
 
 function list(){
     const parametros = new URLSearchParams();
@@ -16,19 +17,182 @@ function list(){
         datos.forEach(element => {
             const estado = element.estado == 1 ? 'No debe' : element.estado == 2 ? 'Debe' : element.estado;
             tbody += `
-                <tr onclick='get_debts(${element.iddeudor})'>
+                <tr ondblclick='get_debts(${element.iddeudor})'>
                     <td data-label='#'>${contador}</td>
                     <td data-label='Nombre'>${element.nombre}</td>
                     <td data-label='Apellidos'>${element.apellidos}</td>
                     <td data-label='Deudas'>${element.deudas}</td>
                     <td data-label='Total'>S/ ${element.total}</td>
                     <td data-label='Estado'><span class='badge rounded-pill' style='background-color: #005478'>${estado}</td>
+                    <td data-label='Acción'>
+                        <a class='btn btn-sm btn-outline-success' type='button' onclick='get(${element.idpersona})'>
+                        <i class="fa-regular fa-pen-to-square"></i>
+                        </a>
+                    </td>
                 </tr>
             `;
             contador++;
         });
         tbodyD.innerHTML = tbody;
     })
+}
+
+// Para abrir el modal de edición
+function get(id){
+    const nombre_edit = document.querySelector("#nombre-editar");
+    const apellidos_edit = document.querySelector("#apellidos-editar");
+    const telefono_edit = document.querySelector("#telefono-editar");
+    const direccion_edit = document.querySelector("#direccion-editar");
+    const modalDatos = document.querySelector("#modal-editar");
+    const bootstrapModal = new bootstrap.Modal(modalDatos);
+    bootstrapModal.show();
+    const parametros = new URLSearchParams();
+    parametros.append("op", "get");
+    parametros.append("idpersona", id);
+    fetch("../controllers/deuda.php", {
+        method: 'POST',
+        body: parametros
+    })
+    .then(respuesta => respuesta.json())
+    .then(datos => {
+        nombre_edit.value = datos.nombre;
+        apellidos_edit.value = datos.apellidos;
+        telefono_edit.value = datos.telefono;
+        direccion_edit.value = datos.direccion;
+        idPersona = datos.idpersona;
+        console.log(idPersona);
+    })
+    .catch(error => {
+        console.error(error);
+    });
+}
+
+// Para editar a la persona
+function edit_person(){
+    const nombre_edit = document.querySelector("#nombre-editar");
+    const apellidos_edit = document.querySelector("#apellidos-editar");
+    const telefono_edit = document.querySelector("#telefono-editar");
+    const direccion_edit = document.querySelector("#direccion-editar");
+    const parametros = new URLSearchParams();
+    parametros.append("op", "edit_person")
+    parametros.append("nombre", nombre_edit.value)
+    parametros.append("apellidos", apellidos_edit.value)
+    parametros.append("telefono", telefono_edit.value)
+    parametros.append("direccion", direccion_edit.value)
+    parametros.append("idpersona", idPersona)
+    fetch("../controllers/deuda.php", {
+        method: 'POST',
+        body: parametros
+    })
+    .then(respuesta => {
+        if (respuesta.ok) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Persona actualizada',
+                html: `Se ha editado a la persona ${nombre_edit.value}`
+            })
+            return;
+        }
+    })
+}
+
+// Para registrar a la persona
+async function register_person(){
+    const txtNombre = document.querySelector("#nombre");
+    const txtApellidos = document.querySelector("#apellidos");
+    const txtTelefono = document.querySelector("#telefono");
+    const txtDireccion = document.querySelector("#direccion");
+
+    const parametros = new URLSearchParams();
+    parametros.append("op", "registerPerson")
+    parametros.append("nombre", txtNombre.value)
+    parametros.append("apellidos", txtApellidos.value)
+    parametros.append("telefono", txtTelefono.value)
+    parametros.append("direccion", txtDireccion.value)
+    fetch("../controllers/deuda.php", {
+        method: 'POST',
+        body: parametros
+    })
+    .then(respuesta => {
+        if (respuesta.ok) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Persona registrada',
+                html: 'Se ha registrado una persona'
+            })
+            return;
+        }
+    })
+}
+
+// Función que obtiene el ultino idpersona creado
+async function get_idpersona(){
+    const parametros = new URLSearchParams();
+    parametros.append("op", "getPersona");
+    fetch("../controllers/deuda.php", {
+        method: 'POST',
+        body: parametros
+    })
+    .then(respuesta => respuesta.json())
+    .then(datos => {
+        register_debtor(datos.idpersona);
+    })
+    .catch(error => {
+        console.error(error);
+    });
+}
+
+// Función que registra al deudor
+function register_debtor(id){
+    const parametros = new URLSearchParams();
+    parametros.append("op", "registerDebtor")
+    parametros.append("idpersona", id)
+    fetch("../controllers/deuda.php", {
+        method: 'POST',
+        body: parametros
+    })
+    .then(respuesta => {
+        if (respuesta.ok) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Deudor registrado',
+                html: 'Se ha registrado un nuevo deudor'
+            })
+            return;
+        }
+    })
+}
+
+// Función para registrar a la persona y al deudor
+function register_deudor(){
+    const txtNombre = document.querySelector("#nombre");
+    const txtApellidos = document.querySelector("#apellidos");
+    const txtTelefono = document.querySelector("#telefono");
+    const txtDireccion = document.querySelector("#direccion");
+
+    if (!txtNombre.value || !txtApellidos.value || !txtTelefono.value || !txtDireccion.value) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Campos incompletos',
+            text: 'Por favor, completa todos los campos.',
+        });
+        return;
+    }
+    
+    Swal.fire({
+        icon: 'question',
+        title: 'Confirmación',
+        text: '¿Está seguro de los datos ingresados?',
+        showCancelButton: true,
+        confirmButtonText: 'Si',
+        cancelButtonText: 'No',
+    })
+    .then(async (result) => { // Marca la función como async aquí
+        if (result.isConfirmed) {
+            await register_person();
+            await get_idpersona();
+        }
+    });
 }
 
 // Función para pagar la deuda
@@ -48,7 +212,6 @@ function pay(iddeuda, idventa){
         }
     });
 }
-
 
 // Función para cambiar el estado de la deuda
 async function pay_debt(iddeuda){
@@ -75,7 +238,6 @@ async function pay_debt(iddeuda){
         console.error(error);
     });
 }
-
 
 // Función para cambiar el estado de la venta
 async function pay_sale(idventa){
@@ -165,10 +327,9 @@ function get_debts(id){
     })
 }
 
-
 // Función para obtener los detalles de las ventas
 function get_sale(id){
-    const modalCarrito = document.querySelector("#modal-editar");
+    const modalCarrito = document.querySelector("#modal-ventas");
     const tablaV = document.querySelector("#tabla-ventas");
     const tbodyV = tablaV.querySelector("tbody");
     const txtTotal = document.querySelector("#total");
@@ -273,6 +434,12 @@ async function pay_sale_2(idventa){
         console.error(error);
     });
 }
+
+const btnRegister = document.querySelector("#registrar-deudor")
+btnRegister.addEventListener("click", register_deudor);
+
+const btnEditar = document.querySelector("#editar-deudor")
+btnEditar.addEventListener("click", edit_person);
 
 
 list();

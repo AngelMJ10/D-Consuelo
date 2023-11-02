@@ -120,30 +120,51 @@
                                 <form>
                                     <div class="row mb-2 mt-2">
 
-                                    <div class="col-md-4">
+                                        <div class="col-md-4">
                                         <div class="form-floating mb-3">
-                                            <input type="text" class="form-control" id="producto-buscar" name="Plato" placeholder="Plato">
-                                            <label for="Plato" class="form-label">Producto</label>
+                                                <select class="form-control" name="" id="producto-buscar">
+                                                </select>
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <div class="form-floating mb-3">
-                                            <input type="number" class="form-control" id="precio-buscar" name="precio" placeholder="Precio">
-                                            <label for="precio" class="form-label">Precio</label>
+                                        <div class="col-md-3">
+                                            <div class="form-floating mb-3">
+                                                <select class="form-control" name="" id="marca-buscar">
+                                                </select>
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <div class="form-floating mb-3">
-                                            <select class="form-control" name="" id="estado-buscar">
-                                                <option value="">Seleccione un estado</option>
-                                                <option value="0">Inactivo</option>
-                                                <option value="1">Activo</option>
-                                            </select>
+                                        <div class="col-md-3">
+                                            <div class="form-floating mb-3">
+                                                <input type="number" class="form-control" id="precio-buscar" name="precio" placeholder="Precio">
+                                                <label for="precio" class="form-label">Precio</label>
+                                            </div>
                                         </div>
-                                    </div>
+                                        <div class="col-md-2">
+                                            <div class="form-floating mb-3">
+                                                <select class="form-control" name="" id="tipo-buscar">
+                                                    <option value="">Seleccione un tipo</option>
+                                                    <option value="P">Plato</option>
+                                                    <option value="M">Menú</option>
+                                                    <option value="B">Bebida</option>
+                                                </select>
+                                            </div>
+                                        </div>
 
                                     </div>
-                                    <button type="button" id="buscar-plato"  class="btn btn-outline-primary">Buscar</button>
+
+                                    <div class="row mb-2 mt-2">
+                                        <div class="col-md-2">
+                                            <div class="form-floating mb-3">
+                                                <select class="form-control" name="" id="estado-buscar">
+                                                    <option value="">Seleccione un estado</option>
+                                                    <option value="0">Inactivo</option>
+                                                    <option value="1">Activo</option>
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                        
+                                    </div>
+                                    <button type="button" id="buscar-producto"  class="btn btn-outline-primary">Buscar</button>
                                     <button type="button" id="list-platos"  class="btn btn-outline-success">Platos</button>
                                     <button type="button" id="list-bebidas"  class="btn btn-outline-info">Bebidas</button>
                                     <button type="button" id="list-combos"  class="btn btn-outline-warning">Combos</button>

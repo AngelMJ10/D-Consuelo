@@ -352,6 +352,7 @@ function register(){
 function listarMarcas() {
     const txtMarca = document.querySelector('#marca');
     const txtMarcaEdit = document.querySelector("#marca-editar");
+    const txtMarcaSearch = document.querySelector("#marca-buscar");
     const parametrosURL = new URLSearchParams();
     parametrosURL.append("op", "listar");
 
@@ -368,11 +369,64 @@ function listarMarcas() {
             `;
         });
         txtMarca.innerHTML = options;
+        txtMarcaSearch.innerHTML = options;
         txtMarcaEdit.innerHTML = options;
     })
     .catch(error => {
         console.error('Error:', error);
     });
+}
+
+// Busca los productos
+function search(){
+    const producto = document.querySelector("#producto-buscar");
+    const idmarca = document.querySelector("#marca-buscar");
+    const precio = document.querySelector("#precio-buscar");
+    const estado = document.querySelector("#estado-buscar");
+    const tipo = document.querySelector("#tipo-buscar");
+    const parametros = new URLSearchParams();
+    parametros.append("op", "search");
+    parametros.append("idproducto", producto.value);
+    parametros.append("tipo", tipo.value);
+    parametros.append("estado", estado.value);
+    parametros.append("idmarca", idmarca.value);
+    parametros.append("precio", precio.value);
+    fetch('../controllers/producto.php', {
+        method: 'POST',
+        body: parametros
+    })
+    .then(respuesta => respuesta.json())
+    .then(datos => {
+        tbodyP.innerHTML = "";
+        let contador = 1;
+        let tbody = "";
+        datos.forEach(element => {
+            const fechaCreate = new Date(element.fecha_creacion);
+            const fecha = fechaCreate.toISOString().split('T')[0];
+            const estado = element.estado == 1 ? 'Activo' : element.estado == 0 ? 'Inactivo' : element.estado;
+            const stock = element.stock > 0 ? element.stock : element.tipo == 'P' ? 'Comida' : element.tipo == 'M' ? 'Combo' : element.stock;
+            const color  = element.stock > 0 ? '07853C' : element.tipo == 'P' ? 'CBC731' : element.tipo == 'M' ? 'FF0000' : element.stock;
+            // Formatear el precio con dos decimales fijos
+            const precioSinDecimales = parseFloat(element.precio).toString();
+            tbody += `
+                <tr>
+                    <td data-label='#'>${contador}</td>
+                    <td data-label='Producto'>${element.producto}</td>
+                    <td data-label='Precio'>${precioSinDecimales}</td>
+                    <td data-label='Fecha'>${fecha}</td>
+                    <td data-label='Stock'><span class='badge rounded-pill' style='background-color: #${color} '>${stock}</td>
+                    <td data-label='Estado'><span class='badge rounded-pill' style='background-color: #005478'>${estado}</td>
+                    <td data-label='Acción'>
+                        <a class='btn btn-sm btn-outline-success' type='button' onclick='get(${element.idproducto})'>
+                        <i class="fa-regular fa-pen-to-square"></i>
+                        </a>
+                    </td>
+                </tr>
+            `;
+            contador++;
+        });
+        tbodyP.innerHTML = tbody;
+    })
 }
 
 
@@ -403,6 +457,27 @@ function list_products(){
         txtProducts2.innerHTML = options;
         txtProductoC1.innerHTML = options;
         txtProductoC2.innerHTML = options;
+    })
+}
+
+// Lista los platos disponibles para el combo
+function listar_todo(){
+    const txtProducto = document.querySelector("#producto-buscar");
+    const parametros = new URLSearchParams();
+    parametros.append("op", "list_All_estate");
+    fetch('../controllers/producto.php', {
+        method: 'POST',
+        body: parametros
+    })
+    .then(respuesta => respuesta.json())
+    .then(datos => {
+        let options = "<option value='0'>Seleccione el producto</option>";
+        datos.forEach(element => {
+            options+= `
+                <option value='${element.idproducto}'>${element.producto}</option>
+            `;
+        });
+        txtProducto.innerHTML = options;
     })
 }
 
@@ -611,6 +686,7 @@ function edit(){
             }
         })
     }
+
     if (tipo == "P") {
         parametros.append("op", "editP");
         parametros.append("producto", txtProducto.value);
@@ -700,10 +776,60 @@ function edit(){
     }
 }
 
+// Función para deshabilitar los productos
+function disable_products() {
+    const parametros = new URLSearchParams();
+    parametros.append("op", "disable_products");
+    fetch('../controllers/producto.php', {
+        method: 'POST',
+        body: parametros
+    })
+    .then(respuesta => {
+        if(respuesta.ok){
+            console.log("SE PUDO")
+        } else{
+            throw new Error('Error en la solicitud');
+        }
+    })
+}
+
+// Función para programar la ejecución diaria a las 00:00 horas
+function ejecutarDiariamente() {
+    // Llama a disable_products inmediatamente
+    disable_products();
+
+    const horaEjecucion = new Date();
+
+    // Establecer la hora de ejecución diaria a las 00:00:00
+    horaEjecucion.setHours(0, 0, 0, 0);
+
+    // Calcular los milisegundos hasta la próxima ejecución
+    let milisegundosHastaEjecucion = horaEjecucion.getTime() - Date.now();
+    if (milisegundosHastaEjecucion < 0) {
+        // Si la hora de ejecución ya ha pasado hoy, establecer la hora de ejecución para mañana
+        horaEjecucion.setDate(horaEjecucion.getDate() + 1);
+        milisegundosHastaEjecucion = horaEjecucion.getTime() - Date.now();
+    }
+
+    // Establecer el intervalo para la próxima ejecución
+    setTimeout(() => {
+        // Ejecutar disable_products y volver a programar la próxima ejecución
+        disable_products();
+        ejecutarDiariamente();
+    }, milisegundosHastaEjecucion);
+}
+
+// Llama a ejecutarDiariamente para programar la ejecución diaria
+ejecutarDiariamente();
+
 
 list();
 listarMarcas();
 list_products();
+listar_todo();
+
+const btnSearch = document.querySelector("#buscar-producto");
+btnSearch.addEventListener("click", search);
 
 const btnBebida = document.querySelector("#list-bebidas");
 btnBebida.addEventListener("click", listB);

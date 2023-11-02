@@ -28,6 +28,12 @@
             echo json_encode($datos);
         }
 
+        //  Lista todos los productos
+        if ($_POST['op'] == "list_All_estate") {
+            $datos = $producto->list_All_estate();
+            echo json_encode($datos);
+        }
+
         // Registra las bebidas
         if ($_POST['op'] == "registerB") {
             $data = [
@@ -48,12 +54,26 @@
             $producto->registerP($data);
         }
 
+        // Registra los combos
         if ($_POST['op'] == "register_combo") {
             $data = [
                 "producto"      => $_POST['producto'],
                 "precio"        => $_POST['precio']
             ];
             $producto->register_combo($data);
+        }
+
+        // Busca los productos
+        if ($_POST['op'] == "search") {
+            $data = [
+                "idproducto"        => isset($_POST['idproducto']) ? $_POST['idproducto'] : '',
+                "tipo"              => isset($_POST['tipo']) ? $_POST['tipo'] : '',
+                "estado"            => isset($_POST['estado']) ? $_POST['estado'] : '',
+                "idmarca"           => isset($_POST['idmarca']) ? $_POST['idmarca'] : '',
+                "precio"            => isset($_POST['precio']) ? $_POST['precio'] : ''
+            ];
+            $datos = $producto->search($data);
+            echo json_encode($datos);
         }
 
         // Obtiene la información del producto
@@ -124,6 +144,11 @@
                 $datos = ["idproducto" => $registro['idproducto']];
                 $producto->disable_product($datos);
             }
+        }
+
+        // Deshabilita los productos de tipo "M" y "P"
+        if ($_POST['op'] == "disable_products") {
+            $producto->disable_products();
         }
 
     }

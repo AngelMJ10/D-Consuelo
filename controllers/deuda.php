@@ -12,7 +12,6 @@
             $datos = [
                 "nombre"            => $_POST['nombre'],
                 "apellidos"         => $_POST['apellidos'],
-                "dni"               => $_POST['dni'],
                 "telefono"          => $_POST['telefono'],
                 "direccion"         => $_POST['direccion']
             ];
@@ -23,7 +22,7 @@
         if ($_POST['op'] == "registerDebtor") {
             $datos = [
                 "idpersona"                 => $_POST['idpersona'],
-                "usuario_creador"           => $_POST['idusuario']
+                "usuario_creador"           => $_SESSION['idusuario']
             ];
             $deuda->registerDebtor($datos);
         }
@@ -32,6 +31,25 @@
         if ($_POST['op'] == "getPersona") {
             $datos = $deuda->getPersona();
             echo json_encode($datos);
+        }
+
+        // Obtiene los datos de la persona según su ID
+        if ($_POST['op'] == "get") {
+            $data = ["idpersona"    => $_POST['idpersona']];
+            $datos = $deuda->get($data);
+            echo json_encode($datos);
+        }
+        
+        // Edita a la persona
+        if ($_POST['op'] == "edit_person") {
+            $datos = [
+                "nombre"            => $_POST['nombre'],
+                "apellidos"         => $_POST['apellidos'],
+                "telefono"          => $_POST['telefono'],
+                "direccion"         => $_POST['direccion'],
+                "idpersona"         => $_POST['idpersona']
+            ];
+            $deuda->edit_person($datos);
         }
 
         // Lista los deudores con los datos personales y el total de su deuda

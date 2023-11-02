@@ -180,6 +180,7 @@ function total_day(){
         txtTotal.value = `S/ ${datos.total}`;
     })
 }
+
 total_day();
 listProducts();
 listar();

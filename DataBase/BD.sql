@@ -8,7 +8,7 @@ CREATE TABLE persona
 	nombre			VARCHAR(40)	NOT NULL,
 	dni			CHAR(8)		NULL,
 	telefono		CHAR(9)		NOT NULL,
-	direccion		VARCHAR(200)	NOT NULL,
+	direccion		VARCHAR(200)	NULL,
 	estado			CHAR(1)		NOT NULL DEFAULT '1',
 	fecha_creacion		DATETIME	NOT NULL DEFAULT NOW(),
 	fecha_fin		DATETIME	NULL
@@ -98,9 +98,12 @@ CREATE TABLE producto
 INSERT INTO producto(idmarca,producto,tipo,precio,stock)
 VALUES(1,'Inka kola 1/2 litro','B',2,9),(2,'Cerveza Cristal 650 ml','B',6,12),
 	(3,'Cifrut 1/2 litro','B',1.50,9);
+	
+UPDATE producto SET estado = 0 WHERE tipo = 'M' AND tipo = 'P' 
 SELECT * FROM producto WHERE tipo = 'B';
 SELECT * FROM producto WHERE tipo = 'P';
 SELECT * FROM producto WHERE tipo = 'M';
+SELECT * FROM producto WHERE idmarca = 1;
 SELECT * FROM producto WHERE idproducto = 6 OR idproducto = 5;
 
 

@@ -78,6 +78,7 @@
             echo json_encode($datos);
         }
 
+        // Calcula el total del día
         if ($_POST['op'] == "total_day") {
             $datos = $venta->list_all();
             $data = [];
@@ -95,8 +96,6 @@
             $data['total'] = $totalVentas;
             echo json_encode($data);
         }
-        
-        
 
     }
 
