@@ -139,7 +139,7 @@ if (!isset($_SESSION['login']) || !$_SESSION['login']['status']){
                                     Configuración
                                 </a>
                                 <div class="dropdown-divider"></div>
-                                <a class="dropdown-item" href="../controller/usuario.php?op=close-session">
+                                <a class="dropdown-item" href="../controllers/usuario.php?op=close-session">
                                     <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
                                     Cerrar sesión
                                 </a>

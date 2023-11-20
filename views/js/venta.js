@@ -14,17 +14,18 @@ function listar(){
         let contador = 1;
         let tbody = "";
         datos.forEach(element => {
-            const fechaCreate = new Date(element.fecha_creacion);
-            const fecha = fechaCreate.toISOString().split('T')[0];
             // Formatear el precio con dos decimales fijos
             const precioSinDecimales = parseFloat(element.total).toString();
             const estado = element.estado == 1 ? 'Pagado' : element.estado == 2 ? 'Fiado' : element.estado;
+            const metodo = element.metodo == 1 ? 'Efectivo' : element.metodo == 2 ? 'Yape' : element.metodo == 3 ? 'Plin' : element.metodo;
+            const color = element.metodo == 1 ? '005478' : element.metodo == 2 ? '900584' : element.metodo == 3 ? '00FFD1' : element.metodo;
             tbody += `
                 <tr ondblclick="get(${element.idventa})">
                     <td data-label='#'>${contador}</td>
                     <td data-label='Productos'>${element.productos}</td>
-                    <td data-label='Fecha'>${fecha}</td>
+                    <td data-label='Fecha'>${element.fecha_creacion}</td>
                     <td data-label='Total'> S/ ${precioSinDecimales}</td>
+                    <td data-label='Metodo'><span class='badge rounded-pill' style='background-color: #${color}'>${metodo}</td>
                     <td data-label='Estado'><span class='badge rounded-pill' style='background-color: #005478'>${estado}</td>
                     <td data-label='Acción'>
                         <a class='btn btn-sm btn-outline-success' type='button'>
@@ -106,12 +107,15 @@ function search(){
     const txtProducto = document.querySelector("#producto-buscar");
     const txtTotal = document.querySelector("#total-buscar");
     const txtFecha = document.querySelector("#fecha-buscar");
+    const txtFechaL = document.querySelector("#fecha-limite-buscar");
     const txtEstado = document.querySelector("#estado-buscar");
+    const txtMetodo = document.querySelector("#metodo-buscar");
     const parametros = new URLSearchParams();
     parametros.append("op", "search");
     parametros.append("idproducto", txtProducto.value);
     parametros.append("total", txtTotal.value);
     parametros.append("fecha", txtFecha.value);
+    parametros.append("metodo", txtMetodo.value);
     parametros.append("estado", txtEstado.value);
     fetch("../controllers/venta.php",{
         method: 'POST',
@@ -128,12 +132,15 @@ function search(){
             // Formatear el precio con dos decimales fijos
             const precioSinDecimales = parseFloat(element.total).toString();
             const estado = element.estado == 1 ? 'Pagado' : element.estado == 2 ? 'Fiado' : element.estado;
+            const metodo = element.metodo == 1 ? 'Efectivo' : element.metodo == 2 ? 'Yape' : element.metodo == 3 ? 'Plin' : element.metodo;
+            const color = element.metodo == 1 ? '005478' : element.metodo == 2 ? '900584' : element.metodo == 3 ? '00FFD1' : element.metodo;
             tbody += `
                 <tr ondblclick="get(${element.idventa})">
                     <td data-label='#'>${contador}</td>
                     <td data-label='Productos'>${element.productos}</td>
-                    <td data-label='Fecha'>${fecha}</td>
+                    <td data-label='Fecha'>${element.fecha_creacion}</td>
                     <td data-label='Total'> S/ ${precioSinDecimales}</td>
+                    <td data-label='Metodo'><span class='badge rounded-pill' style='background-color: #${color}'>${metodo}</td>
                     <td data-label='Estado'><span class='badge rounded-pill' style='background-color: #005478'>${estado}</td>
                     <td data-label='Acción'>
                         <a class='btn btn-sm btn-outline-success' type='button'>

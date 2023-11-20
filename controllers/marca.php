@@ -11,31 +11,25 @@
         }
 
         if ($_POST['op'] == 'obtener') {
-            $idbebida = ["idbebida"  => $_POST['idbebida']];
-            $datos = $bebida->obtener($idbebida);
+            $idbebida = ["idmarca"  => $_POST['idmarca']];
+            $datos = $marca->obtener($idbebida);
             echo json_encode($datos);
         }
 
         if ($_POST['op'] == 'registrar') {
             $data = [
-                        "idmarca"   => $_POST['idmarca'],
-                        "bebida"    => $_POST['bebida'],
-                        "precio"    => $_POST['precio'],
-                        "stock"     => $_POST['stock']
+                        "marca"   => $_POST['marca']
                     ];
-            $datos = $bebida->registrar($data);
+            $datos = $marca->registrar($data);
         }
 
         if ($_POST['op'] == 'editar') {
-            $data = [
-                        "idbebida"      => $_POST['idbebida'],
-                        "idmarca"       => $_POST['idmarca'],
-                        "bebida"        => $_POST['bebida'],
-                        "precio"        => $_POST['precio'],
-                        "stock"         => $_POST['stock'],
-                        "estado"        => $_POST['estado']
+            $data = [   
+                    "marca"         => $_POST['marca'],
+                    "estado"         => $_POST['estado'],
+                    "idmarca"       => $_POST['idmarca']
                     ];
-            $datos = $bebida->editar($data);
+            $datos = $marca->editar($data);
         }
 
     }

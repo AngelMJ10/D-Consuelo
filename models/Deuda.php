@@ -141,11 +141,11 @@ require_once 'Conexion.php';
         // Cambiar el estado del deudor a 2 si en caso este esté en 1
         public function change_estate($data = []){
             try {
-                $query = "UPDATE deudores set estado = ? where iddeudor = ?";
+                $query = "UPDATE deudores SET estado = ? WHERE iddeudor = ?";
                 $consulta = $this->conexion->prepare($query);
                 $consulta->execute(array(
-                    $data['iddeudor'],
-                    $data['estado']
+                    $data['estado'],
+                    $data['iddeudor']
                 ));
             } catch (Exception $e) {
                 die($e->getMessage());

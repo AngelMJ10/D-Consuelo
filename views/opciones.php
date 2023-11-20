@@ -12,15 +12,20 @@ $opciones = [];
 switch ($permiso) {
   case "A":
     $opciones = [
+      ["menu" => "Marcas", "url" => "index.php?view=marca.php"],
+      ["menu" => "Gastos", "url" => "index.php?view=gastos.php"],
       ["menu" => "Productos", "url" => "index.php?view=producto.php"],
       ["menu" => "Deudores", "url" => "index.php?view=deudores.php"],
       ["menu" => "Caja", "url" => "index.php?view=caja.php"],
-      ["menu" => "Ventas", "url" => "index.php?view=ventas.php"]
+      ["menu" => "Ventas", "url" => "index.php?view=ventas.php"],
+      ["menu" => "Semana", "url" => "index.php?view=semana.php"],
+      ["menu" => "Pruebas", "url" => "index.php?view=pruebas.php"]
     ];
   break;
   
   case "S":
     $opciones = [
+      ["menu" => "Marcas", "url" => "index.php?view=marca.php"],
       ["menu" => "Productos", "url" => "index.php?view=plato.php"],
       ["menu" => "Deudores", "url" => "index.php?view=deudores.php"],
       ["menu" => "Caja", "url" => "index.php?view=caja.php"],
@@ -30,6 +35,7 @@ switch ($permiso) {
 
   case "C":
     $opciones = [
+      ["menu" => "Marcas", "url" => "index.php?view=marca.php"],
       ["menu" => "Productos", "url" => "index.php?view=plato.php"],
       ["menu" => "Deudores", "url" => "index.php?view=deudores.php"],
       ["menu" => "Caja", "url" => "index.php?view=caja.php"],

@@ -71,7 +71,17 @@
                                         </div>
                                     </div>
 
-                                    
+                                    <div class="col-md-3">
+                                        <div class="form-floating mb-3">
+                                            <input type="date" class="form-control" id="fecha-limite-buscar" name="precio" placeholder="Precio">
+                                            <label for="precio" class="form-label">Fecha límite</label>
+                                        </div>
+                                    </div>
+
+                                </div>
+
+                                <div class="row">
+
                                     <div class="col-md-3">
                                         <div class="form-floating mb-3">
                                             <select class="form-control" name="" id="estado-buscar">
@@ -82,6 +92,16 @@
                                         </div>
                                     </div>
 
+                                    <div class="col-md-3">
+                                        <div class="form-floating mb-3">
+                                            <select class="form-control" name="" id="metodo-buscar">
+                                                <option value="0">Seleccione un método de pago</option>
+                                                <option value="1">Efectivo</option>
+                                                <option value="2">Yape</option>
+                                                <option value="3">Plin</option>
+                                            </select>
+                                        </div>
+                                    </div>
                                 </div>
                                 <button type="button" id="buscar-venta"  class="btn btn-outline-primary">Buscar</button>
                             </form>
@@ -98,6 +118,7 @@
                         <th>Productos</th>
                         <th>Fecha</th>
                         <th>Total</th>
+                        <th>Método</th>
                         <th>Estado</th>
                         <th>Acción</th>
                     </thead>

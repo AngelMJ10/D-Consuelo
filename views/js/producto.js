@@ -1,5 +1,6 @@
 const tabla = document.querySelector("#tabla-producto");
 const tbodyP = tabla.querySelector("tbody");
+const lista_platos = document.querySelector("#platos-inactivos")
 let tipo = "B";
 let idProducto = 0;
 let nombres = ``;
@@ -30,7 +31,7 @@ function listP(){
                 <tr>
                     <td data-label='#'>${contador}</td>
                     <td data-label='Producto'>${element.producto}</td>
-                    <td data-label='Precio'>${precioSinDecimales}</td>
+                    <td data-label='Precio'>S/ ${precioSinDecimales}</td>
                     <td data-label='Fecha'>${fecha}</td>
                     <td data-label='Stock'><span class='badge rounded-pill' style='background-color: #${color} '>${stock}</td>
                     <td data-label='Estado'><span class='badge rounded-pill' style='background-color: #005478'>${estado}</td>
@@ -45,6 +46,94 @@ function listP(){
         });
         tbodyP.innerHTML = tbody;
     })
+}
+
+// Lista los platos para registrar
+function list_Platos_inactivos() {
+    const parametros = new URLSearchParams();
+    parametros.append("op", "listAll_inactive");
+    fetch('../controllers/producto.php', {
+        method: 'POST',
+        body: parametros
+    })
+    .then(respuesta => respuesta.json())
+    .then(datos => {
+        let options = "<option value='0'>Seleccione el producto</option>";
+        datos.forEach(element => {
+            options+= `
+            <option value='${element.idproducto}'>${element.producto}</option>
+        `;
+        });
+        lista_platos.innerHTML = options;
+        // Inicializa select2 después de cargar los datos
+        $(lista_platos).select2();
+    });
+}
+
+let  idsActivos = [];
+let  idsSTR = "";
+// Agrega los IDS que vayamos seleccionando en el array
+function seleccionar() {
+    idsActivos = [];
+    idsSTR = ``;
+    for (let option of document.querySelector("#platos-inactivos").options) {
+        if (option.selected) {
+        idsActivos.push(option.value)
+        idsSTR += `${option.value},`
+        }
+    }
+    console.log(idsActivos);
+    console.log(idsSTR);
+}
+
+// Función para habilitar el plato con su ID
+function habilitar_plato(id){
+    const parametros = new URLSearchParams();
+    parametros.append("op", "active_products");
+    parametros.append("idproducto", id)
+    fetch("../controllers/producto.php", {
+        method: 'POST',
+        body: parametros
+    })
+    .then(respuesta => {
+        if (respuesta.ok) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Plato restaurado',
+                html: `El plato ha sido habilitado correctamente.`
+            }).then(() => {
+                location.reload();
+            });
+        }
+    })
+}
+
+// Función que recorre el array de IDS seleccionados para habilitar los productos
+function habilitar_platos() {
+    if (!lista_platos.value) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'No ha seleccionado un producto',
+            text: 'Por favor, seleccione un producto para habilitar',
+        });
+        return;
+    }
+    seleccionar();
+    Swal.fire({
+        icon: 'question',
+        title: 'Confirmación',
+        text: '¿Está srestaurar los siguientes platos?',
+        showCancelButton: true,
+        confirmButtonText: 'Si',
+        cancelButtonText: 'No',
+    })
+    .then(async (result) => { // Marca la función como async aquí
+        if (result.isConfirmed) {
+            idsActivos.forEach(element => {
+                habilitar_plato(element);
+            });
+        }
+    });
 }
 
 // Lista las bebidas
@@ -73,7 +162,7 @@ function listB(){
                 <tr>
                     <td data-label='#'>${contador}</td>
                     <td data-label='Producto'>${element.producto}</td>
-                    <td data-label='Precio'>${precioSinDecimales}</td>
+                    <td data-label='Precio'>S/ ${precioSinDecimales}</td>
                     <td data-label='Fecha'>${fecha}</td>
                     <td data-label='Stock'><span class='badge rounded-pill' style='background-color: #${color} '>${stock}</td>
                     <td data-label='Estado'><span class='badge rounded-pill' style='background-color: #005478'>${estado}</td>
@@ -117,7 +206,7 @@ function listC(){
                 <tr>
                     <td data-label='#'>${contador}</td>
                     <td data-label='Producto'>${element.producto}</td>
-                    <td data-label='Precio'>${precioSinDecimales}</td>
+                    <td data-label='Precio'>S/ ${precioSinDecimales}</td>
                     <td data-label='Fecha'>${fecha}</td>
                     <td data-label='Stock'><span class='badge rounded-pill' style='background-color: #${color} '>${stock}</td>
                     <td data-label='Estado'><span class='badge rounded-pill' style='background-color: #005478'>${estado}</td>
@@ -159,7 +248,7 @@ function list(){
                 <tr>
                     <td data-label='#'>${contador}</td>
                     <td data-label='Producto'>${element.producto}</td>
-                    <td data-label='Precio'>${precioSinDecimales}</td>
+                    <td data-label='Precio'>S/ ${precioSinDecimales}</td>
                     <td data-label='Fecha'>${fecha}</td>
                     <td data-label='Stock'><span class='badge rounded-pill' style='background-color: #${color} '>${stock}</td>
                     <td data-label='Estado'><span class='badge rounded-pill' style='background-color: #005478'>${estado}</td>
@@ -178,8 +267,8 @@ function list(){
 
 // Registra los platos
 function registerP(){
-    const txtProduct = document.querySelector("#producto");
-    const txtPrecio = document.querySelector("#precio");
+    const txtProduct = document.querySelector("#producto-plato");
+    const txtPrecio = document.querySelector("#precio-plato");
     const parametros = new URLSearchParams();
     parametros.append("op", "registerP");
     parametros.append("producto", txtProduct.value);
@@ -225,14 +314,14 @@ function registerP(){
 // Registra las bebidas
 function registerB(){
     const txtMarca = document.querySelector("#marca");
-    const txtProduct = document.querySelector("#producto");
+    const txtBebida = document.querySelector("#producto");
     const txtPrecio = document.querySelector("#precio");
     const txtStock = document.querySelector("#stock");
 
     const parametros = new URLSearchParams();
     parametros.append("op", "registerB");
     parametros.append("idmarca", txtMarca.value);
-    parametros.append("producto", txtProduct.value);
+    parametros.append("producto", txtBebida.value);
     parametros.append("precio", txtPrecio.value);
     parametros.append("stock", txtStock.value);
     Swal.fire({
@@ -253,7 +342,7 @@ function registerB(){
                     Swal.fire({
                         icon: 'success',
                         title: 'Bebida registrada',
-                        html: `La bebida <b>${txtProduct.value}</b> ha sido registrada correctamente.`
+                        html: `La bebida <b>${txtBebida.value}</b> ha sido registrada correctamente.`
                     }).then(() => {
                         location.reload();
                     });
@@ -275,7 +364,6 @@ function registerB(){
 
 // Registra los combos
 function registerC(){
-    const txtPrecio = document.querySelector("#precio");
     const txtProducts1 = document.querySelector('#view-producto-1').value;
     const txtProducts2 = document.querySelector('#view-producto-2').value;
     const txtPrecioC = document.querySelector("#precio_combo");
@@ -324,25 +412,53 @@ function registerC(){
 
 // Función que decide cual función de registro usar
 function register(){
-    const txtMarca = document.querySelector("#marca");
-    const txtProduct = document.querySelector("#producto");
-    const txtPrecio = document.querySelector("#precio");
-    const txtStock = document.querySelector("#stock");
+    // Campos de platos
+    const txtProduct = document.querySelector("#producto-plato");
+    const txtPrecio = document.querySelector("#precio-plato");
 
-    const txtProducts1 = document.querySelector('#view-producto-1').value;
-    const txtProducts2 = document.querySelector('#view-producto-2').value;
+    // Campos de bebidas
+    const txtMarca = document.querySelector("#marca");
+    const txtBebida = document.querySelector("#producto");
+    const txtStock = document.querySelector("#stock");
+    const txtPrecioBebida = document.querySelector("#precio");
+
+    const txtProducts1 = document.querySelector('#view-producto-1');
+    const txtProducts2 = document.querySelector('#view-producto-2');
     const txtPrecioC = document.querySelector("#precio_combo");
-    const txtProducts_C = `${txtProducts1} + ${txtProducts2}`;
 
     if (tipo == "P") {
+        if (!txtProduct.value || !txtPrecio.value) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Campos incompletos',
+                text: 'Por favor, complete los campos',
+            });
+            return;
+        }
         registerP();
     }
 
     if (tipo == "B") {
+        if (!txtMarca.value || !txtBebida.value || !txtStock.value || !txtPrecioBebida.value) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Campos incompletos',
+                text: 'Por favor, complete los campos',
+            });
+            return;
+        }
         registerB();
     }
 
     if (tipo == "M") {
+        if (!txtProducts1.value || !txtProducts2.value || !txtPrecioC.value) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Campos incompletos',
+                text: 'Por favor, complete los campos',
+            });
+            return;
+        }
         registerC();
     }
 
@@ -412,7 +528,7 @@ function search(){
                 <tr>
                     <td data-label='#'>${contador}</td>
                     <td data-label='Producto'>${element.producto}</td>
-                    <td data-label='Precio'>${precioSinDecimales}</td>
+                    <td data-label='Precio'>S/ ${precioSinDecimales}</td>
                     <td data-label='Fecha'>${fecha}</td>
                     <td data-label='Stock'><span class='badge rounded-pill' style='background-color: #${color} '>${stock}</td>
                     <td data-label='Estado'><span class='badge rounded-pill' style='background-color: #005478'>${estado}</td>
@@ -428,7 +544,6 @@ function search(){
         tbodyP.innerHTML = tbody;
     })
 }
-
 
 // Lista los platos disponibles para el combo
 function list_products(){
@@ -484,31 +599,20 @@ function listar_todo(){
 // Arregla la vista para el registro de platos
 function viewRegisterP(){
     tipo = "P";
+    const vist_platos = document.querySelector("#vista_de_platos")
     const viewPB = document.querySelector("#vista_pb")
     const view_combo = document.querySelector("#vista_combo")
     const titleView = document.querySelector("#titulo-register");
-    const viewMarca = document.querySelector("#view-marca");
-    const viewStock = document.querySelector("#view-stock");
-    const viewProducto = document.querySelector("#view-producto");
-    const viewPrecio = document.querySelector("#view-precio");
     const btnRPlato = document.querySelector("#vista-plato");
     const btnRBebida = document.querySelector("#vista-bebida");
     // Se agrega la clase d-none a los campos de bebida
     btnRPlato.classList.add("d-none")
     btnRBebida.classList.remove("d-none");
-    viewMarca.classList.add("d-none");
-    viewStock.classList.add("d-none");
 
     // Se quita la clase d-none de la vista de platos y bebidas 
-    viewPB.classList.remove("d-none");
+    vist_platos.classList.remove("d-none");
+    viewPB.classList.add("d-none");
     view_combo.classList.add("d-none");
-
-    // Se arreglan las columnas
-    viewProducto.classList.remove("col-md-3");
-    viewProducto.classList.add("col-md-4");
-
-    viewPrecio.classList.remove("col-md-3");
-    viewPrecio.classList.add("col-md-4");
 
     titleView.textContent = "Registrar Plato";
 }
@@ -516,42 +620,33 @@ function viewRegisterP(){
 // Arregla la vista para el registro de bebidas
 function viewRegisterB(){
     tipo = "B";
+    const vist_platos = document.querySelector("#vista_de_platos")
     const viewPB = document.querySelector("#vista_pb")
     const view_combo = document.querySelector("#vista_combo")
     const titleView = document.querySelector("#titulo-register");
-    const viewMarca = document.querySelector("#view-marca");
-    const viewStock = document.querySelector("#view-stock");
-    const viewProducto = document.querySelector("#view-producto");
-    const viewPrecio = document.querySelector("#view-precio");
-    const btnRPlato = document.querySelector("#vista-plato");
-    const btnRBebida = document.querySelector("#vista-bebida");
      // Se remueve la clase d-none a los campos de bebida
     btnRPlato.classList.remove("d-none")
+    vist_platos.classList.add("d-none");
     btnRBebida.classList.add("d-none");
-    viewMarca.classList.remove("d-none");
-    viewStock.classList.remove("d-none");
 
     // Se quita la clase d-none de la vista de platos y bebidas 
     viewPB.classList.remove("d-none");
     view_combo.classList.add("d-none");
 
     // Se arreglan las columnas
-    viewProducto.classList.add("col-md-3");
-    viewProducto.classList.remove("col-md-4");
-
-    viewPrecio.classList.add("col-md-3");
-    viewPrecio.classList.remove("col-md-4");
     titleView.textContent = "Registrar Bebida";
 }
 
 // Arregla la vista para el registro de combos
 function viewRegisterC(){
     tipo = "M";
+    const vist_platos = document.querySelector("#vista_de_platos")
     const titleView = document.querySelector("#titulo-register");
     const viewPB = document.querySelector("#vista_pb")
     const view_combo = document.querySelector("#vista_combo")
      // Se remueve la clase d-none a los campos de bebida
     viewPB.classList.add("d-none");
+    vist_platos.classList.add("d-none");
     view_combo.classList.remove("d-none");
 
     titleView.textContent = "Registrar Combo";
@@ -819,14 +914,11 @@ function ejecutarDiariamente() {
     }, milisegundosHastaEjecucion);
 }
 
-// Llama a ejecutarDiariamente para programar la ejecución diaria
-ejecutarDiariamente();
-
-
 list();
 listarMarcas();
 list_products();
 listar_todo();
+list_Platos_inactivos();
 
 const btnSearch = document.querySelector("#buscar-producto");
 btnSearch.addEventListener("click", search);
@@ -854,3 +946,6 @@ btnRegistrar.addEventListener("click", register)
 
 const btnEditarProducto = document.querySelector("#editar-producto");
 btnEditarProducto.addEventListener("click", edit);
+
+const btnRestaurar = document.querySelector("#restaurar-plato");
+btnRestaurar.addEventListener("click", habilitar_platos)

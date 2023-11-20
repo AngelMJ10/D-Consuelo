@@ -91,8 +91,20 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
+
+                <div class='row'>
+                    <div class="col-md-4">
+                        <div class="form-floating mb-3">
+                            <select class="form-control" name="" id="metodos-pago">
+                                <option value="1">Pago en efectivo</option>
+                                <option value="2">Yape</option>
+                                <option value="3">Plin</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
                 
-                <div class="table-responsive">
+                <div class="table-responsive mt-3">
                     <table class="table table-hover" id="tabla-carrito">
                         <thead>
                             <th>#</th>
@@ -133,8 +145,8 @@
 
                 <button type="button" class="btn btn-outline-primary" id="realizar-venta">Realizar Venta</button>
                 <button type="button" class="btn btn-outline-warning" id="btn-fiar">Fiar</button>
-                <button type="button" class="btn btn-outline-success d-none" id="prueba">Realizar Prueba</button>
-                <button type="button" class="btn btn-outline-warning d-none" id="btn-venta-normal">Venta Normal</button>
+                <button type="button" class="btn btn-outline-warning d-none" id="prueba">Realizar Venta</button>
+                <button type="button" class="btn btn-outline-primary d-none" id="btn-venta-normal">Venta Normal</button>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>

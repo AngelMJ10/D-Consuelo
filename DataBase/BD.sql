@@ -37,7 +37,7 @@ CREATE TABLE usuario
 )ENGINE = INNODB;
 
 INSERT INTO usuario (idpersona,usuario,clave)
-VALUES	(1,'AngelMJ','SENATI'),
+VALUES	(11,'AngelMJ','SENATI'),
 	(2,'ConsueloJE','SENATI');
 	
 SELECT * FROM usuario;
@@ -149,7 +149,10 @@ CREATE TABLE venta
 (
 	idventa			SMALLINT	AUTO_INCREMENT PRIMARY KEY,
 	idpedido		SMALLINT	NOT NULL,
+	metodo			CHAR(1)		NOT NULL,
 	total			DECIMAL(6,2)	NOT NULL,
+	metodo			CHAR(1)		NOT NULL,  -- 1 es efectivo, 2 yape, 3 plin
+	comentario		VARCHAR(80)	NULL,
 	idusuario		SMALLINT	NOT NULL,
 	estado			CHAR 		NOT NULL DEFAULT(1),  -- 1 es venta normal, 2 es venta con deuda
 	fecha_creacion		DATETIME 	NOT NULL DEFAULT NOW(),
@@ -158,8 +161,10 @@ CREATE TABLE venta
 )
 INSERT INTO venta(idpedido,total,idusuario)
 VALUES(1,44,1);
+SELECT * FROM venta
 --------------------
 CREATE TABLE deuda
+
 (
 	iddeudor		SMALLINT 	NOT NULL,
 	iddeuda			SMALLINT 	AUTO_INCREMENT PRIMARY KEY,
@@ -176,4 +181,43 @@ VALUES(2,65,"Pagará el 30 de octubre");
 
 SELECT * FROM deuda
 SELECT * FROM deudores
+UPDATE deudores SET estado = 2 WHERE iddeudor = 10
 SELECT * FROM venta WHERE estado = 2
+
+--------------------------------
+CREATE TABLE gastos
+(
+	idgasto 	SMALLINT 	AUTO_INCREMENT PRIMARY KEY,
+	idsemana	SMALLINT	NOT NULL,
+	gasto		VARCHAR(80)	NOT NULL,
+	tipo		VARCHAR(40)	NOT NULL,
+	precio		DECIMAL(6,2)	NOT NULL,
+	estado		CHAR(1)		NOT NULL DEFAULT '1',
+	fecha_creacion 	DATETIME	NOT NULL DEFAULT NOW(),
+	fecha_update	DATETIME	NULL,
+	CONSTRAINT fk_idsemana_g FOREIGN KEY (idsemana) REFERENCES semana (idsemana)
+)ENGINE = INNODB;
+
+SELECT * FROM gastos
+INSERT INTO gastos(idsemana,gasto,tipo,precio)VALUES
+(1,'','',),
+
+
+-----------------------------
+
+CREATE TABLE semana
+(
+    idsemana        SMALLINT    AUTO_INCREMENT PRIMARY KEY,
+    fecha_inicio    DATE        NOT NULL,
+    fecha_fin       DATE        NOT NULL,
+    comentario      VARCHAR(200) NULL,
+    estado          CHAR(1)     NOT NULL DEFAULT '1',
+    fecha_creacion  DATETIME    NOT NULL DEFAULT NOW(),
+    fecha_update    DATETIME    NULL
+)ENGINE = INNODB;
+
+INSERT INTO semana(fecha_inicio,fecha_fin)
+VALUES('2023-11-13','2023-11-25');
+
+SELECT * FROM semana
+

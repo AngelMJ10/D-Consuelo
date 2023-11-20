@@ -54,7 +54,7 @@
 
         // Lista los deudores con los datos personales y el total de su deuda
         if ($_POST['op'] == "listDepdtors") {
-            // liista los deudores
+            // Lista los deudores
             $datos = $deuda->listDepdtors();
             // Lista los datos de los deudores
             $datosP = $deuda->listPersons();
@@ -195,6 +195,45 @@
                 "estado"        => $_POST['estado']
             ];
             $deuda->change_estate_debt($datos);
+        }
+
+        // Cambia el estado del deudor
+        if ($_POST['op'] == "change_estate_deptor") {
+            $datos = [
+                "estado"        => $_POST['estado'],
+                "iddeudor"        => $_POST['iddeudor']
+            ];
+            $deuda->change_estate($datos);
+        }
+
+        if ($_POST['op'] == "list_debtor_debts") {
+            // Lista los deudores
+            $datos = $deuda->listDepdtors();
+            // Lista las deudas de los deudores
+            $datosD = $deuda->listDebt();
+        
+            foreach ($datos as $deudores) {
+                // Suponemos inicialmente que todas las deudas del deudor están en estado 2
+                $todasDeudasEstado2 = true;
+                
+                foreach ($datosD as $deudas) {
+                    if ($deudas['iddeudor'] == $deudores['iddeudor']) {
+                        if ($deudas['estado'] != 2) {
+                            // Al encontrar una deuda que no esté en estado 2, cambiamos la bandera
+                            $todasDeudasEstado2 = false;
+                            break; // No es necesario seguir revisando las otras deudas
+                        }
+                    }
+                }
+                
+                // Si todas las deudas del deudor están en estado 2, cambiamos el estado del deudor a 2
+                if ($todasDeudasEstado2) {
+                    $deuda->change_estate([
+                        "estado"        => 1,
+                        "iddeudor"        => $deudores['iddeudor']
+                    ]);
+                }
+            }
         }
 
     }

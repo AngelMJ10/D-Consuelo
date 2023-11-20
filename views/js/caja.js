@@ -341,9 +341,18 @@ async function venta() {
 // Se ejecutan las 4 funciones(pedir(),getIDP(), registerORder() y realizar_venta())
 async function venta_debt() {
     await validarCantidadStock();
+    const txtDeudores = document.querySelector("#deudores");
+    const txtComentario = document.querySelector("#comentario");
+    if (!txtDeudores.value || !txtComentario.value) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Campos incompletos',
+            text: 'Por favor, seleccione a un deudor.',
+        });
+        return;
+    }
     if (validacionStock) {
         let txtTotal = document.querySelector("#total").value;
-        
         Swal.fire({
             icon: 'question',
             title: 'Confirmación',
@@ -354,16 +363,6 @@ async function venta_debt() {
         })
         .then(async (result) => { // Marca la función como async aquí
             if (result.isConfirmed) {
-                const txtDeudores = document.querySelector("#deudores");
-                const txtComentario = document.querySelector("#comentario");
-                if (!txtDeudores.value || !txtComentario.value) {
-                    Swal.fire({
-                        icon: 'warning',
-                        title: 'Campos incompletos',
-                        text: 'Por favor, completa todos los campos.',
-                    });
-                    return;
-                }
                 await pedir();
                 await getIDP();
                 await register_order();
@@ -376,10 +375,12 @@ async function venta_debt() {
 
 // Se registra la venta
 async function realizar_venta(total) {
+    const method_pay = document.querySelector("#metodos-pago");
     const parametros = new URLSearchParams();
     parametros.append("op", "register_Venta");
     parametros.append("idpedido", idPedido);
     parametros.append("total", total);
+    parametros.append("metodo", method_pay.value);
     fetch("../controllers/venta.php", {
         method: 'POST',
         body: parametros
@@ -638,6 +639,7 @@ function habilitarBtn(){
     txtDeudores.classList.remove("d-none");
 }
 
+// Da la vista de la deuda
 function deshabilitar_Venta(){
     const txtDeudores = document.querySelector("#venta-deuda");
     btnFiar.classList.remove("d-none");

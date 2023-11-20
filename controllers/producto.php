@@ -28,6 +28,12 @@
             echo json_encode($datos);
         }
 
+        //  Lista todos los productos inactivos
+        if ($_POST['op'] == "listAll_inactive") {
+            $datos = $producto->listAll_inactive();
+            echo json_encode($datos);
+        }
+
         //  Lista todos los productos
         if ($_POST['op'] == "list_All_estate") {
             $datos = $producto->list_All_estate();
@@ -149,6 +155,12 @@
         // Deshabilita los productos de tipo "M" y "P"
         if ($_POST['op'] == "disable_products") {
             $producto->disable_products();
+        }
+
+        // Habilida los productos conforme su ID
+        if ($_POST['op'] == "active_products") {
+            $data = ["idproducto" => $_POST['idproducto']];
+            $producto->active_products($data);
         }
 
     }

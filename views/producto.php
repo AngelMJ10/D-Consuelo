@@ -5,8 +5,11 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"></script>
+    <!-- Select2 -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css">
     <!-- Font Awesome -->
@@ -17,7 +20,7 @@
 <link rel="stylesheet" href="./css/style.css">
 
     <div class="capa text-center">
-        <h1>Platos</h1>
+        <h1>Productos</h1>
     </div>
     <div class="container py-5">
         <!-- Navs -->
@@ -41,23 +44,24 @@
                     <div class="card-body">
                     <form>
                         <h4 id="titulo-register">Registrar Bebidas</h4>
+
                         <div class="row mb-2 mt-3" id="vista_pb">
 
-                            <div class="col-md-3" id="view-marca">
+                            <div class="col-md-3">
                                 <div class="form-floating mb-3">
                                     <select class="form-control" name="" id="marca">
                                     </select>
                                 </div>
                             </div>
 
-                            <div class="col-md-3" id="view-producto">
+                            <div class="col-md-3">
                                 <div class="form-floating mb-3">
                                     <input type="text" class="form-control" id="producto" name="Plato" placeholder="Plato">
                                     <label for="Plato" class="form-label">Producto</label>
                                 </div>
                             </div>
 
-                            <div class="col-md-3" id="view-precio">
+                            <div class="col-md-3">
                                 <div class="form-floating mb-3">
                                     <input type="number" class="form-control" id="precio" name="precio" placeholder="Precio">
                                     <label for="precio" class="form-label">Precio</label>
@@ -70,6 +74,29 @@
                                     <label for="precio" class="form-label">Stock</label>
                                 </div>
                             </div>
+                        </div>
+
+                        <div class="row mb-2 mt-3 d-none" id="vista_de_platos">
+
+                            <div class="col-md-3">
+                                <div class="form-floating mb-3">
+                                    <input type="text" class="form-control" id="producto-plato" name="Plato" placeholder="Plato">
+                                    <label for="Plato" class="form-label">Producto</label>
+                                </div>
+                            </div>
+
+                            <div class="col-md-3">
+                                <div class="form-floating mb-3">
+                                    <input type="number" class="form-control" id="precio-plato" name="precio" placeholder="Precio">
+                                    <label for="precio" class="form-label">Precio</label>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <select class="form-control" style="width: 100%;" name="" id="platos-inactivos" multiple="multiple">
+                                </select>
+                            </div>
+
                         </div>
 
                         <div class="row mb-2 mt-3 d-none" id="vista_combo">
@@ -101,6 +128,7 @@
                         <button type="button" id="vista-plato" class="btn btn-outline-success">Platos</button>
                         <button type="button" id="vista-bebida" class="d-none btn btn-outline-success">Bebidas</button>
                         <button type="button" id="vista-combo" class=" btn btn-outline-warning">Combo</button>
+                        <button type="button" id="restaurar-plato" class=" btn btn-outline-danger">Restaurar</button>
                     </form>
                     </div>
                 </div>
@@ -121,7 +149,7 @@
                                     <div class="row mb-2 mt-2">
 
                                         <div class="col-md-4">
-                                        <div class="form-floating mb-3">
+                                            <div class="form-floating mb-3">
                                                 <select class="form-control" name="" id="producto-buscar">
                                                 </select>
                                             </div>
@@ -179,7 +207,7 @@
 
                         <thead>
                             <th>#</th>
-                            <th>Plato</th>
+                            <th>Producto</th>
                             <th>Precio S/</th>
                             <th>Fecha</th>
                             <th>Stock</th>
@@ -273,8 +301,10 @@
         </div>
     </div>
 
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.0/jquery.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="js/producto.js"></script>
-    
+
 </body>
 </html>

@@ -1,6 +1,7 @@
 const tablaD = document.querySelector("#tabla-deudores");
 const tbodyD = tablaD.querySelector("tbody");
 let idPersona = 0;
+let idDebtor = 0;
 
 function list(){
     const parametros = new URLSearchParams();
@@ -213,7 +214,7 @@ function pay(iddeuda, idventa){
     });
 }
 
-// Función para cambiar el estado de la deuda
+// Función para cambiar el estado de la deuda(es para saldar la deuda)
 async function pay_debt(iddeuda){
     const parametros = new URLSearchParams();
     parametros.append("op", "change_estate");
@@ -239,7 +240,7 @@ async function pay_debt(iddeuda){
     });
 }
 
-// Función para cambiar el estado de la venta
+// Función para cambiar el estado de la venta(cambia la venta a estado "pagado")
 async function pay_sale(idventa){
     const parametros = new URLSearchParams();
     parametros.append("op", "change_estate");
@@ -284,6 +285,7 @@ function get_debts(id){
         bootstrapModal.show();
         let tbody = "";
         datos.forEach(element => {
+            idDebtor = element.iddeudor
             const fechaCreate = new Date(element.fecha_creacion);
             const fecha = fechaCreate.toISOString().split('T')[0];
             const estado = element.estado == 1 ? 'No pagado' : element.estado == 2 ? 'Pagado' : element.estado;
@@ -293,7 +295,7 @@ function get_debts(id){
                     <td data-label='#'>${contador}</td>
                     <td data-label='Productos'>${element.productos}</td>
                     <td data-label='Total'>S/ ${element.total}</td>
-                    <td data-label='Fecha'>${fecha}</td>
+                    <td data-label='Fecha'>${element.fecha_creacion}</td>
                     <td data-label='Estado'><span class='badge rounded-pill' style='background-color: #005478'>${estado}</td>
                     <td data-label='Acción'>
                         <a class='btn btn-sm btn-outline-success' title='Clic, para saldar la deuda'
@@ -309,7 +311,7 @@ function get_debts(id){
                     <td data-label='#'>${contador}</td>
                     <td data-label='Productos'>${element.productos}</td>
                     <td data-label='Total'>S/ ${element.total}</td>
-                    <td data-label='Fecha'>${fecha}</td>
+                    <td data-label='Fecha'>${element.fecha_creacion}</td>
                     <td data-label='Estado'><span class='badge rounded-pill' style='background-color: #005478'>${estado}</td>
                     <td data-label='Acción'>
                         <a class='btn btn-sm btn-outline-primary' title='Clic, para reactivar la deuda' 
@@ -323,6 +325,7 @@ function get_debts(id){
             
             contador++;
         });
+        console.log(idDebtor);
         tbodyDeudas.innerHTML = tbody;
     })
 }
@@ -366,6 +369,7 @@ function get_sale(id){
     })
 }
 
+// Función que reactiva la deuda
 function reactivar_deuda(iddeuda, idventa) {
     Swal.fire({
         icon: 'question',
@@ -383,7 +387,7 @@ function reactivar_deuda(iddeuda, idventa) {
     });
 }
 
-// Función para cambiar el estado de la deuda
+// Función para cambiar el estado de la deuda(reactiva la deuda)
 async function pay_debt_1(iddeuda){
     const parametros = new URLSearchParams();
     parametros.append("op", "change_estate");
@@ -395,9 +399,10 @@ async function pay_debt_1(iddeuda){
     })
     .then(respuesta => {
         if (respuesta.ok) {
+            change_estate_debtor(2);
             Swal.fire({
                 icon: 'success',
-                title: 'Deuda reacivada',
+                title: 'Deuda reactivada',
                 html: 'Se ha reactivado la deuda'
             })
         } else {
@@ -409,7 +414,7 @@ async function pay_debt_1(iddeuda){
     });
 }
 
-// Función para cambiar el estado de la venta
+// Función para cambiar el estado de la venta (reactiva al modo fiado)
 async function pay_sale_2(idventa){
     const parametros = new URLSearchParams();
     parametros.append("op", "change_estate");
@@ -435,11 +440,55 @@ async function pay_sale_2(idventa){
     });
 }
 
+// Cambia el estao del deudor
+function change_estate_debtor(estado){
+    const parametros = new URLSearchParams();
+    parametros.append("op", "change_estate_deptor");
+    parametros.append("iddeudor", idDebtor);
+    parametros.append("estado", estado);
+    fetch("../controllers/deuda.php", {
+        method: 'POST',
+        body: parametros
+    })
+    .then(respuesta => {
+        if (respuesta.ok) {
+            console.log("Estado no pagado del deudor");
+        } else {
+            throw new Error('Error en la solicitud');
+        }
+    })
+    .catch(error => {
+        console.error(error);
+    });
+}
+
+// Verifica si los deudores tienes deudas pendientes o no
+function verify_estate_debtors(){
+    const parametros = new URLSearchParams();
+    parametros.append("op", "list_debtor_debts");
+    fetch("../controllers/deuda.php", {
+        method: 'POST',
+        body: parametros
+    })
+    .then(respuesta => {
+        if (respuesta.ok) {
+        } else {
+            throw new Error('Error en la solicitud');
+        }
+    })
+    .catch(error => {
+        console.error(error);
+    });
+}
+
+verify_estate_debtors();
+
 const btnRegister = document.querySelector("#registrar-deudor")
 btnRegister.addEventListener("click", register_deudor);
 
 const btnEditar = document.querySelector("#editar-deudor")
 btnEditar.addEventListener("click", edit_person);
+
 
 
 list();

@@ -41,13 +41,14 @@
         // Registra la venta
         public function register_Venta($data = []) {
             try {
-                $query = "INSERT INTO venta(idpedido,total,idusuario)
-                VALUES(?,?,?)";
+                $query = "INSERT INTO venta(idpedido,total,idusuario,metodo)
+                VALUES(?,?,?,?)";
                 $consulta = $this->conexion->prepare($query);
                 $consulta->execute(array(
                     $data['idpedido'],
                     $data['total'],
-                    $data['idusuario']
+                    $data['idusuario'],
+                    $data['metodo']
                 ));
             } catch (Exception $e) {
                 die($e->getMessage());
@@ -70,7 +71,7 @@
         // Lista la venta con la cantidad de productos y total
         public function list(){
             try {
-                $query = "SELECT ven.idventa,ped.idpedido, COUNT(dtp.idproducto) AS productos, ven.total, ven.fecha_creacion,ven.estado
+                $query = "SELECT ven.idventa,ped.idpedido, COUNT(dtp.idproducto) AS productos, ven.metodo, ven.total, ven.fecha_creacion,ven.estado
                 FROM venta ven
                 INNER JOIN pedido ped ON ped.idpedido = ven.idpedido
                 INNER JOIN detalle_pedido dtp ON dtp.idpedido = ped.idpedido
@@ -106,38 +107,45 @@
         }
 
         // Para buscar las ventas por : Fecha,total ,productos y estado
-        public function search($data = []){
+        public function search($data = []) {
             try {
-                $query = "SELECT ven.idventa,ped.idpedido, COUNT(dtp.idproducto) AS productos, ven.total, ven.fecha_creacion,ven.estado
+                $query = "SELECT ven.idventa, ped.idpedido, COUNT(dtp.idproducto) AS productos, ven.metodo, ven.total, ven.fecha_creacion, ven.estado
                 FROM venta ven
                 INNER JOIN pedido ped ON ped.idpedido = ven.idpedido
                 INNER JOIN detalle_pedido dtp ON dtp.idpedido = ped.idpedido
                 INNER JOIN producto pro ON pro.idproducto = dtp.idproducto
                 WHERE 1 = 1";
-
+        
                 $params = [];
+        
                 if (!empty($data["idproducto"])) {
                     $query .= " AND pro.idproducto = ?";
                     $params[] = $data['idproducto'];
                 }
-
+        
                 if (!empty($data["total"])) {
                     $query .= " AND ven.total = ?";
                     $params[] = $data['total'];
                 }
-
-                if (!empty($data["fecha"])) {
-                    $query .= " AND DATE(ven.fecha_creacion) = DATE(?)";
+        
+                if (!empty($data['fecha']) && !empty($data['fecha_limite'])) {
+                    $query .= " AND ven.fecha_creacion BETWEEN ? AND ?";
                     $params[] = $data['fecha'];
+                    $params[] = $data['fecha_limite'];
                 }
-
+        
+                if (!empty($data["metodo"])) {
+                    $query .= " AND ven.metodo = ?";
+                    $params[] = $data['metodo'];
+                }
+        
                 if (!empty($data["estado"])) {
                     $query .= " AND ven.estado = ?";
                     $params[] = $data['estado'];
                 }
-
+        
                 $query .= " GROUP BY ven.idventa, ven.total, ven.fecha_creacion";
-
+        
                 $consulta = $this->conexion->prepare($query);
                 $consulta->execute($params);
                 $datos = $consulta->fetchAll(PDO::FETCH_ASSOC);
@@ -146,6 +154,7 @@
                 die($e->getMessage());
             }
         }
+        
 
         // Cambia el estado 2 (es para una venta fiada)
         public function change_estate($data = []){

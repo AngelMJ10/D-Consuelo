@@ -26,7 +26,8 @@
             $data = [
                 "idpedido"      => $_POST["idpedido"],
                 "total"         => $_POST["total"],
-                "idusuario"     => $_SESSION["idusuario"]
+                "idusuario"     => $_SESSION["idusuario"],
+                "metodo"        => $_POST['metodo']
             ];
             $venta->register_Venta($data);
         }
@@ -68,15 +69,29 @@
 
         // Busca ventas por productos ,total y fechas
         if ($_POST['op'] == "search") {
+            // Validar y limpiar los datos del formulario
+            $idproducto = isset($_POST['idproducto']) ? $_POST['idproducto'] : '';
+            $total = isset($_POST['total']) ? $_POST['total'] : '';
+            $fecha = isset($_POST['fecha']) ? $_POST['fecha'] . ' 00:00:00' : '';
+            $metodo = isset($_POST['metodo']) ? $_POST['metodo'] : '';
+            $estado = isset($_POST['estado']) ? $_POST['estado'] : '';
+        
+            // Crear un array de datos
             $data = [
-                "idproducto"    => isset($_POST['idproducto']) ? $_POST['idproducto'] : '',
-                "total"         => isset($_POST['total']) ? $_POST['total'] : '',
-                "fecha"         => isset($_POST['fecha']) ? $_POST['fecha'] : '',
-                "estado"        => isset($_POST['estado']) ? $_POST['estado'] : ''
+                "idproducto"    => $idproducto,
+                "total"         => $total,
+                'fecha'         => $fecha,
+                "metodo"        => $metodo,
+                "estado"        => $estado
             ];
+        
+            // Realizar la búsqueda
             $datos = $venta->search($data);
+        
+            // Devolver los resultados como JSON
             echo json_encode($datos);
         }
+        
 
         // Calcula el total del día
         if ($_POST['op'] == "total_day") {

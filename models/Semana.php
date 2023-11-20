@@ -2,7 +2,7 @@
 
     require_once 'Conexion.php';
 
-    class Marca extends Conexion{
+    class Semana extends Conexion{
 
         private $conexion;
 
@@ -13,7 +13,7 @@
 
         public function listar(){
             try {
-                $consulta = $this->conexion->prepare("SELECT * FROM marcas WHERE estado = 1 ORDER BY marca asc");
+                $consulta = $this->conexion->prepare("SELECT * FROM semana");
                 $consulta->execute();
                 $datos = $consulta->fetchAll(PDO::FETCH_ASSOC);
                 return $datos;
@@ -24,9 +24,9 @@
 
         public function obtener($data = []){
             try {
-                $query = "SELECT * FROM marcas where idmarca = ?";
+                $query = "SELECT * FROM semana where idsemana = ?";
                 $consulta = $this->conexion->prepare($query);
-                $consulta->execute(array($data['idmarca']));
+                $consulta->execute(array($data['idsemana']));
                 $datos = $consulta->fetch(PDO::FETCH_ASSOC);
                 return $datos;
             } catch (Exception $e) {
@@ -36,10 +36,11 @@
 
         public function registrar($data = []){
             try {
-                $query = "INSERT INTO marcas(marca) VALUES(?)";
+                $query = "INSERT INTO semana(fecha_inicio,fecha_fin) VALUES(?,?)";
                 $consulta = $this->conexion->prepare($query);
                 $consulta->execute(array(
-                    $data['marca']
+                    $data['fecha_inicio'],
+                    $data['fecha_fin']
                 ));
             } catch (Exception $e) {
                 die($e->getMessage());
@@ -48,12 +49,13 @@
 
         public function editar($data = []){
             try {
-                $query = "UPDATE marcas set marca = ?, estado = ? where idmarca = ?";
+                $query = "UPDATE semana set fecha_inicio = ?, fecha_fin = ?, estado = ? where idsemana = ?";
                 $consulta = $this->conexion->prepare($query);
                 $consulta->execute(array(
-                    $data['marca'],
+                    $data['fecha_inicio'],
+                    $data['fecha_fin'],
                     $data['estado'],
-                    $data['idmarca']
+                    $data['idsemana']
                 ));
             } catch (Exception $e) {
                 die($e->getMessage());

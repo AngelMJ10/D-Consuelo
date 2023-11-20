@@ -22,6 +22,19 @@ require_once 'Conexion.php';
             }
         }
 
+        // Listar todos los tipos
+        public function listAll_inactive(){
+            try {
+                $query = "SELECT * FROM producto WHERE estado = 0 order by producto ASC";
+                $consulta = $this->conexion->prepare($query);
+                $consulta->execute();
+                $datos = $consulta->fetchAll(PDO::FETCH_ASSOC);
+                return $datos;
+            } catch (Exception $e) {
+                die($e->getMessage());
+            }
+        }
+
         // Listar dos registros especificos por sus ids
         public function list_by_ids($data = []){
             try {
@@ -231,6 +244,17 @@ require_once 'Conexion.php';
                 $query = "UPDATE producto set estado = 0 where tipo = 'M' OR tipo = 'P' ";
                 $consulta = $this->conexion->prepare($query);
                 $consulta->execute();
+            } catch (Exception $e) {
+                die($e->getMessage());
+            }
+        }
+
+        // Habilita los productos conforme su ID
+        public function active_products($data = []){
+            try {
+                $query = "UPDATE producto set estado = 1 where idproducto = ?";
+                $consulta = $this->conexion->prepare($query);
+                $consulta->execute(array($data['idproducto']));
             } catch (Exception $e) {
                 die($e->getMessage());
             }

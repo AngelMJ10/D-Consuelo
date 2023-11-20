@@ -2,7 +2,7 @@
 
     require_once 'Conexion.php';
 
-    class Marca extends Conexion{
+    class Gasto extends Conexion{
 
         private $conexion;
 
@@ -13,7 +13,7 @@
 
         public function listar(){
             try {
-                $consulta = $this->conexion->prepare("SELECT * FROM marcas WHERE estado = 1 ORDER BY marca asc");
+                $consulta = $this->conexion->prepare("SELECT * FROM gastos");
                 $consulta->execute();
                 $datos = $consulta->fetchAll(PDO::FETCH_ASSOC);
                 return $datos;
@@ -24,9 +24,9 @@
 
         public function obtener($data = []){
             try {
-                $query = "SELECT * FROM marcas where idmarca = ?";
+                $query = "SELECT * FROM gastos where idgasto = ?";
                 $consulta = $this->conexion->prepare($query);
-                $consulta->execute(array($data['idmarca']));
+                $consulta->execute(array($data['idgasto']));
                 $datos = $consulta->fetch(PDO::FETCH_ASSOC);
                 return $datos;
             } catch (Exception $e) {
@@ -36,10 +36,13 @@
 
         public function registrar($data = []){
             try {
-                $query = "INSERT INTO marcas(marca) VALUES(?)";
+                $query = "INSERT INTO gastos(idsemana,gasto,tipo,precio) VALUES(?,?,?,?)";
                 $consulta = $this->conexion->prepare($query);
                 $consulta->execute(array(
-                    $data['marca']
+                    $data['idsemana'],
+                    $data['gasto'],
+                    $data['tipo'],
+                    $data['precio']
                 ));
             } catch (Exception $e) {
                 die($e->getMessage());
@@ -48,12 +51,15 @@
 
         public function editar($data = []){
             try {
-                $query = "UPDATE marcas set marca = ?, estado = ? where idmarca = ?";
+                $query = "UPDATE gastos set idsemana = ?, gasto = ?, tipo = ?, precio = ?, estado = ? where idgasto = ?";
                 $consulta = $this->conexion->prepare($query);
                 $consulta->execute(array(
-                    $data['marca'],
+                    $data['idsemana'],
+                    $data['gasto'],
+                    $data['tipo'],
+                    $data['precio'],
                     $data['estado'],
-                    $data['idmarca']
+                    $data['idgasto']
                 ));
             } catch (Exception $e) {
                 die($e->getMessage());
