@@ -432,8 +432,9 @@ function register(){
                 icon: 'warning',
                 title: 'Campos incompletos',
                 text: 'Por favor, complete los campos',
+            }).then(() => {
+                location.reload();
             });
-            return;
         }
         registerP();
     }

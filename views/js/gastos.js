@@ -1,5 +1,6 @@
 const tableM = document.querySelector("#tabla-gastos");
 const tbodyM = tableM.querySelector("tbody");
+
 // Modal
 const modal = document.querySelector("#modal-editar");
 const bootstrapModal = new bootstrap.Modal(modal);
@@ -58,9 +59,14 @@ function agregarCampos() {
                 <div class="form-floating mb-3">
                     <select class="form-control" name="tipo">
                         <option value="0">Seleccione un tipo de gasto</option>
+                        <option value="Aceite">Aceite</option>
+                        <option value="Alquiler">Alquiler</option>
+                        <option value="Bebidas">Bebidas</option>
+                        <option value="Maquinaria y equipo">Maquinaria y equipo</option>
+                        <option value="Otros gastos">Otros gastos</option>
+                        <option value="Plasticos">Plasticos</option>
                         <option value="Servicios">Servicios</option>
                         <option value="Suministros">Suministros</option>
-                        <option value="Alquiler">Alquiler</option>
                     </select>
                 </div>
             </div>
@@ -216,6 +222,55 @@ function edit() {
     
 }
 
+function search(){
+    const txtGastos = document.querySelector("#gastos-buscar");
+    const txtTipo = document.querySelector("#tipo-buscar");
+    const txtSemana = document.querySelector("#semana-buscar");
+    const txtPrecio = document.querySelector("#precio-buscar");
+    const txtEstado = document.querySelector("#estado-buscar");
+    const parametros = new URLSearchParams();
+    parametros.append("op", "search");
+    parametros.append("gasto", txtGastos.value);
+    parametros.append("idsemana", txtSemana.value);
+    parametros.append("precio", txtPrecio.value);
+    parametros.append("tipo", txtTipo.value);
+    parametros.append("estado", txtEstado.value);
+    fetch("../controllers/gasto.php", {
+        method: 'POST',
+        body: parametros
+    })
+    .then(respuesta => respuesta.json())
+    .then(datos =>{
+        let tbody = "";
+        tbodyM.innerHTML = "";
+        let contador = 1;
+        datos.forEach(element => {
+            console.log(txtTipo.value);
+            const fechaCreate = new Date(element.fecha_creacion);
+            const fecha = fechaCreate.toISOString().split('T')[0];
+            const estado = element.estado == 1 ? 'Activo' : element.estado == 0 ? 'Inactivo' : element.estado;
+            const precioSinDecimales = parseFloat(element.precio).toString();
+            tbody += `
+                <tr>
+                    <td data-label='#'>${contador}</td>
+                    <td data-label='Gasto'>${element.gasto}</td>
+                    <td data-label='Tipo'>${element.tipo}</td>
+                    <td data-label='Precio'>S/ ${precioSinDecimales}</td>
+                    <td data-label='Fecha'>${fecha}</td>
+                    <td data-label='Estado'><span class='badge rounded-pill' style='background-color: #005478 '>${estado}</td>
+                    <td data-label='Acción'>
+                        <a class='btn btn-sm btn-outline-success' onclick='get(${element.idgasto})' type='button'>
+                        <i class="fa-regular fa-pen-to-square"></i>
+                        </a>
+                    </td>
+                </tr>
+            `;
+            contador++;
+        });
+        tbodyM.innerHTML = tbody;
+    })
+}
+
 function tiposGastos(){
     const tiposRegistro = document.querySelector("#tipo");
     const tiposEditar = document.querySelector("#tipo-editar");
@@ -273,3 +328,7 @@ list();
 
 const btnEditar = document.querySelector("#editar-gasto");
 btnEditar.addEventListener("click", edit);
+
+
+const btnBuscar = document.querySelector("#buscar-gastos");
+btnBuscar.addEventListener("click", search);

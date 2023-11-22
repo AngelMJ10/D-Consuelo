@@ -313,7 +313,7 @@ async function register_order(){
     }
 }
 
-// Se ejecutan las 4 funciones(pedir(),getIDP(), registerORder() y realizar_venta())
+// Se ejecutan las 4 funciones(pedir(),getIDP(), registerOrder() y realizar_venta())
 async function venta() {
     await validarCantidadStock();
     if (validacionStock) {
@@ -338,7 +338,7 @@ async function venta() {
     }
 }
 
-// Se ejecutan las 4 funciones(pedir(),getIDP(), registerORder() y realizar_venta())
+// Se ejecutan las 5 funciones(pedir(),getIDP(), registerOrder() ,sale_debt() y register_debt())
 async function venta_debt() {
     await validarCantidadStock();
     const txtDeudores = document.querySelector("#deudores");
@@ -391,7 +391,9 @@ async function realizar_venta(total) {
                 icon: 'success',
                 title: 'Venta realizada',
                 html: 'Se ha registrado la venta'
-            })
+            }).then(() => {
+                location.reload();
+            });
         } else {
             throw new Error('Error en la solicitud');
         }
@@ -403,10 +405,12 @@ async function realizar_venta(total) {
 
 // Se registra la venta con deuda
 async function sale_debt(total) {
+    const method_pay = document.querySelector("#metodos-pago");
     const parametros = new URLSearchParams();
     parametros.append("op", "register_sale_debt");
     parametros.append("idpedido", idPedido);
     parametros.append("total", total);
+    parametros.append("metodo", method_pay.value);
     fetch("../controllers/venta.php", {
         method: 'POST',
         body: parametros
@@ -446,7 +450,9 @@ async function register_debt() {
                 icon: 'success',
                 title: 'Deuda Cargada',
                 html: 'Se ha cargado la deuda'
-            })
+            }).then(() => {
+                location.reload();
+            });
         } else {
             throw new Error('Error en la solicitud');
         }
@@ -456,6 +462,7 @@ async function register_debt() {
     });
 }
 
+// Lista a los deudores
 function list_depdtors(){
     const txtDeudores = document.querySelector("#deudores");
     const parametros = new URLSearchParams();

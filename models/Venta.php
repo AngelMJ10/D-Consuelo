@@ -154,7 +154,6 @@
                 die($e->getMessage());
             }
         }
-        
 
         // Cambia el estado 2 (es para una venta fiada)
         public function change_estate($data = []){
@@ -173,12 +172,13 @@
         // Registra la venta pero con estado 2
         public function register_sale_debt($data = []) {
             try {
-                $query = "INSERT INTO venta(idpedido,total,idusuario,estado)
-                VALUES(?,?,?,2)";
+                $query = "INSERT INTO venta(idpedido,total,metodo,idusuario,estado)
+                VALUES(?,?,?,?,2)";
                 $consulta = $this->conexion->prepare($query);
                 $consulta->execute(array(
                     $data['idpedido'],
                     $data['total'],
+                    $data['metodo'],
                     $data['idusuario']
                 ));
             } catch (Exception $e) {

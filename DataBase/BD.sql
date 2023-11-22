@@ -154,7 +154,7 @@ CREATE TABLE venta
 	metodo			CHAR(1)		NOT NULL,  -- 1 es efectivo, 2 yape, 3 plin
 	comentario		VARCHAR(80)	NULL,
 	idusuario		SMALLINT	NOT NULL,
-	estado			CHAR 		NOT NULL DEFAULT(1),  -- 1 es venta normal, 2 es venta con deuda
+	estado			CHAR 		NOT NULL DEFAULT(1),  -- 1 es venta normal, 2 es venta con deuda(osea que aún no ha sido pagado)
 	fecha_creacion		DATETIME 	NOT NULL DEFAULT NOW(),
 	CONSTRAINT fk_idpedido_v FOREIGN KEY (idpedido) REFERENCES pedido(idpedido),
 	CONSTRAINT fk_idproducto_v FOREIGN KEY (idusuario) REFERENCES usuario(idusuario)

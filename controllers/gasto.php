@@ -38,6 +38,22 @@
             $datos = $gasto->editar($data);
         }
 
+        if ($_POST['op'] == 'search') {
+            $data = [
+                'gasto'     => isset($_POST['gasto']) ? $_POST['gasto'] : '',
+                'idsemana'  => isset($_POST['idsemana']) ? $_POST['idsemana'] : '',
+                'precio'    => isset($_POST['precio']) ? $_POST['precio'] : '',
+                'tipo'      => isset($_POST['tipo']) ? $_POST['tipo'] : '',
+                'estado'    => isset($_POST['estado']) ? $_POST['estado'] : ''
+            ];
+        
+            $resultados = $gasto->search($data);
+        
+            // Puedes hacer algo con los resultados, como imprimirlos o devolverlos como JSON
+            echo json_encode($resultados);
+        }
+        
+
     }
 
 ?>

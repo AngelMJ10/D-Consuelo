@@ -101,7 +101,7 @@ function getDebt(id){
             <p><b>Deudor: </b> ${datos.apellidos} ${datos.nombre}</p>
         `;
     })
-}
+}   
 
 function search(){
     const txtProducto = document.querySelector("#producto-buscar");

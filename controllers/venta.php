@@ -37,6 +37,7 @@
             $data = [
                 "idpedido"      => $_POST["idpedido"],
                 "total"         => $_POST["total"],
+                "metodo"         => $_POST["metodo"],
                 "idusuario"     => $_SESSION["idusuario"]
             ];
             $venta->register_sale_debt($data);
@@ -91,7 +92,6 @@
             // Devolver los resultados como JSON
             echo json_encode($datos);
         }
-        
 
         // Calcula el total del día
         if ($_POST['op'] == "total_day") {

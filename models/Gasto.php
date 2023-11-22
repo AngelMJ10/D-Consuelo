@@ -66,6 +66,47 @@
             }
         }
 
+        public function search($data = []) {
+            try {
+                $query = "SELECT * FROM gastos WHERE 1 = 1";
+                $params = [];
+        
+                if (!empty($data["gasto"])) {
+                    $query .= " AND gasto LIKE ?";
+                    $params[] = '%' . $data['gasto'] . '%';
+                }
+        
+                if (!empty($data["idsemana"])) {
+                    $query .= " AND idsemana = ?";
+                    $params[] = $data['idsemana'];
+                }
+        
+                if (!empty($data["precio"])) {
+                    $query .= " AND precio = ?";
+                    $params[] = $data['precio'];
+                }
+        
+                if (!empty($data["tipo"])) {
+                    $query .= " AND tipo = ?";
+                    $params[] = $data['tipo'];
+                }
+        
+                if (!empty($data["estado"])) {
+                    $query .= " AND estado = ?";
+                    $params[] = $data['estado'];
+                }
+        
+                $query .= " GROUP BY idgasto, fecha_creacion";
+        
+                $consulta = $this->conexion->prepare($query);
+                $consulta->execute($params);
+                $datos = $consulta->fetchAll(PDO::FETCH_ASSOC);
+                return $datos;
+            } catch (Exception $e) {
+                die($e->getMessage());
+            }
+        }
+
     }
 
 ?>

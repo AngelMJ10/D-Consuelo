@@ -120,8 +120,8 @@
 
                                         <div class="col-md-3">
                                             <div class="form-floating mb-3">
-                                                <input type="date" class="form-control" id="fecha-buscar" name="Plato" placeholder="Plato">
-                                                <label for="Plato" class="form-label">Fecha</label>
+                                                <input type="number" class="form-control" id="precio-buscar" name="Plato" placeholder="Plato">
+                                                <label for="Plato" class="form-label">Precio</label>
                                             </div>
                                         </div>
 
@@ -139,7 +139,7 @@
                                         </div>
                                     </div>
 
-                                    <button type="button" id="buscar-plato"  class="btn btn-outline-primary">Buscar</button>
+                                    <button type="button" id="buscar-gastos"  class="btn btn-outline-primary">Buscar</button>
                                 </form>
                             </div>
                         </div>
