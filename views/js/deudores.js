@@ -103,7 +103,6 @@ async function register_person(){
     const txtApellidos = document.querySelector("#apellidos");
     const txtTelefono = document.querySelector("#telefono");
     const txtDireccion = document.querySelector("#direccion");
-
     const parametros = new URLSearchParams();
     parametros.append("op", "registerPerson")
     parametros.append("nombre", txtNombre.value)
@@ -266,11 +265,14 @@ async function pay_sale(idventa){
     });
 }
 
-// Función para poder obtener las deudas
+// Función para poder obtener las deudas(abre el modal de deudas)
 function get_debts(id){
+    const txtDeudores = document.querySelector("#deudores-buscar");
+    const txttotal = document.querySelector("#total-deuda")
     const tablaDeudas = document.querySelector("#tabla-deudas");
     const tbodyDeudas = tablaDeudas.querySelector("tbody");
     const modal = document.querySelector("#modal-deudas");
+    const bootstrapModal = new bootstrap.Modal(modal);
     const parametros = new URLSearchParams();
     parametros.append("op", "get_debts");
     parametros.append("iddeudor", id);
@@ -280,11 +282,15 @@ function get_debts(id){
     })
     .then(respuesta => respuesta.json())
     .then(datos =>{
+        getAporte(id);
         let contador = 1;
-        const bootstrapModal = new bootstrap.Modal(modal);
         bootstrapModal.show();
         let tbody = "";
+        let total = 0
         datos.forEach(element => {
+            if (element.estado == 1) {
+                total += parseFloat(element.total);
+            }
             idDebtor = element.iddeudor
             const fechaCreate = new Date(element.fecha_creacion);
             const fecha = fechaCreate.toISOString().split('T')[0];
@@ -325,12 +331,51 @@ function get_debts(id){
             
             contador++;
         });
-        console.log(idDebtor);
+        console.log(total);
+        txttotal.value = total;
         tbodyDeudas.innerHTML = tbody;
+        txtDeudores.value= id;
     })
 }
 
-// Función para obtener los detalles de las ventas
+// Ingresa los deudores a los select
+function getDebtors(){
+    const txtDeudores = document.querySelector("#deudores-buscar");
+    const txtDeudor = document.querySelector("#deudor-buscar");
+    const parametros = new URLSearchParams();
+    parametros.append("op", "listDepdtors");
+    fetch("../controllers/deuda.php", {
+        method: 'POST',
+        body: parametros
+    })
+    .then(respuesta => respuesta.json())
+    .then(datos =>{
+        let options = `<option value=''>Seleccione un deudor</option>>`;
+        datos.forEach(element => {
+            options += `<option value='${element.iddeudor}'>${element.nombre} ${element.apellidos}</option>`;
+        });
+        txtDeudores.innerHTML = options;
+        txtDeudor.innerHTML = options;
+    })
+}
+
+// Obtiene el aporte del deudor
+function getAporte(id){
+    const txtAporte = document.querySelector("#total-aporte");
+    const parametros = new URLSearchParams();
+    parametros.append("op", "getDebtor");
+    parametros.append("iddeudor", id);
+    fetch("../controllers/deuda.php", {
+        method: 'POST',
+        body: parametros
+    })
+    .then(respuesta => respuesta.json())
+    .then(datos =>{
+        txtAporte.value = datos.aporte;
+    })
+}
+
+// Función para obtener los detalles de las ventas(abre el modal de la venta)
 function get_sale(id){
     const modalCarrito = document.querySelector("#modal-ventas");
     const tablaV = document.querySelector("#tabla-ventas");
@@ -440,7 +485,7 @@ async function pay_sale_2(idventa){
     });
 }
 
-// Cambia el estao del deudor
+// Cambia el estado del deudor
 function change_estate_debtor(estado){
     const parametros = new URLSearchParams();
     parametros.append("op", "change_estate_deptor");
@@ -481,7 +526,287 @@ function verify_estate_debtors(){
     });
 }
 
+// Paga las deudas por monto
+function pago_por_monto(){
+    const txtAporte = document.querySelector("#monto-pagar");
+    if (!txtAporte.value) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Campos incompletos',
+            text: 'Por favor, ingrese un monto',
+        });
+        return;
+    }
+    const parametros = new URLSearchParams();
+    parametros.append("op", "aporte");
+    parametros.append("iddeudor", idDebtor);
+    parametros.append("aporte", txtAporte.value);
+
+    Swal.fire({
+        icon: 'question',
+        title: 'Confirmación',
+        text: '¿Está seguro del monto ingresado?',
+        showCancelButton: true,
+        confirmButtonText: 'Si',
+        cancelButtonText: 'No',
+    }).then((result) => {
+        if (result.isConfirmed) {
+            fetch("../controllers/deuda.php", {
+                method: 'POST',
+                body: parametros
+            })
+            .then(respuesta => {
+                if (respuesta.ok) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Deudas saldadas',
+                        html: 'Se ha saldado las deudas'
+                    }).then(() => {
+                        get_debts(idDebtor)
+                    });
+                } else {
+                    throw new Error('Error en la solicitud');
+                }
+            })
+            .catch(error => {
+                console.error(error);
+            });
+        }
+    })
+}
+
+// Función para buscar (incluye fechas limites)
+function search_debts(){
+    console.log("HOLA");
+    const txttotal = document.querySelector("#total-deuda")
+    const tablaDeudas = document.querySelector("#tabla-deudas");
+    const tbodyDeudas = tablaDeudas.querySelector("tbody");
+
+    const txtDeudor = document.querySelector("#deudores-buscar");
+    const txtFecha = document.querySelector("#fecha-buscar");
+    const txtFechaL = document.querySelector("#fecha-fin-buscar");
+    const minDeuda = document.querySelector("#minimo-deudas-buscar");
+    const maxDeuda = document.querySelector("#maximo-deudas-buscar");
+    const txtEstado = document.querySelector("#estado-buscar");
+    const parametros = new URLSearchParams();
+
+    if (txtFechaL.value === "") {
+        console.log("CONSULTA SIN FECHAS LIMITES");
+        search_debts2();
+    }else{
+        parametros.append("op", "buscar_deudas");
+        parametros.append("iddeudor", txtDeudor.value);
+        parametros.append("fecha", "");
+        parametros.append("fecha_inicio", txtFecha.value);
+        parametros.append("fecha_fin", txtFechaL.value);
+        parametros.append("total_min", minDeuda.value);
+        parametros.append("total_max", maxDeuda.value);
+        parametros.append("estado", txtEstado.value);
+        fetch("../controllers/deuda.php",{
+            method: 'POST',
+            body: parametros
+        })
+        .then(respuesta => respuesta.json())
+        .then(datos => {
+            let total = 0;
+            tbodyDeudas.innerHTML = "";
+            let contador = 1;
+            let tbody = "";
+            datos.forEach(element => {
+                if (element.estado == 1) {
+                    total += parseFloat(element.total);
+                }
+                const estado = element.estado == 1 ? 'No pagado' : element.estado == 2 ? 'Pagado' : element.estado;
+                if (element.estado == 1) {
+                    tbody += `
+                    <tr ondblclick ='get_sale(${element.idventa})'>
+                        <td data-label='#'>${contador}</td>
+                        <td data-label='Productos'>${element.productos}</td>
+                        <td data-label='Total'>S/ ${element.total}</td>
+                        <td data-label='Fecha'>${element.fecha_creacion}</td>
+                        <td data-label='Estado'><span class='badge rounded-pill' style='background-color: #005478'>${estado}</td>
+                        <td data-label='Acción'>
+                            <a class='btn btn-sm btn-outline-success' title='Clic, para saldar la deuda'
+                                onclick='pay(${element.iddeuda}, ${element.idventa})' type='button'>
+                                <i class="fa-solid fa-cash-register"></i>
+                            </a>
+                        </td>
+                    </tr>
+                `;
+                }else{
+                    tbody += `
+                    <tr ondblclick ='get_sale(${element.idventa})'>
+                        <td data-label='#'>${contador}</td>
+                        <td data-label='Productos'>${element.productos}</td>
+                        <td data-label='Total'>S/ ${element.total}</td>
+                        <td data-label='Fecha'>${element.fecha_creacion}</td>
+                        <td data-label='Estado'><span class='badge rounded-pill' style='background-color: #005478'>${estado}</td>
+                        <td data-label='Acción'>
+                            <a class='btn btn-sm btn-outline-primary' title='Clic, para reactivar la deuda' 
+                                onclick='reactivar_deuda(${element.iddeuda}, ${element.idventa})' type='button'>
+                                <i class="fa-solid fa-money-bill"></i>
+                            </a>
+                        </td>
+                    </tr>
+                `;
+                }
+                
+                contador++;
+            });
+            // Actualizar el valor de txtTotalSearch fuera del bucle
+            txttotal.value = total;
+            tbodyDeudas.innerHTML = tbody;
+        })
+    }
+
+}
+
+// Función para buscar (sin fechas límites)
+function search_debts2() {
+    const txttotal = document.querySelector("#total-deuda");
+    const tablaDeudas = document.querySelector("#tabla-deudas");
+    const tbodyDeudas = tablaDeudas.querySelector("tbody");
+
+    const txtDeudor = document.querySelector("#deudores-buscar");
+    const txtFecha = document.querySelector("#fecha-buscar");
+    const minDeuda = document.querySelector("#minimo-deudas-buscar");
+    const maxDeuda = document.querySelector("#maximo-deudas-buscar");
+    const txtEstado = document.querySelector("#estado-deudas-buscar");
+    const parametros = new URLSearchParams();
+
+    parametros.append("op", "buscar_deudas2");
+    parametros.append("iddeudor", txtDeudor.value);
+    parametros.append("fecha", txtFecha.value);
+    parametros.append("total_min", minDeuda.value);
+    parametros.append("total_max", maxDeuda.value);
+    parametros.append("estado", txtEstado.value);
+    fetch("../controllers/deuda.php", {
+        method: 'POST',
+        body: parametros
+    })
+    .then(respuesta => respuesta.json())
+    .then(datos => {
+        let total = 0;
+        tbodyDeudas.innerHTML = "";
+        let contador = 1;
+        let tbody = "";
+        datos.forEach(element => {
+            if (element.estado == 1) {
+                total += parseFloat(element.total);
+            }
+            const estado = element.estado == 1 ? 'No pagado' : element.estado == 2 ? 'Pagado' : element.estado;
+            if (element.estado == 1) {
+                tbody += `
+                <tr ondblclick ='get_sale(${element.idventa})'>
+                    <td data-label='#'>${contador}</td>
+                    <td data-label='Productos'>${element.productos}</td>
+                    <td data-label='Total'>S/ ${element.total}</td>
+                    <td data-label='Fecha'>${element.fecha_creacion}</td>
+                    <td data-label='Estado'><span class='badge rounded-pill' style='background-color: #005478'>${estado}</td>
+                    <td data-label='Acción'>
+                        <a class='btn btn-sm btn-outline-success' title='Clic, para saldar la deuda'
+                            onclick='pay(${element.iddeuda}, ${element.idventa})' type='button'>
+                            <i class="fa-solid fa-cash-register"></i>
+                        </a>
+                    </td>
+                </tr>
+            `;
+            } else {
+                tbody += `
+                <tr ondblclick ='get_sale(${element.idventa})'>
+                    <td data-label='#'>${contador}</td>
+                    <td data-label='Productos'>${element.productos}</td>
+                    <td data-label='Total'>S/ ${element.total}</td>
+                    <td data-label='Fecha'>${element.fecha_creacion}</td>
+                    <td data-label='Estado'><span class='badge rounded-pill' style='background-color: #005478'>${estado}</td>
+                    <td data-label='Acción'>
+                        <a class='btn btn-sm btn-outline-primary' title='Clic, para reactivar la deuda' 
+                            onclick='reactivar_deuda(${element.iddeuda}, ${element.idventa})' type='button'>
+                            <i class="fa-solid fa-money-bill"></i>
+                        </a>
+                    </td>
+                </tr>
+            `;
+            }
+            contador++;
+        });
+
+        // Actualizar el valor de txtTotalSearch fuera del bucle
+        txttotal.value = total;
+        tbodyDeudas.innerHTML = tbody;
+    })
+    .catch(error => {
+        console.error('Error en la búsqueda:', error);
+        // Mostrar mensaje en algún lugar de tu interfaz (puedes ajustar según tu estructura HTML)
+        let tbody = `
+            <tr>
+                <td class='text-center' colspan='6'>No se encontraron coincidencias</td>
+            </tr>
+        `;
+        tbodyDeudas.innerHTML = tbody;
+        // Puedes limpiar otros elementos o realizar otras acciones según tu necesidad
+        txttotal.value = 0;
+    });
+}
+
+
+// Función para buscar (sin fechas limites)
+function search_debtors(){
+    const tablaDeudas = document.querySelector("#tabla-deudores");
+    const tbodyDeudas = tablaDeudas.querySelector("tbody");
+
+    const txtDeudor = document.querySelector("#deudor-buscar");
+    const minDeuda = document.querySelector("#minimo-deuda-buscar");
+    const maxDeuda = document.querySelector("#maximo-deuda-buscar");
+    const txtEstado = document.querySelector("#estado-buscar");
+    const parametros = new URLSearchParams();
+
+    parametros.append("op", "search_debtors");
+    parametros.append("iddeudor", txtDeudor.value);
+    parametros.append("total_min", minDeuda.value);
+    parametros.append("total_max", maxDeuda.value);
+    parametros.append("estado", txtEstado.value);
+    fetch("../controllers/deuda.php",{
+        method: 'POST',
+        body: parametros
+    })
+    .then(respuesta => respuesta.json())
+    .then(datos => {
+        tbodyDeudas.innerHTML = "";
+        let contador = 1;
+        let tbody = "";
+        datos.forEach(element => {
+            const estado = element.estado == 1 ? 'No debe' : element.estado == 2 ? 'Debe' : element.estado;
+            tbody += `
+                <tr ondblclick='get_debts(${element.iddeudor})'>
+                    <td data-label='#'>${contador}</td>
+                    <td data-label='Nombre'>${element.nombre}</td>
+                    <td data-label='Apellidos'>${element.apellidos}</td>
+                    <td data-label='Deudas'>${element.deudas}</td>
+                    <td data-label='Total'>S/ ${element.total_ventas}</td>
+                    <td data-label='Estado'><span class='badge rounded-pill' style='background-color: #005478'>${estado}</td>
+                    <td data-label='Acción'>
+                        <a class='btn btn-sm btn-outline-success' type='button' onclick='get(${element.idpersona})'>
+                        <i class="fa-regular fa-pen-to-square"></i>
+                        </a>
+                    </td>
+                </tr>
+            `;
+            contador++;
+        });
+        tbodyDeudas.innerHTML = tbody;
+    })
+
+}
+
+function abrirModalMonto(){
+    const modalMonto = document.querySelector("#modal-aporte");
+    const bootstrapModal = new bootstrap.Modal(modalMonto);
+    bootstrapModal.show();
+}
+
 verify_estate_debtors();
+getDebtors();
 
 const btnRegister = document.querySelector("#registrar-deudor")
 btnRegister.addEventListener("click", register_deudor);
@@ -489,6 +814,16 @@ btnRegister.addEventListener("click", register_deudor);
 const btnEditar = document.querySelector("#editar-deudor")
 btnEditar.addEventListener("click", edit_person);
 
+const btnAporte = document.querySelector("#btn-pagar");
+btnAporte.addEventListener("click", abrirModalMonto);
 
+const btnAportePagar = document.querySelector("#btn-pagar-monto");
+btnAportePagar.addEventListener("click", pago_por_monto)
+
+const btnBuscar = document.querySelector("#buscar-deuda");
+btnBuscar.addEventListener("click", search_debts)
+
+const btnBuscarDeudores = document.querySelector("#buscar-deudores");
+btnBuscarDeudores.addEventListener("click", search_debtors)
 
 list();

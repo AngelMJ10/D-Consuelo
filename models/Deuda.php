@@ -56,7 +56,7 @@ require_once 'Conexion.php';
             }
         }
 
-        // Obtiene los datos segund el id de la persona
+        // Obtiene los datos segun el id de la persona
         public function get($data = []){
             try {
                 $query = "SELECT * FROM persona where idpersona = ?";
@@ -138,6 +138,19 @@ require_once 'Conexion.php';
             }
         }
 
+        // Obtiene los datos del deudor
+        public function get_debtor($data = []){
+            try {
+                $query = "SELECT * FROM deudores WHERE iddeudor = ?";
+                $consulta = $this->conexion->prepare($query);
+                $consulta->execute(array($data['iddeudor']));
+                $datos = $consulta->fetch(PDO::FETCH_ASSOC);
+                return $datos;
+            } catch (Exception $e) {
+                die($e->getMessage());
+            }
+        }
+
         // Cambiar el estado del deudor a 2 si en caso este esté en 1
         public function change_estate($data = []){
             try {
@@ -152,7 +165,42 @@ require_once 'Conexion.php';
             }
         }
 
-        // Cambiar el estado del deudor a 2 si en caso este esté en 1
+        // Busca (busca deudas) sin fechas limites
+        public function buscar_deudas(){
+            try {
+                $query = "SELECT * FROM deudores deb INNER JOIN deuda deu on deb.iddeudor = deu.iddeudor 
+                WHERE 1 = 1";
+                $query .= " GROUP BY deb.iddeudor, deu.fecha_creacion";
+                $consulta = $this->conexion->prepare($query);
+                $consulta->execute();
+                $datos = $consulta->fetchAll(PDO::FETCH_ASSOC);
+                return $datos;
+            } catch (Exception $e) {
+                die($e->getMessage());
+            }
+        }
+
+        // Busca deudores
+        public function search_debtors(){
+            try {
+                $query = "SELECT deb.iddeudor,per.nombre, per.apellidos,count(iddeuda) as deudas, deb.estado, deu.fecha_creacion, SUM(ven.total) AS total_ventas
+                            FROM deudores deb 
+                            INNER JOIN deuda deu ON deb.iddeudor = deu.iddeudor 
+                            INNER JOIN venta ven ON ven.idventa = deu.idventa  
+                            INNER JOIN persona per on per.idpersona = deb.idpersona
+                            WHERE 1 = 1";
+
+                $query .= " GROUP BY deb.iddeudor";
+                $consulta = $this->conexion->prepare($query);
+                $consulta->execute();
+                $datos = $consulta->fetchAll(PDO::FETCH_ASSOC);
+                return $datos;
+            } catch (Exception $e) {
+                die($e->getMessage());
+            }
+        }
+
+        // Cambiar el estado de la deuda a 2 si en caso este esté en 1
         public function change_estate_debt($data = []){
             try {
                 $query = "UPDATE deuda set estado = ? where iddeuda = ?";
@@ -160,6 +208,20 @@ require_once 'Conexion.php';
                 $consulta->execute(array(
                     $data['estado'],
                     $data['iddeuda']
+                ));
+            } catch (Exception $e) {
+                die($e->getMessage());
+            }
+        }
+
+        // Actualiza el aporte del deudor
+        public function update_aporte($data = []){
+            try {
+                $quey = "UPDATE deudores set aporte = ? WHERE iddeudor = ?";
+                $consulta = $this->conexion->prepare($quey);
+                $consulta->execute(array(
+                    $data['aporte'],
+                    $data['iddeudor']
                 ));
             } catch (Exception $e) {
                 die($e->getMessage());

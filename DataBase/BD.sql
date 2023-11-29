@@ -53,6 +53,7 @@ CREATE TABLE deudores
 	idpersona		SMALLINT	NOT NULL,
 	usuario_creador		SMALLINT	NOT NULL,
 	iddeudor		SMALLINT	AUTO_INCREMENT PRIMARY KEY,
+	aporte			DECIMAL(6,2)	NULL,
 	estado			CHAR(1)		NOT NULL DEFAULT '1',
 	fecha_creacion		DATETIME	NOT NULL DEFAULT NOW(),
 	fecha_update		DATETIME	NULL DEFAULT NOW(),
@@ -162,6 +163,7 @@ CREATE TABLE venta
 INSERT INTO venta(idpedido,total,idusuario)
 VALUES(1,44,1);
 SELECT * FROM venta
+
 --------------------
 CREATE TABLE deuda
 
@@ -170,7 +172,7 @@ CREATE TABLE deuda
 	iddeuda			SMALLINT 	AUTO_INCREMENT PRIMARY KEY,
 	idventa			SMALLINT 	NOT NULL,
 	comentario		VARCHAR(200)	NULL,
-	estado			CHAR(1)		NOT NULL DEFAULT'1',
+	estado			CHAR(1)		NOT NULL DEFAULT'1',  -- 1 es no pagado y 2 es pagado
 	fecha_creacion		DATETIME	NOT NULL DEFAULT NOW(),
 	fecha_update		DATETIME	NULL,
 	CONSTRAINT fk_iddeudor_d FOREIGN KEY (iddeudor) REFERENCES deudores (iddeudor)
@@ -221,3 +223,14 @@ VALUES('2023-11-13','2023-11-25');
 
 SELECT * FROM semana
 
+SELECT * FROM deudores deb 
+INNER JOIN deuda deu ON deb.iddeudor = deu.iddeudor 
+INNER JOIN venta ven ON ven.idventa = deu.idventa  
+                WHERE 1 = 1
+                
+ SELECT deb.iddeudor, deu.iddeuda, deb.aporte, deu.estado,ven.idventa,ven.total  FROM deudores deb INNER JOIN deuda deu ON deb.iddeudor = deu.iddeudor
+ INNER JOIN venta ven ON ven.idventa = deu.idventa  WHERE 1 = 1
+ 
+ 
+  SELECT * FROM deudores deb INNER JOIN deuda deu ON deb.iddeudor = deu.iddeudor
+ INNER JOIN venta ven ON ven.idventa = deu.idventa  WHERE 1 = 1

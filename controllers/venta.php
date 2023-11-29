@@ -68,26 +68,38 @@
             echo json_encode($datos = $venta->getVenta($data));
         }
 
-        // Busca ventas por productos ,total y fechas
+        // Busca ventas por productos ,total y fechas limites
         if ($_POST['op'] == "search") {
-            // Validar y limpiar los datos del formulario
-            $idproducto = isset($_POST['idproducto']) ? $_POST['idproducto'] : '';
-            $total = isset($_POST['total']) ? $_POST['total'] : '';
-            $fecha = isset($_POST['fecha']) ? $_POST['fecha'] . ' 00:00:00' : '';
-            $metodo = isset($_POST['metodo']) ? $_POST['metodo'] : '';
-            $estado = isset($_POST['estado']) ? $_POST['estado'] : '';
-        
             // Crear un array de datos
             $data = [
-                "idproducto"    => $idproducto,
-                "total"         => $total,
-                'fecha'         => $fecha,
-                "metodo"        => $metodo,
-                "estado"        => $estado
+                "idproducto"        => isset($_POST['idproducto']) ? $_POST['idproducto'] : '',
+                "total"             => isset($_POST['total']) ? $_POST['total'] : '',
+                'fecha'             => isset($_POST['fecha']) ? $_POST['fecha'] : '',
+                'fecha_inicio'      => $_POST['fecha_inicio'] . ' 00:00:00',
+                'fecha_fin'         => $_POST['fecha_fin'] . ' 23:59:59',
+                "metodo"            => isset($_POST['metodo']) ? $_POST['metodo'] : '',
+                "estado"            => isset($_POST['estado']) ? $_POST['estado'] : ''
+            ];
+
+            // Realizar la búsqueda
+            $datos = $venta->search($data);
+            // Devolver los resultados como JSON
+            echo json_encode($datos);
+        }
+
+        // Buscar sin fechas limites
+        if ($_POST['op'] == "buscarVenta") {
+            // Crear un array de datos
+            $data = [
+                "idproducto"        => isset($_POST['idproducto']) ? $_POST['idproducto'] : '',
+                "total"             => isset($_POST['total']) ? $_POST['total'] : '',
+                'fecha'             => isset($_POST['fecha']) ? $_POST['fecha'] : '',
+                "metodo"            => isset($_POST['metodo']) ? $_POST['metodo'] : '',
+                "estado"            => isset($_POST['estado']) ? $_POST['estado'] : ''
             ];
         
             // Realizar la búsqueda
-            $datos = $venta->search($data);
+            $datos = $venta->buscarVenta($data);
         
             // Devolver los resultados como JSON
             echo json_encode($datos);

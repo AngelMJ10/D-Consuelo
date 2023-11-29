@@ -19,6 +19,7 @@ function listar(){
             const estado = element.estado == 1 ? 'Pagado' : element.estado == 2 ? 'Fiado' : element.estado;
             const metodo = element.metodo == 1 ? 'Efectivo' : element.metodo == 2 ? 'Yape' : element.metodo == 3 ? 'Plin' : element.metodo;
             const color = element.metodo == 1 ? '005478' : element.metodo == 2 ? '900584' : element.metodo == 3 ? '00FFD1' : element.metodo;
+            const colorestado = element.estado == 1 ? '005478' : element.estado == 2 ? 'FD0000' : element.estado == 0 ? 'C5C3C2' : element.estado;
             tbody += `
                 <tr ondblclick="get(${element.idventa})">
                     <td data-label='#'>${contador}</td>
@@ -26,7 +27,7 @@ function listar(){
                     <td data-label='Fecha'>${element.fecha_creacion}</td>
                     <td data-label='Total'> S/ ${precioSinDecimales}</td>
                     <td data-label='Metodo'><span class='badge rounded-pill' style='background-color: #${color}'>${metodo}</td>
-                    <td data-label='Estado'><span class='badge rounded-pill' style='background-color: #005478'>${estado}</td>
+                    <td data-label='Estado'><span class='badge rounded-pill' style='background-color: #${colorestado} '>${estado}</td>
                     <td data-label='Acción'>
                         <a class='btn btn-sm btn-outline-success' type='button'>
                         <i class="fa-regular fa-pen-to-square"></i>
@@ -103,7 +104,9 @@ function getDebt(id){
     })
 }   
 
+// Buscar con ventas con fechas limites
 function search(){
+    const txtTotalSearch = document.querySelector("#total_day");
     const txtProducto = document.querySelector("#producto-buscar");
     const txtTotal = document.querySelector("#total-buscar");
     const txtFecha = document.querySelector("#fecha-buscar");
@@ -111,7 +114,75 @@ function search(){
     const txtEstado = document.querySelector("#estado-buscar");
     const txtMetodo = document.querySelector("#metodo-buscar");
     const parametros = new URLSearchParams();
-    parametros.append("op", "search");
+
+    if (txtFechaL.value === "") {
+        console.log("CONSULTA SIN FECHAS LIMITES");
+        search2();
+    }else{
+        parametros.append("op", "search");
+        parametros.append("idproducto", txtProducto.value);
+        parametros.append("total", txtTotal.value);
+        parametros.append("fecha", "");
+        parametros.append("fecha_inicio", txtFecha.value);
+        parametros.append("fecha_fin", txtFechaL.value);
+        parametros.append("metodo", txtMetodo.value);
+        parametros.append("estado", txtEstado.value);
+        fetch("../controllers/venta.php",{
+            method: 'POST',
+            body: parametros
+        })
+        .then(respuesta => respuesta.json())
+        .then(datos => {
+            let total = 0;
+            console.log(datos);
+            tbodyV.innerHTML = "";
+            let contador = 1;
+            let tbody = "";
+            datos.forEach(element => {
+                if (element.estado == 1) {
+                    total += parseFloat(element.total);
+                }
+                // Formatear el precio con dos decimales fijos
+                const precioSinDecimales = parseFloat(element.total).toString();
+                const estado = element.estado == 1 ? 'Pagado' : element.estado == 2 ? 'Fiado' : element.estado;
+                const metodo = element.metodo == 1 ? 'Efectivo' : element.metodo == 2 ? 'Yape' : element.metodo == 3 ? 'Plin' : element.metodo;
+                const color = element.metodo == 1 ? '005478' : element.metodo == 2 ? '900584' : element.metodo == 3 ? '00FFD1' : element.metodo;
+                const colorestado = element.estado == 1 ? '005478' : element.estado == 2 ? 'FD0000' : element.estado == 0 ? 'C5C3C2' : element.estado;
+                tbody += `
+                    <tr ondblclick="get(${element.idventa})">
+                        <td data-label='#'>${contador}</td>
+                        <td data-label='Productos'>${element.productos}</td>
+                        <td data-label='Fecha'>${element.fecha_creacion}</td>
+                        <td data-label='Total'> S/ ${precioSinDecimales}</td>
+                        <td data-label='Metodo'><span class='badge rounded-pill' style='background-color: #${color}'>${metodo}</td>
+                        <td data-label='Estado'><span class='badge rounded-pill' style='background-color: #${colorestado} '>${estado}</td>
+                        <td data-label='Acción'>
+                            <a class='btn btn-sm btn-outline-success' type='button'>
+                            <i class="fa-regular fa-pen-to-square"></i>
+                            </a>
+                        </td>
+                    </tr>
+                `;
+                contador++;
+            });
+            // Actualizar el valor de txtTotalSearch fuera del bucle
+            txtTotalSearch.value = total;
+            tbodyV.innerHTML = tbody;
+        })
+    }
+
+}
+
+// Buscar ventas sin fechas limites
+function search2(){
+    const txtTotalSearch = document.querySelector("#total_day");
+    const txtProducto = document.querySelector("#producto-buscar");
+    const txtTotal = document.querySelector("#total-buscar");
+    const txtFecha = document.querySelector("#fecha-buscar");
+    const txtEstado = document.querySelector("#estado-buscar");
+    const txtMetodo = document.querySelector("#metodo-buscar");
+    const parametros = new URLSearchParams();
+    parametros.append("op", "buscarVenta");
     parametros.append("idproducto", txtProducto.value);
     parametros.append("total", txtTotal.value);
     parametros.append("fecha", txtFecha.value);
@@ -123,17 +194,20 @@ function search(){
     })
     .then(respuesta => respuesta.json())
     .then(datos => {
+        let total = 0;
         tbodyV.innerHTML = "";
         let contador = 1;
         let tbody = "";
         datos.forEach(element => {
-            const fechaCreate = new Date(element.fecha_creacion);
-            const fecha = fechaCreate.toISOString().split('T')[0];
+            if (element.estado == 1) {
+                total += parseFloat(element.total);
+            }
             // Formatear el precio con dos decimales fijos
             const precioSinDecimales = parseFloat(element.total).toString();
             const estado = element.estado == 1 ? 'Pagado' : element.estado == 2 ? 'Fiado' : element.estado;
             const metodo = element.metodo == 1 ? 'Efectivo' : element.metodo == 2 ? 'Yape' : element.metodo == 3 ? 'Plin' : element.metodo;
             const color = element.metodo == 1 ? '005478' : element.metodo == 2 ? '900584' : element.metodo == 3 ? '00FFD1' : element.metodo;
+            const colorestado = element.estado == 1 ? '005478' : element.estado == 2 ? 'FD0000' : element.estado == 0 ? 'C5C3C2' : element.estado;
             tbody += `
                 <tr ondblclick="get(${element.idventa})">
                     <td data-label='#'>${contador}</td>
@@ -141,7 +215,7 @@ function search(){
                     <td data-label='Fecha'>${element.fecha_creacion}</td>
                     <td data-label='Total'> S/ ${precioSinDecimales}</td>
                     <td data-label='Metodo'><span class='badge rounded-pill' style='background-color: #${color}'>${metodo}</td>
-                    <td data-label='Estado'><span class='badge rounded-pill' style='background-color: #005478'>${estado}</td>
+                    <td data-label='Estado'><span class='badge rounded-pill' style='background-color: #${colorestado}'>${estado}</td>
                     <td data-label='Acción'>
                         <a class='btn btn-sm btn-outline-success' type='button'>
                         <i class="fa-regular fa-pen-to-square"></i>
@@ -151,9 +225,27 @@ function search(){
             `;
             contador++;
         });
+        // Actualizar el valor de txtTotalSearch fuera del bucle
+        txtTotalSearch.value = total;
         tbodyV.innerHTML = tbody;
     })
     
+}
+
+function clear(){
+    const txtProducto = document.querySelector("#producto-buscar");
+    const txtTotal = document.querySelector("#total-buscar");
+    const txtFecha = document.querySelector("#fecha-buscar");
+    const txtFechaL = document.querySelector("#fecha-limite-buscar");
+    const txtEstado = document.querySelector("#estado-buscar");
+    const txtMetodo = document.querySelector("#metodo-buscar");
+    txtProducto.value = 0;
+    txtTotal.value = '';
+    txtFecha.value = '';
+    txtEstado.value = 0;
+    txtMetodo.value = 0;
+    txtFechaL.value = '';
+    listar();
 }
 
 function listProducts() {
@@ -194,3 +286,7 @@ listar();
 
 const btnBuscar = document.querySelector("#buscar-venta");
 btnBuscar.addEventListener("click", search)
+
+
+const btnClear = document.querySelector("#limpiar");
+btnClear.addEventListener("click", clear)

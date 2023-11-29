@@ -76,48 +76,46 @@
 
             <div class="tab-pane fade show active" id="listar" role="tabpanel" aria-labelledby="listar-tab">
 
-                <div class="accordion" id="acordion1">
-                    <div class="accordion-item">
-                        <h2 class="accordion-header" id="headingOne">
-                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#filtros" aria-expanded="true" aria-controls="collapseOne">
-                            Filtros
-                            </button>
-                        </h2>
-                        <div id="filtros" class="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#acordion1">
-                            <div class="accordion-body">
-                                <form>
-                                    <div class="row mb-2 mt-2">
+                <div class="accordion-body mb-3">
+                    <form>
+                        <div class="row mb-2 mt-2">
 
-                                    <div class="col-md-4">
-                                        <div class="form-floating mb-3">
-                                            <input type="text" class="form-control" id="producto-buscar" name="Plato" placeholder="Plato">
-                                            <label for="Plato" class="form-label">Producto</label>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <div class="form-floating mb-3">
-                                            <input type="number" class="form-control" id="precio-buscar" name="precio" placeholder="Precio">
-                                            <label for="precio" class="form-label">Precio</label>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <div class="form-floating mb-3">
-                                            <select class="form-control" name="" id="estado-buscar">
-                                                <option value="">Seleccione un estado</option>
-                                                <option value="0">Inactivo</option>
-                                                <option value="1">Activo</option>
-                                            </select>
-                                        </div>
-                                    </div>
-
-                                    </div>
-                                    <button type="button" id="buscar-plato"  class="btn btn-outline-primary">Buscar</button>
-                                    <button type="button" id="list-platos"  class="btn btn-outline-success">Platos</button>
-                                    <button type="button" id="list-bebidas"  class="btn btn-outline-info">Bebidas</button>
-                                </form>
+                            <div class="col-md-3">
+                                <div class="form-floating mb-3">
+                                    <select class="form-control"  name="" id="deudor-buscar">
+                                        
+                                    </select>
+                                </div>
                             </div>
+
+                            <div class="col-md-3">
+                                <div class="form-floating mb-3">
+                                    <input type="number" class="form-control" id="minimo-deuda-buscar" name="Plato" placeholder="Plato">
+                                    <label for="Plato" class="form-label">Minimo deuda</label>
+                                </div>
+                            </div>
+
+                            <div class="col-md-3">
+                                <div class="form-floating mb-3">
+                                    <input type="number" class="form-control" id="maximo-deuda-buscar" name="Plato" placeholder="Plato">
+                                    <label for="Plato" class="form-label">Maximo Deuda</label>
+                                </div>
+                            </div>
+
+                            <div class="col-md-3">
+                                <div class="form-floating mb-3">
+                                    <select class="form-control" name="" id="estado-buscar">
+                                        <option value="">Seleccione un estado</option>
+                                        <option value="2">Debe</option>
+                                        <option value="1">No debe</option>
+                                    </select>
+                                </div>
+                            </div>
+
                         </div>
-                    </div>
+
+                        <button type="button" id="buscar-deudores"  class="btn btn-outline-primary">Buscar</button>
+                    </form>
                 </div>
                 
                 <div class="table-responsive mt-3" id="tabla-deudores">
@@ -153,7 +151,93 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <h4>Deuda</h4>
+                <div class="row">
+                    <div class="col-md-8">
+                        <h4>Deuda</h4>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-floating mb-3">
+                            <input type="number" class="form-control" id="total-aporte" name="Plato" placeholder="Plato">
+                            <label for="Plato" class="form-label">Aporte</label>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-floating mb-3">
+                            <input type="number" class="form-control" id="total-deuda" name="Plato" placeholder="Plato">
+                            <label for="Plato" class="form-label">Total deuda S/</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="accordion" id="acordion1">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="headingOne">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#filtros" aria-expanded="true" aria-controls="collapseOne">
+                            Filtros
+                            </button>
+                        </h2>
+                        <div id="filtros" class="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#acordion1">
+                            <div class="accordion-body mb-3">
+                                <form>
+                                    <div class="row mb-2 mt-2">
+
+                                        <div class="col-md-3">
+                                            <div class="form-floating mb-3">
+                                                <select class="form-control" disabled name="" id="deudores-buscar">
+                                                    
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-3">
+                                            <div class="form-floating mb-3">
+                                                <input type="date" class="form-control" id="fecha-buscar" name="Plato" placeholder="Plato">
+                                                <label for="Plato" class="form-label">Fecha</label>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-3">
+                                            <div class="form-floating mb-3">
+                                                <input type="date" class="form-control" id="fecha-fin-buscar" name="precio" placeholder="Precio">
+                                                <label for="precio" class="form-label">Fecha Límite</label>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-3">
+                                            <div class="form-floating mb-3">
+                                                <select class="form-control" name="" id="estado-deudas-buscar">
+                                                    <option value="">Seleccione un estado</option>
+                                                    <option value="1">No Pagado</option>
+                                                    <option value="2">Pagado</option>
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-md-3">
+                                            <div class="form-floating mb-3">
+                                                <input type="number" class="form-control" id="minimo-deudas-buscar" name="Plato" placeholder="Plato">
+                                                <label for="Plato" class="form-label">Minimo</label>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-3">
+                                            <div class="form-floating mb-3">
+                                                <input type="number" class="form-control" id="maximo-deudas-buscar" name="Plato" placeholder="Plato">
+                                                <label for="Plato" class="form-label">Máximo</label>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <button type="button" id="buscar-deuda"  class="btn btn-outline-primary">Buscar</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="table-responsive mt-3" id="tabla-deudas">
                     <table class="table table-hover text-center">
                         <thead>
@@ -167,8 +251,36 @@
                         <tbody></tbody>
                     </table>
                 </div>
+
+                <button class="btn btn-outline-primary" type="button" id="btn-pagar">Pagar por monto</button>
             </div>
         </div>
+        </div>
+    </div>
+
+    <!-- Modal para pagar monto -->
+    <div class="modal fade" id="modal-aporte" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="staticBackdropLabel">Ingrese el monto</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-floating mb-3">
+                            <input type="number" class="form-control" id="monto-pagar" name="precio" placeholder="Precio">
+                            <label for="precio" class="form-label">Total S/.</label>
+                        </div>
+                    </div>
+                </div>
+                <button class="btn-outline-success btn" type="button" id="btn-pagar-monto">Pagar</button>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+            </div>
         </div>
     </div>
 

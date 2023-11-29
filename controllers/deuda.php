@@ -2,6 +2,7 @@
     session_start();
     require_once '../models/Deuda.php';
     require_once '../models/Venta.php';
+    require '../tools/helpers.php';
 
     if (isset($_POST['op'])) {
         $deuda = new Deuda();
@@ -30,14 +31,21 @@
         // Obtiene el id de la persona registra de úlltimo
         if ($_POST['op'] == "getPersona") {
             $datos = $deuda->getPersona();
-            echo json_encode($datos);
+            renderJSON($datos);
         }
 
         // Obtiene los datos de la persona según su ID
         if ($_POST['op'] == "get") {
             $data = ["idpersona"    => $_POST['idpersona']];
             $datos = $deuda->get($data);
-            echo json_encode($datos);
+            renderJSON($datos);
+        }
+
+        // Obtienes los datos del deudore(pero solo de la tabla)
+        if ($_POST['op'] == "getDebtor") {
+            $data = ["iddeudor" => $_POST['iddeudor']];
+            $datos = $deuda->get_debtor($data);
+            renderJSON($datos);
         }
         
         // Edita a la persona
@@ -76,6 +84,7 @@
                                 "fecha_creacion"    => $registro['fecha_creacion'],
                                 "estado"            => $registro['estado'],
                                 "usuario_creador"   => $registro['usuario_creador'],
+                                "aporte"            => $registro['aporte'],
                                 "deudas"            => 0,
                                 "total"             => 0
                         ];
@@ -97,7 +106,7 @@
                 $deudor['total'] = $totalVentas;
                 $data[] = $deudor;
             }
-            echo json_encode($data);
+            renderJSON($data);
         }
 
         // Obtiene las deudas de los deudores
@@ -118,11 +127,65 @@
                             "estado"            => $deudas['estado'],
                             "fecha_creacion"    => $ventas['fecha_creacion']
                         ];
+
+                        // Añade las deudas con estado 1 al principio del array
+                        if ($deudas['estado'] == 1) {
+                            array_unshift($data, $datav);
+                        } else {
+                            $data[] = $datav;
+                        }
+                    }
+                }
+            }
+            renderJSON($data);
+        }
+
+        // Paga las deudas de un solo monto y si sobra se almacena en el aporte de los deudores
+        if ($_POST['op'] == "aporte") {
+            $datosDeudor = [
+                "iddeudor"          => $_POST['iddeudor'],
+                "aporte"            => $_POST['aporte']
+            ];
+            $datos = $deuda->get_debts(["iddeudor" => $datosDeudor['iddeudor']]);
+            $datosV = $venta->list();
+            // Obtenemos el aporte actual
+            $aporteActual = $deuda->get_debtor(["iddeudor" => $datosDeudor['iddeudor']]);
+            // Obtenemos el nuevo aporte total(sumando el aporte ingresado más el aporte actual)
+            $totalAporte = $aporteActual['aporte'] + $datosDeudor['aporte'];
+            // El aporte lo dejamos en 0
+            $deuda->update_aporte(["aporte" => 0, "iddeudor" => $datosDeudor['iddeudor']]);
+            // En este array estarán las deudas del deudor
+            $data = [];
+            foreach ($datos as $deudas) {
+                foreach ($datosV as $ventas) {
+                    if ($deudas['idventa'] == $ventas['idventa']) {
+                        $datav = [
+                            "idventa"           => $ventas['idventa'],
+                            "iddeudor"          => $deudas['iddeudor'],
+                            "iddeuda"           => $deudas['iddeuda'],
+                            "total"             => $ventas['total'],
+                            "estado"            => $deudas['estado']
+                        ];
                     }
                 }
                 $data[] = $datav;
             }
-            echo json_encode($data);
+
+            foreach ($data as $registro) {
+                if ($registro['estado'] == 1) {
+                    if ($totalAporte >= $registro['total']) {
+                        $totalAporte -= $registro['total'];
+                        // Cambia el estado de la deuda a 2
+                        $deuda->change_estate_debt(["estado" => 2, "iddeuda" => $registro['iddeuda']]);
+                        $venta->change_estate(["estado" => 1, "idventa" => $registro['idventa']]);
+                    }
+                }
+            }
+
+            // Lo sumamos con el aporte que sobró
+            $nuevoAporte = $totalAporte;
+            // Y lo actualizamos
+            $deuda->update_aporte(["aporte" => $nuevoAporte, "iddeudor" => $datosDeudor['iddeudor']]);
         }
 
         // Obtener los datos del deudor con el id de la venta
@@ -156,7 +219,130 @@
                 }
             }
 
-            echo json_encode($data);
+            renderJSON($data);
+        }
+
+        // Busqueda de deudas que incluye fechas limites
+        if ($_POST['op'] == "buscar_deudas") {
+            // Recoger los datos del formulario
+            $iddeudor = isset( $_POST['iddeudor']) ? $_POST['iddeudor'] : '';
+            $fecha_inicio = $_POST['fecha_inicio'] . ' 00:00:00';
+            $fecha_fin =  $_POST['fecha_fin'] . ' 23:59:59';
+            $estado = isset($_POST['estado']) ? $_POST['estado'] : '';
+            $total_min = isset($_POST['total_min']) ? $_POST['total_min'] : '';
+            $total_max = isset($_POST['total_max']) ? $_POST['total_max'] : '';
+            $datos = $deuda->buscar_deudas();
+            $datosV = $venta->list();
+            // Inicializar $dataDeuda como un array vacío
+            $dataDeuda = [];
+
+            foreach($datos as $registro){
+                foreach ($datosV as $ventas) {
+                    $fecha_creacion = $registro['fecha_creacion'];
+                    if ($registro['idventa'] == $ventas['idventa']) {
+                        if (
+                            (empty($iddeudor)   || $iddeudor == $registro['iddeudor']) &&
+                            (empty($fecha_inicio) || $fecha_creacion >= $fecha_inicio) &&
+                            (empty($fecha_fin)    || $fecha_creacion <= $fecha_fin) &&
+                            (empty($estado)     || $estado == $registro['estado']) &&
+                            (empty($total_min)  || $total_min <= $ventas['total']) &&
+                            (empty($total_max)  || $total_max >= $ventas['total'])
+                        ){
+                            $dataDeuda[] = [
+                                "iddeudor"              => $registro['iddeudor'],
+                                "iddeuda"               => $registro['iddeuda'],
+                                "idventa"               => $ventas['idventa'],
+                                "productos"               => $ventas['productos'],
+                                "fecha_creacion"        => $registro['fecha_creacion'],
+                                "total"                 => $ventas['total'],
+                                "estado"                => $registro['estado']
+                            ];
+                        }
+                    }
+                }
+            }
+            renderJSON($dataDeuda);
+
+        }
+
+        // Busqueda que no incluye las fechas limites
+        if ($_POST['op'] == "buscar_deudas2") {
+            // Recoger los datos del formulario
+            $iddeudor = isset($_POST['iddeudor']) ? $_POST['iddeudor'] : '';
+            $fecha = isset($_POST['fecha']) ? $_POST['fecha'] : '';
+            $estado = isset($_POST['estado']) ? $_POST['estado'] : '';
+            $total_min = isset($_POST['total_min']) ? $_POST['total_min'] : '';
+            $total_max = isset($_POST['total_max']) ? $_POST['total_max'] : '';
+
+            // Realizar la búsqueda
+            $datos = $deuda->buscar_deudas();
+            $datosV = $venta->list();
+            $dataDeuda = [];
+
+            foreach ($datos as $registro) {
+                foreach ($datosV as $ventas) {
+                    if ($registro['idventa'] == $ventas['idventa']) {
+                        $fecha_creacion = date('Y-m-d', strtotime($registro['fecha_creacion']));
+                        $fecha_inicio = date('Y-m-d', strtotime($fecha));
+
+                        if (
+                            (empty($iddeudor)   || $iddeudor == $registro['iddeudor']) &&
+                            (empty($fecha)      || $fecha_creacion == $fecha_inicio) &&
+                            (empty($estado)     || $estado == $registro['estado']) &&
+                            (empty($total_min)  || $total_min <= $ventas['total']) &&
+                            (empty($total_max)  || $total_max >= $ventas['total'])
+                        ) {
+                            $dataDeuda[] = [
+                                "iddeudor"          => $registro['iddeudor'],
+                                "iddeuda"           => $registro['iddeuda'],
+                                "idventa"           => $ventas['idventa'],
+                                "productos"         => $ventas['productos'],
+                                "fecha_creacion"    => $registro['fecha_creacion'],
+                                "total"             => $ventas['total'],
+                                "estado"            => $registro['estado']
+                            ];
+                        }
+                    }
+                }
+            }
+            // Devolver los resultados como JSON
+            renderJSON($dataDeuda);
+        }
+
+        // Busqueda de deudores(incluye rango de deudas)
+        if ($_POST['op'] == "search_debtors") {
+            // Recoger los datos del formulario
+            $iddeudor = isset( $_POST['iddeudor']) ? $_POST['iddeudor'] : '';
+            $estado = isset($_POST['estado']) ? $_POST['estado'] : '';
+            $total_min = isset($_POST['total_min']) ? $_POST['total_min'] : '';
+            $total_max = isset($_POST['total_max']) ? $_POST['total_max'] : '';
+
+            $datos = $deuda->search_debtors();
+
+            // Inicializar $dataDeuda como un array vacío
+            $dataDeuda = [];
+
+            foreach ($datos as $registro) {
+                if (
+                    (empty($iddeudor)   || $iddeudor == $registro['iddeudor']) &&
+                    (empty($estado)     || $estado == $registro['estado']) &&
+                    (empty($total_min)  || $total_min <= $registro['total_ventas']) &&
+                    (empty($total_max)  || $total_max >= $registro['total_ventas'])
+                ) {
+                    $dataDeuda[] = [
+                        "iddeudor"              => $registro['iddeudor'],
+                        "nombre"                => $registro['nombre'],
+                        "apellidos"             => $registro['apellidos'],
+                        "deudas"                => $registro['deudas'],
+                        "fecha_creacion"        => $registro['fecha_creacion'],
+                        "total_ventas"          => $registro['total_ventas'],
+                        "estado"                => $registro['estado']
+                    ];
+                }
+            }
+        
+            // Devolver los resultados como JSON
+            renderJSON($dataDeuda);
         }
 
         // Registra la deuda

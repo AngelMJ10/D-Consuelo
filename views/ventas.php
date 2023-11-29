@@ -104,6 +104,7 @@
                                     </div>
                                 </div>
                                 <button type="button" id="buscar-venta"  class="btn btn-outline-primary">Buscar</button>
+                                <button type="button" id="limpiar"  class="btn btn-outline-primary">Limpiar</button>
                             </form>
                         </div>
                     </div>
