@@ -157,7 +157,7 @@
                     </div>
                     <div class="col-md-2">
                         <div class="form-floating mb-3">
-                            <input type="number" class="form-control" id="total-aporte" name="Plato" placeholder="Plato">
+                            <input type="number" class="form-control" readonly id="total-aporte" name="Plato" placeholder="Plato">
                             <label for="Plato" class="form-label">Aporte</label>
                         </div>
                     </div>

@@ -209,11 +209,13 @@ function pay(iddeuda, idventa){
         if (result.isConfirmed) {
             await pay_debt(iddeuda);
             await pay_sale(idventa);
+            get_debts(idDebtor);
+            list();
         }
     });
 }
 
-// Función para cambiar el estado de la deuda(es para saldar la deuda)
+// Función para cambiar el estado de la deuda a 2 (es para saldar la deuda)
 async function pay_debt(iddeuda){
     const parametros = new URLSearchParams();
     parametros.append("op", "change_estate");
@@ -239,7 +241,7 @@ async function pay_debt(iddeuda){
     });
 }
 
-// Función para cambiar el estado de la venta(cambia la venta a estado "pagado")
+// Función para cambiar el estado de la venta a 1(cambia la venta a estado "pagado")
 async function pay_sale(idventa){
     const parametros = new URLSearchParams();
     parametros.append("op", "change_estate");
@@ -426,14 +428,16 @@ function reactivar_deuda(iddeuda, idventa) {
     })
     .then(async (result) => { // Marca la función como async aquí
         if (result.isConfirmed) {
-            await pay_debt_1(iddeuda);
-            await pay_sale_2(idventa);
+            await reactivar_debt(iddeuda);
+            await reactivar_fiado(idventa);
+            get_debts(idDebtor);
+            list();
         }
     });
 }
 
-// Función para cambiar el estado de la deuda(reactiva la deuda)
-async function pay_debt_1(iddeuda){
+// Función para cambiar el estado de la deuda a 1(reactiva la deuda)
+async function reactivar_debt(iddeuda){
     const parametros = new URLSearchParams();
     parametros.append("op", "change_estate");
     parametros.append("iddeuda", iddeuda);
@@ -459,8 +463,8 @@ async function pay_debt_1(iddeuda){
     });
 }
 
-// Función para cambiar el estado de la venta (reactiva al modo fiado)
-async function pay_sale_2(idventa){
+// Función para cambiar el estado de la venta a 2(reactiva al modo fiado)
+async function reactivar_fiado(idventa){
     const parametros = new URLSearchParams();
     parametros.append("op", "change_estate");
     parametros.append("idventa", idventa);
@@ -748,7 +752,6 @@ function search_debts2() {
         txttotal.value = 0;
     });
 }
-
 
 // Función para buscar (sin fechas limites)
 function search_debtors(){

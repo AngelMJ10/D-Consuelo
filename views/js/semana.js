@@ -29,7 +29,7 @@ function list(){
         tbodyS.innerHTML = "";
         let contador = 1;
         datos.forEach(element => {
-            const estado = element.estado == 1 ? 'Activo' : element.estado == 0 ? 'Inactivo' : element.estado;
+            const estado = element.estado == 1 ? 'Activo' : element.estado == 2 ? 'Inactivo' : element.estado;
             tbody += `
             <tr ondblclick='get(${element.idsemana}, "${element.fecha_inicio}", "${element.fecha_fin}")'>
                     <td data-label='#'>${contador}</td>
@@ -37,6 +37,7 @@ function list(){
                     <td data-label='Fin'>${element.fecha_fin}</td>
                     <td data-label='Gastos'>S/ ${element.gastos}</td>
                     <td data-label='Ventas'>S/ ${element.ventas}</td>
+                    <td data-label='Domingo'>S/ ${element.domingo}</td>
                     <td data-label='Estado'><span class='badge rounded-pill' style='background-color: #005478 '>${estado}</td>
                     <td data-label='Acción'>
                         <a class='btn btn-sm btn-outline-success' onclick='obtener(${element.idsemana})' type='button'>
@@ -93,6 +94,7 @@ function get(id,fechainicio,fechafin){
     })
 }
 
+// Registra la semana
 function registrar() {
     const fecha_inicio = document.querySelector("#fecha_inicio");
     const fecha_fin = document.querySelector("#fecha_fin");
@@ -138,6 +140,7 @@ function registrar() {
     })
 }
 
+// Lista los tipos de gastos
 function tiposGastos(){
     const tiposBuscar = document.querySelector("#tipo-buscar");
     let opciones = `
@@ -154,6 +157,7 @@ function tiposGastos(){
     tiposBuscar.innerHTML = opciones;
 }
 
+// Busca los gastos de la semana
 function search(){
     const txtGastos = document.querySelector("#gastos-buscar");
     const txtTipo = document.querySelector("#tipo-buscar");
@@ -198,6 +202,50 @@ function search(){
     })
 }
 
+// Busca las semanas
+function buscar_semana(){
+    const txtFechaI = document.querySelector("#fecha-inicio-buscar");
+    const txtFechaF = document.querySelector("#fecha-fin-buscar");
+    const txtEstado = document.querySelector("#estado-s-buscar");
+    const parametros = new URLSearchParams();
+    parametros.append("op", "buscar");
+    parametros.append("fecha_inicio", txtFechaI.value);
+    parametros.append("fecha_fin", txtFechaF.value);
+    parametros.append("estado", txtEstado.value);
+    fetch('../controllers/semana.php',{
+        method: 'POST',
+        body: parametros
+    })
+    .then(respuesta => respuesta.json())
+    .then(datos =>{
+        let tbody = "";
+        tbodyS.innerHTML = "";
+        let contador = 1;
+        datos.forEach(element => {
+            const estado = element.estado == 1 ? 'Activo' : element.estado == 2 ? 'Inactivo' : element.estado;
+            tbody += `
+            <tr ondblclick='get(${element.idsemana}, "${element.fecha_inicio}", "${element.fecha_fin}")'>
+                    <td data-label='#'>${contador}</td>
+                    <td data-label='Inicio'>${element.fecha_inicio}</td>
+                    <td data-label='Fin'>${element.fecha_fin}</td>
+                    <td data-label='Gastos'>S/ ${element.gastos}</td>
+                    <td data-label='Ventas'>S/ ${element.ventas}</td>
+                    <td data-label='Domingo'>S/ ${element.domingo}</td>
+                    <td data-label='Estado'><span class='badge rounded-pill' style='background-color: #005478 '>${estado}</td>
+                    <td data-label='Acción'>
+                        <a class='btn btn-sm btn-outline-success' onclick='obtener(${element.idsemana})' type='button'>
+                        <i class="fa-regular fa-pen-to-square"></i>
+                        </a>
+                    </td>
+                </tr>
+            `;
+            contador++;
+        });
+        tbodyS.innerHTML = tbody;
+    })
+}
+
+// Obtiene los datos de la semana y abre el modal para editarla
 function obtener(id){
     console.log("obtener")
     const fecha_inicio = document.querySelector("#fecha-inicio-editar");
@@ -220,6 +268,7 @@ function obtener(id){
     })
 }
 
+// Edita la semana
 function editar() {
     const fecha_inicio = document.querySelector("#fecha-inicio-editar");
     const fecha_fin = document.querySelector("#fecha-fin-editar");
@@ -273,6 +322,9 @@ list();
 
 const btnBuscar = document.querySelector("#buscar-gastos");
 btnBuscar.addEventListener("click", search);
+
+const btnBuscarS = document.querySelector("#buscar-semana");
+btnBuscarS.addEventListener("click", buscar_semana);
 
 const btnRegistrar = document.querySelector("#registrar-semana");
 btnRegistrar.addEventListener("click", registrar);

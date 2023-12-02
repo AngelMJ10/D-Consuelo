@@ -71,13 +71,26 @@
         // Lista la venta con la cantidad de productos y total
         public function list(){
             try {
-                $query = "SELECT ven.idventa,ped.idpedido, COUNT(dtp.idproducto) AS productos, ven.metodo, ven.total, ven.fecha_creacion,ven.estado
+                $query = "SELECT ven.idventa,ped.idpedido, COUNT(dtp.idproducto) AS productos,ven.idusuario, ven.metodo, ven.total, ven.fecha_creacion,ven.estado
                 FROM venta ven
                 INNER JOIN pedido ped ON ped.idpedido = ven.idpedido
                 INNER JOIN detalle_pedido dtp ON dtp.idpedido = ped.idpedido
                 INNER JOIN producto pro ON pro.idproducto = dtp.idproducto
                 GROUP BY ven.idventa, ven.total, ven.fecha_creacion
                 ORDER BY ven.fecha_creacion desc";
+                $consulta = $this->conexion->prepare($query);
+                $consulta->execute();
+                $datos = $consulta->fetchAll(PDO::FETCH_ASSOC);
+                return $datos;
+            } catch (Exception $e) {
+                die($e->getMessage());
+            }
+        }
+
+        // Lista los detalles del pedido
+        public function listar_detalle_pedido(){
+            try {
+                $query = "SELECT * FROM detalle_pedido";
                 $consulta = $this->conexion->prepare($query);
                 $consulta->execute();
                 $datos = $consulta->fetchAll(PDO::FETCH_ASSOC);
@@ -109,7 +122,7 @@
         // Para buscar las ventas por : Fecha,total ,productos y estado
         public function search($data = []) {
             try {
-                $query = "SELECT ven.idventa, ped.idpedido, COUNT(dtp.idproducto) AS productos, ven.metodo, ven.total, ven.fecha_creacion, ven.estado
+                $query = "SELECT ven.idventa, ped.idpedido, COUNT(dtp.idproducto) AS productos, ven.metodo, ven.total,ven.idusuario, ven.fecha_creacion, ven.estado
                 FROM venta ven
                 INNER JOIN pedido ped ON ped.idpedido = ven.idpedido
                 INNER JOIN detalle_pedido dtp ON dtp.idpedido = ped.idpedido
@@ -117,12 +130,12 @@
                 WHERE 1 = 1";
         
                 $params = [];
-        
-                if (!empty($data["idproducto"])) {
-                    $query .= " AND pro.idproducto = ?";
-                    $params[] = $data['idproducto'];
+
+                if (!empty($data["idusuario"])) {
+                    $query .= " AND ven.idusuario = ?";
+                    $params[] = $data['idusuario'];
                 }
-        
+
                 if (!empty($data["total"])) {
                     $query .= " AND ven.total = ?";
                     $params[] = $data['total'];
@@ -163,7 +176,7 @@
         // Para buscar las ventas por : Fecha,total ,productos y estado
         public function buscarVenta($data = []) {
             try {
-                $query = "SELECT ven.idventa, ped.idpedido, COUNT(dtp.idproducto) AS productos, ven.metodo, ven.total, ven.fecha_creacion, ven.estado
+                $query = "SELECT ven.idventa, ped.idpedido, COUNT(dtp.idproducto) AS productos,ven.idusuario, ven.metodo, ven.total, ven.fecha_creacion, ven.estado
                 FROM venta ven
                 INNER JOIN pedido ped ON ped.idpedido = ven.idpedido
                 INNER JOIN detalle_pedido dtp ON dtp.idpedido = ped.idpedido
@@ -171,17 +184,17 @@
                 WHERE 1 = 1";
         
                 $params = [];
-        
-                if (!empty($data["idproducto"])) {
-                    $query .= " AND pro.idproducto = ?";
-                    $params[] = $data['idproducto'];
+
+                if (!empty($data["idusuario"])) {
+                    $query .= " AND ven.idusuario = ?";
+                    $params[] = $data['idusuario'];
                 }
-        
+
                 if (!empty($data["total"])) {
                     $query .= " AND ven.total = ?";
                     $params[] = $data['total'];
                 }
-        
+
                 if (!empty($data['fecha'])) {
                     $query .= " AND DATE(ven.fecha_creacion) = DATE(?)";
                     $params[] = $data['fecha'];

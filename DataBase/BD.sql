@@ -37,7 +37,7 @@ CREATE TABLE usuario
 )ENGINE = INNODB;
 
 INSERT INTO usuario (idpersona,usuario,clave)
-VALUES	(11,'AngelMJ','SENATI'),
+VALUES	(11,'ConsueloJE','SENATI'),
 	(2,'ConsueloJE','SENATI');
 	
 SELECT * FROM usuario;
@@ -155,7 +155,7 @@ CREATE TABLE venta
 	metodo			CHAR(1)		NOT NULL,  -- 1 es efectivo, 2 yape, 3 plin
 	comentario		VARCHAR(80)	NULL,
 	idusuario		SMALLINT	NOT NULL,
-	estado			CHAR 		NOT NULL DEFAULT(1),  -- 1 es venta normal, 2 es venta con deuda(osea que aún no ha sido pagado)
+	estado			CHAR 		NOT NULL DEFAULT(1),  -- 1 es venta normal, 2 es venta con deuda(osea que aún no ha sido pagado) y 3 es venta anulada
 	fecha_creacion		DATETIME 	NOT NULL DEFAULT NOW(),
 	CONSTRAINT fk_idpedido_v FOREIGN KEY (idpedido) REFERENCES pedido(idpedido),
 	CONSTRAINT fk_idproducto_v FOREIGN KEY (idusuario) REFERENCES usuario(idusuario)
@@ -181,10 +181,10 @@ CREATE TABLE deuda
 INSERT INTO deuda (iddeudor,idventa,comentario)
 VALUES(2,65,"Pagará el 30 de octubre");
 
-SELECT * FROM deuda
+SELECT * FROM deuda WHERE iddeudor = 11
 SELECT * FROM deudores
 UPDATE deudores SET estado = 2 WHERE iddeudor = 10
-SELECT * FROM venta WHERE estado = 2
+SELECT * FROM venta WHERE estado = 1
 
 --------------------------------
 CREATE TABLE gastos
@@ -213,7 +213,7 @@ CREATE TABLE semana
     fecha_inicio    DATE        NOT NULL,
     fecha_fin       DATE        NOT NULL,
     comentario      VARCHAR(200) NULL,
-    estado          CHAR(1)     NOT NULL DEFAULT '1',
+    estado          CHAR(1)     NOT NULL DEFAULT '1', -- 1 es activo y 2 es inactivo
     fecha_creacion  DATETIME    NOT NULL DEFAULT NOW(),
     fecha_update    DATETIME    NULL
 )ENGINE = INNODB;
@@ -222,15 +222,10 @@ INSERT INTO semana(fecha_inicio,fecha_fin)
 VALUES('2023-11-13','2023-11-25');
 
 SELECT * FROM semana
-
-SELECT * FROM deudores deb 
-INNER JOIN deuda deu ON deb.iddeudor = deu.iddeudor 
-INNER JOIN venta ven ON ven.idventa = deu.idventa  
-                WHERE 1 = 1
-                
- SELECT deb.iddeudor, deu.iddeuda, deb.aporte, deu.estado,ven.idventa,ven.total  FROM deudores deb INNER JOIN deuda deu ON deb.iddeudor = deu.iddeudor
- INNER JOIN venta ven ON ven.idventa = deu.idventa  WHERE 1 = 1
- 
- 
-  SELECT * FROM deudores deb INNER JOIN deuda deu ON deb.iddeudor = deu.iddeudor
- INNER JOIN venta ven ON ven.idventa = deu.idventa  WHERE 1 = 1
+SELECT ven.idventa,ped.idpedido, COUNT(dtp.idproducto) AS productos,dtp.idDetallePedido,ven.idusuario, ven.metodo, ven.total, ven.fecha_creacion,ven.estado
+                FROM venta ven
+                INNER JOIN pedido ped ON ped.idpedido = ven.idpedido
+                INNER JOIN detalle_pedido dtp ON dtp.idpedido = ped.idpedido
+                INNER JOIN producto pro ON pro.idproducto = dtp.idproducto
+                GROUP BY ven.idventa, ven.total, ven.fecha_creacion
+                ORDER BY ven.fecha_creacion DESC

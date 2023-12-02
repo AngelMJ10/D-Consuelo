@@ -81,40 +81,31 @@
 
                                         <div class="col-md-3">
                                             <div class="form-floating mb-3">
-                                                <input type="text" class="form-control" id="gastos-buscar" name="Plato" placeholder="Plato">
-                                                <label for="Plato" class="form-label">Gastos</label>
-                                            </div>
-                                        </div>
-
-                                        <div class="col-md-3">
-                                            <div class="form-floating mb-3">
-                                                <select class="form-control" name="" id="semana-buscar">
-                                                </select>
-                                            </div>
-                                        </div>
-
-                                        <div class="col-md-3">
-                                            <div class="form-floating mb-3">
-                                                <input type="date" class="form-control" id="fecha-buscar" name="Plato" placeholder="Plato">
+                                                <input type="date" class="form-control" id="fecha-inicio-buscar" name="Plato" placeholder="Plato">
                                                 <label for="Plato" class="form-label">Fecha</label>
                                             </div>
                                         </div>
 
-                                    </div>
-
-                                    <div class="row">
                                         <div class="col-md-3">
                                             <div class="form-floating mb-3">
-                                                <select class="form-control" name="" id="estado-buscar">
+                                                <input type="date" class="form-control" id="fecha-fin-buscar" name="Plato" placeholder="Plato">
+                                                <label for="Plato" class="form-label">Fecha límite</label>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-3">
+                                            <div class="form-floating mb-3">
+                                                <select class="form-control" name="" id="estado-s-buscar">
                                                     <option value="">Seleccione un estado</option>
-                                                    <option value="0">Inactivo</option>
+                                                    <option value="2">Inactivo</option>
                                                     <option value="1">Activo</option>
                                                 </select>
                                             </div>
                                         </div>
+
                                     </div>
 
-                                    <button type="button" id="buscar-plato"  class="btn btn-outline-primary">Buscar</button>
+                                    <button type="button" id="buscar-semana"  class="btn btn-outline-primary">Buscar</button>
                                 </form>
                             </div>
                         </div>
@@ -130,6 +121,7 @@
                             <th>Fin</th>
                             <th>Gastos</th>
                             <th>Ventas</th>
+                            <th>Domingo</th>
                             <th>Estado</th>
                             <th>Acción</th>
                         </thead>
@@ -175,7 +167,7 @@
                         <div class="form-floating mb-3">
                             <select class="form-control" name="" id="estado-editar">
                                 <option value="">Seleccione un estado</option>
-                                <option value="0">Inactivo</option>
+                                <option value="2">Inactivo</option>
                                 <option value="1">Activo</option>
                             </select>
                         </div>
@@ -251,7 +243,7 @@
                                             <div class="form-floating mb-3">
                                                 <select class="form-control" name="" id="estado-buscar">
                                                     <option value="">Seleccione un estado</option>
-                                                    <option value="0">Inactivo</option>
+                                                    <option value="2">Inactivo</option>
                                                     <option value="1">Activo</option>
                                                 </select>
                                             </div>

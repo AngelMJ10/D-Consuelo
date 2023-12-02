@@ -132,7 +132,7 @@
                                             <div class="form-floating mb-3">
                                                 <select class="form-control" name="" id="estado-buscar">
                                                     <option value="">Seleccione un estado</option>
-                                                    <option value="0">Inactivo</option>
+                                                    <option value="2">Inactivo</option>
                                                     <option value="1">Activo</option>
                                                 </select>
                                             </div>
@@ -217,7 +217,7 @@
                         <div class="form-floating mb-3">
                             <select class="form-control" name="" id="estado-editar">
                                 <option value="">Seleccione un estado</option>
-                                <option value="0">Inactivo</option>
+                                <option value="2">Inactivo</option>
                                 <option value="1">Activo</option>
                             </select>
                         </div>

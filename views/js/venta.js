@@ -1,6 +1,7 @@
 const tabla = document.querySelector("#tabla-ventas");
 const tbodyV = tabla.querySelector("tbody");
 const modalCarrito = document.querySelector("#modal-editar");
+const txtDeuda = document.querySelector("#deuda");
 
 function listar(){
     const parametros = new URLSearchParams();
@@ -16,28 +17,39 @@ function listar(){
         datos.forEach(element => {
             // Formatear el precio con dos decimales fijos
             const precioSinDecimales = parseFloat(element.total).toString();
-            const estado = element.estado == 1 ? 'Pagado' : element.estado == 2 ? 'Fiado' : element.estado;
+            const estado = element.estado == 1 ? 'Pagado' : element.estado == 2 ? 'Fiado' : element.estado == 3 ? 'Anulado' : element.estado;
             const metodo = element.metodo == 1 ? 'Efectivo' : element.metodo == 2 ? 'Yape' : element.metodo == 3 ? 'Plin' : element.metodo;
             const color = element.metodo == 1 ? '005478' : element.metodo == 2 ? '900584' : element.metodo == 3 ? '00FFD1' : element.metodo;
-            const colorestado = element.estado == 1 ? '005478' : element.estado == 2 ? 'FD0000' : element.estado == 0 ? 'C5C3C2' : element.estado;
-            tbody += `
-                <tr ondblclick="get(${element.idventa})">
-                    <td data-label='#'>${contador}</td>
-                    <td data-label='Productos'>${element.productos}</td>
-                    <td data-label='Fecha'>${element.fecha_creacion}</td>
-                    <td data-label='Total'> S/ ${precioSinDecimales}</td>
-                    <td data-label='Metodo'><span class='badge rounded-pill' style='background-color: #${color}'>${metodo}</td>
-                    <td data-label='Estado'><span class='badge rounded-pill' style='background-color: #${colorestado} '>${estado}</td>
-                    <td data-label='Acción'>
-                        <a class='btn btn-sm btn-outline-success' type='button'>
-                        <i class="fa-regular fa-pen-to-square"></i>
-                        </a>
-                    </td>
-                </tr>
-            `;
+            const colorestado = element.estado == 1 ? '005478' : element.estado == 2 ? '02FF97' : element.estado == 3 ? 'FD0000' : element.estado;
+            let accionHtml = '';
+            if (element.estado == 3) {
+                accionHtml = `
+                    <a class='btn btn-sm btn-outline-success' onclick='activar_venta(${element.idventa})' title='Activar venta' type='button' data-idventa='${element.idventa}'>
+                        <i class="fa-solid fa-check"></i>
+                    </a>`;
+            } else {
+                accionHtml = `
+                        <a class='btn btn-sm btn-outline-danger' onclick='anular_venta(${element.idventa})' title='Anular venta' type='button' data-idventa='${element.idventa}'>
+                            <i class="fa-solid fa-trash"></i>
+                        </a>`;
+            }
+            if (element.estado == 1) {
+                tbody += `
+                    <tr title='Doble clic, para ver la venta' ondblclick="get(${element.idventa})">
+                        <td data-label='#'>${contador}</td>
+                        <td data-label='Productos'>${element.productos}</td>
+                        <td data-label='Fecha'>${element.fecha_creacion}</td>
+                        <td data-label='Total'> S/ ${precioSinDecimales}</td>
+                        <td data-label='Metodo'><span class='badge rounded-pill' style='background-color: #${color}'>${metodo}</td>
+                        <td data-label='Estado'><span class='badge rounded-pill' style='background-color: #${colorestado} '>${estado}</td>
+                        <td data-label='Acción'>
+                            ${accionHtml}
+                        </td>
+                    </tr>
+                `;
+            }
             contador++;
         });
-        console.log("hola")
         tbodyV.innerHTML = tbody;
     })
 }
@@ -58,6 +70,7 @@ function get(id){
     })
     .then(respuesta => respuesta.json())
     .then(datos => {
+        txtDeudor.innerHTML = "";
         tbodyD.innerHTML = "";
         let tbody = "";
         let contador = 1;
@@ -74,10 +87,8 @@ function get(id){
                 </tr>
             `;
             contador++;
-            if (element.estado == 2) {
+            if (element.estado == 2 || element.estado == 3 || element.estado == 1) {
                 getDebt(id);
-            }else{
-                txtDeudor.innerHTML = "";
             }
         });
         tbodyD.innerHTML = tbody;
@@ -112,63 +123,94 @@ function search(){
     const txtFecha = document.querySelector("#fecha-buscar");
     const txtFechaL = document.querySelector("#fecha-limite-buscar");
     const txtEstado = document.querySelector("#estado-buscar");
+    const txtUsuario = document.querySelector("#usuario-buscar");
     const txtMetodo = document.querySelector("#metodo-buscar");
     const parametros = new URLSearchParams();
 
-    if (txtFechaL.value === "") {
-        console.log("CONSULTA SIN FECHAS LIMITES");
-        search2();
+    if (txtProducto.value > 0) {
+        search3();
+        console.log("BUSQUEDA DE PRODUCTOS")
     }else{
-        parametros.append("op", "search");
-        parametros.append("idproducto", txtProducto.value);
-        parametros.append("total", txtTotal.value);
-        parametros.append("fecha", "");
-        parametros.append("fecha_inicio", txtFecha.value);
-        parametros.append("fecha_fin", txtFechaL.value);
-        parametros.append("metodo", txtMetodo.value);
-        parametros.append("estado", txtEstado.value);
-        fetch("../controllers/venta.php",{
-            method: 'POST',
-            body: parametros
-        })
-        .then(respuesta => respuesta.json())
-        .then(datos => {
-            let total = 0;
-            console.log(datos);
-            tbodyV.innerHTML = "";
-            let contador = 1;
-            let tbody = "";
-            datos.forEach(element => {
-                if (element.estado == 1) {
+        if (txtFechaL.value === "") {
+            search2();
+            console.log("BUSQUEDA SIN FECHAS LIMITES")
+        }else{
+            parametros.append("op", "buscar_1");
+            parametros.append("total", txtTotal.value);
+            parametros.append("fecha_inicio", txtFecha.value);
+            parametros.append("fecha_fin", txtFechaL.value);
+            parametros.append("metodo", txtMetodo.value);
+            parametros.append("estado", txtEstado.value);
+            parametros.append("idusuario", txtUsuario.value);
+            fetch("../controllers/venta.php",{
+                method: 'POST',
+                body: parametros
+            })
+            .then(respuesta => respuesta.json())
+            .then(datos => {
+                let total = 0;
+                tbodyV.innerHTML = "";
+                let contador = 1;
+                let tbody = "";
+                datos.forEach(element => {
                     total += parseFloat(element.total);
-                }
-                // Formatear el precio con dos decimales fijos
-                const precioSinDecimales = parseFloat(element.total).toString();
-                const estado = element.estado == 1 ? 'Pagado' : element.estado == 2 ? 'Fiado' : element.estado;
-                const metodo = element.metodo == 1 ? 'Efectivo' : element.metodo == 2 ? 'Yape' : element.metodo == 3 ? 'Plin' : element.metodo;
-                const color = element.metodo == 1 ? '005478' : element.metodo == 2 ? '900584' : element.metodo == 3 ? '00FFD1' : element.metodo;
-                const colorestado = element.estado == 1 ? '005478' : element.estado == 2 ? 'FD0000' : element.estado == 0 ? 'C5C3C2' : element.estado;
-                tbody += `
-                    <tr ondblclick="get(${element.idventa})">
-                        <td data-label='#'>${contador}</td>
-                        <td data-label='Productos'>${element.productos}</td>
-                        <td data-label='Fecha'>${element.fecha_creacion}</td>
-                        <td data-label='Total'> S/ ${precioSinDecimales}</td>
-                        <td data-label='Metodo'><span class='badge rounded-pill' style='background-color: #${color}'>${metodo}</td>
-                        <td data-label='Estado'><span class='badge rounded-pill' style='background-color: #${colorestado} '>${estado}</td>
-                        <td data-label='Acción'>
-                            <a class='btn btn-sm btn-outline-success' type='button'>
-                            <i class="fa-regular fa-pen-to-square"></i>
-                            </a>
-                        </td>
-                    </tr>
-                `;
-                contador++;
-            });
-            // Actualizar el valor de txtTotalSearch fuera del bucle
-            txtTotalSearch.value = total;
-            tbodyV.innerHTML = tbody;
-        })
+                    // Formatear el precio con dos decimales fijos
+                    const precioSinDecimales = parseFloat(element.total).toString();
+                    const estado = element.estado == 1 ? 'Pagado' : element.estado == 2 ? 'Fiado' : element.estado == 3 ? 'Anulado' : element.estado;
+                    const metodo = element.metodo == 1 ? 'Efectivo' : element.metodo == 2 ? 'Yape' : element.metodo == 3 ? 'Plin' : element.metodo;
+                    const color = element.metodo == 1 ? '005478' : element.metodo == 2 ? '900584' : element.metodo == 3 ? '00FFD1' : element.metodo;
+                    const colorestado = element.estado == 1 ? '005478' : element.estado == 2 ? '02FF97' : element.estado == 3 ? 'FD0000' : element.estado;
+                    let accionHtml = '';
+                    if (element.estado == 3) {
+                        accionHtml = `
+                            <a class='btn btn-sm btn-outline-success' onclick='activar_venta(${element.idventa})' title='Activar venta' type='button' data-idventa='${element.idventa}'>
+                                <i class="fa-solid fa-check"></i>
+                            </a>`;
+                    } else {
+                        accionHtml = `
+                                <a class='btn btn-sm btn-outline-danger' onclick='anular_venta(${element.idventa})' title='Anular venta' type='button' data-idventa='${element.idventa}'>
+                                    <i class="fa-solid fa-trash"></i>
+                                </a>`;
+                    }
+                    if (txtDeuda.checked) {
+                        if (element.deuda == 1) {
+                            tbody += `
+                            <tr title='Doble clic, para ver la venta' ondblclick="get(${element.idventa})">
+                                <td data-label='#'>${contador}</td>
+                                <td data-label='Productos'>${element.productos}</td>
+                                <td data-label='Fecha'>${element.fecha_creacion}</td>
+                                <td data-label='Total'> S/ ${precioSinDecimales}</td>
+                                <td data-label='Metodo'><span class='badge rounded-pill' style='background-color: #${color}'>${metodo}</td>
+                                <td data-label='Estado'><span class='badge rounded-pill' style='background-color: #${colorestado} '>${estado}</td>
+                                <td data-label='Acción'>
+                                    ${accionHtml}
+                                </td>
+                            </tr>
+                            `;
+                            contador++;
+                        }
+                    }else{
+                        tbody += `
+                        <tr title='Doble clic, para ver la venta' ondblclick="get(${element.idventa})">
+                            <td data-label='#'>${contador}</td>
+                            <td data-label='Productos'>${element.productos}</td>
+                            <td data-label='Fecha'>${element.fecha_creacion}</td>
+                            <td data-label='Total'> S/ ${precioSinDecimales}</td>
+                            <td data-label='Metodo'><span class='badge rounded-pill' style='background-color: #${color}'>${metodo}</td>
+                            <td data-label='Estado'><span class='badge rounded-pill' style='background-color: #${colorestado} '>${estado}</td>
+                            <td data-label='Acción'>
+                                ${accionHtml}
+                            </td>
+                        </tr>
+                    `;
+                    }
+                    contador++;
+                });
+                // Actualizar el valor de txtTotalSearch fuera del bucle
+                txtTotalSearch.value = total;
+                tbodyV.innerHTML = tbody;
+            })
+        }
     }
 
 }
@@ -176,17 +218,107 @@ function search(){
 // Buscar ventas sin fechas limites
 function search2(){
     const txtTotalSearch = document.querySelector("#total_day");
-    const txtProducto = document.querySelector("#producto-buscar");
     const txtTotal = document.querySelector("#total-buscar");
     const txtFecha = document.querySelector("#fecha-buscar");
     const txtEstado = document.querySelector("#estado-buscar");
     const txtMetodo = document.querySelector("#metodo-buscar");
+    const txtUsuario = document.querySelector("#usuario-buscar");
     const parametros = new URLSearchParams();
-    parametros.append("op", "buscarVenta");
-    parametros.append("idproducto", txtProducto.value);
+    parametros.append("op", "buscar_2");
     parametros.append("total", txtTotal.value);
     parametros.append("fecha", txtFecha.value);
     parametros.append("metodo", txtMetodo.value);
+    parametros.append("estado", txtEstado.value);
+    parametros.append("idusuario", txtUsuario.value);
+    fetch("../controllers/venta.php",{
+        method: 'POST',
+        body: parametros
+    })
+    .then(respuesta => respuesta.json())
+    .then(datos => {
+        let total = 0;
+        tbodyV.innerHTML = "";
+        let contador = 1;
+        let tbody = "";
+        datos.forEach(element => {
+            total += parseFloat(element.total);
+            // Formatear el precio con dos decimales fijos
+            const precioSinDecimales = parseFloat(element.total).toString();
+            const estado = element.estado == 1 ? 'Pagado' : element.estado == 2 ? 'Fiado' : element.estado == 3 ? 'Anulado' : element.estado;
+            const metodo = element.metodo == 1 ? 'Efectivo' : element.metodo == 2 ? 'Yape' : element.metodo == 3 ? 'Plin' : element.metodo;
+            const color = element.metodo == 1 ? '005478' : element.metodo == 2 ? '900584' : element.metodo == 3 ? '00FFD1' : element.metodo;
+            const colorestado = element.estado == 1 ? '005478' : element.estado == 2 ? '02FF97' : element.estado == 3 ? 'FD0000' : element.estado;
+            let accionHtml = '';
+            if (element.estado == 3) {
+                accionHtml = `
+                    <a class='btn btn-sm btn-outline-success' onclick='activar_venta(${element.idventa})' title='Activar venta' type='button' data-idventa='${element.idventa}'>
+                        <i class="fa-solid fa-check"></i>
+                    </a>`;
+            } else {
+                accionHtml = `
+                        <a class='btn btn-sm btn-outline-danger' onclick='anular_venta(${element.idventa})' title='Anular venta' type='button' data-idventa='${element.idventa}'>
+                            <i class="fa-solid fa-trash"></i>
+                        </a>`;
+            }
+
+            if (txtDeuda.checked) {
+                if (element.deuda == 1) {
+                    tbody += `
+                    <tr title='Doble clic, para ver la venta' ondblclick="get(${element.idventa})">
+                        <td data-label='#'>${contador}</td>
+                        <td data-label='Productos'>${element.productos}</td>
+                        <td data-label='Fecha'>${element.fecha_creacion}</td>
+                        <td data-label='Total'> S/ ${precioSinDecimales}</td>
+                        <td data-label='Metodo'><span class='badge rounded-pill' style='background-color: #${color}'>${metodo}</td>
+                        <td data-label='Estado'><span class='badge rounded-pill' style='background-color: #${colorestado} '>${estado}</td>
+                        <td data-label='Acción'>
+                            ${accionHtml}
+                        </td>
+                    </tr>
+                    `;
+                    contador++;
+                }
+            }else{
+                tbody += `
+                <tr title='Doble clic, para ver la venta' ondblclick="get(${element.idventa})">
+                    <td data-label='#'>${contador}</td>
+                    <td data-label='Productos'>${element.productos}</td>
+                    <td data-label='Fecha'>${element.fecha_creacion}</td>
+                    <td data-label='Total'> S/ ${precioSinDecimales}</td>
+                    <td data-label='Metodo'><span class='badge rounded-pill' style='background-color: #${color}'>${metodo}</td>
+                    <td data-label='Estado'><span class='badge rounded-pill' style='background-color: #${colorestado} '>${estado}</td>
+                    <td data-label='Acción'>
+                        ${accionHtml}
+                    </td>
+                </tr>
+            `;
+            }
+        });
+        // Actualizar el valor de txtTotalSearch fuera del bucle
+        txtTotalSearch.value = total;
+        tbodyV.innerHTML = tbody;
+    })
+    
+}
+
+// Buscar por producto
+function search3(){
+    const txtTotalSearch = document.querySelector("#total_day");
+    const txtProducto = document.querySelector("#producto-buscar");
+    const txtTotal = document.querySelector("#total-buscar");
+    const txtFecha = document.querySelector("#fecha-buscar");
+    const txtFechaL = document.querySelector("#fecha-limite-buscar");
+    const txtEstado = document.querySelector("#estado-buscar");
+    const txtUsuario = document.querySelector("#usuario-buscar");
+    const txtMetodo = document.querySelector("#metodo-buscar");
+    const parametros = new URLSearchParams();
+    parametros.append("op", "buscar_3");
+    parametros.append("idproducto", txtProducto.value);
+    parametros.append("fecha_inicio", txtFecha.value);
+    parametros.append("fecha_fin", txtFechaL.value);
+    parametros.append("total", txtTotal.value);
+    parametros.append("metodo", txtMetodo.value);
+    parametros.append("idusuario", txtUsuario.value);
     parametros.append("estado", txtEstado.value);
     fetch("../controllers/venta.php",{
         method: 'POST',
@@ -199,30 +331,57 @@ function search2(){
         let contador = 1;
         let tbody = "";
         datos.forEach(element => {
-            if (element.estado == 1) {
-                total += parseFloat(element.total);
-            }
+            total += parseFloat(element.totalP);
             // Formatear el precio con dos decimales fijos
-            const precioSinDecimales = parseFloat(element.total).toString();
-            const estado = element.estado == 1 ? 'Pagado' : element.estado == 2 ? 'Fiado' : element.estado;
+            const precioSinDecimales = parseFloat(element.totalP).toString();
+            const estado = element.estado == 1 ? 'Pagado' : element.estado == 2 ? 'Fiado' : element.estado == 3 ? 'Anulado' : element.estado;
             const metodo = element.metodo == 1 ? 'Efectivo' : element.metodo == 2 ? 'Yape' : element.metodo == 3 ? 'Plin' : element.metodo;
             const color = element.metodo == 1 ? '005478' : element.metodo == 2 ? '900584' : element.metodo == 3 ? '00FFD1' : element.metodo;
-            const colorestado = element.estado == 1 ? '005478' : element.estado == 2 ? 'FD0000' : element.estado == 0 ? 'C5C3C2' : element.estado;
-            tbody += `
-                <tr ondblclick="get(${element.idventa})">
+            const colorestado = element.estado == 1 ? '005478' : element.estado == 2 ? '02FF97' : element.estado == 3 ? 'FD0000' : element.estado;
+            let accionHtml = '';
+            if (element.estado == 3) {
+                accionHtml = `
+                    <a class='btn btn-sm btn-outline-success' onclick='activar_venta(${element.idventa})' title='Activar venta' type='button' data-idventa='${element.idventa}'>
+                        <i class="fa-solid fa-check"></i>
+                    </a>`;
+            } else {
+                accionHtml = `
+                        <a class='btn btn-sm btn-outline-danger' onclick='anular_venta(${element.idventa})' title='Anular venta' type='button' data-idventa='${element.idventa}'>
+                            <i class="fa-solid fa-trash"></i>
+                        </a>`;
+            }
+            if (txtDeuda.checked) {
+                if (element.deuda == 1) {
+                    tbody += `
+                    <tr title='Doble clic, para ver la venta' ondblclick="get(${element.idventa})">
+                        <td data-label='#'>${contador}</td>
+                        <td data-label='Productos'>${element.cantidad}</td>
+                        <td data-label='Fecha'>${element.fecha_creacion}</td>
+                        <td data-label='Total'> S/ ${precioSinDecimales}</td>
+                        <td data-label='Metodo'><span class='badge rounded-pill' style='background-color: #${color}'>${metodo}</td>
+                        <td data-label='Estado'><span class='badge rounded-pill' style='background-color: #${colorestado} '>${estado}</td>
+                        <td data-label='Acción'>
+                            ${accionHtml}
+                        </td>
+                    </tr>
+                    `;
+                    contador++;
+                }
+            }else{
+                tbody += `
+                <tr title='Doble clic, para ver la venta' ondblclick="get(${element.idventa})">
                     <td data-label='#'>${contador}</td>
-                    <td data-label='Productos'>${element.productos}</td>
+                    <td data-label='Productos'>${element.cantidad}</td>
                     <td data-label='Fecha'>${element.fecha_creacion}</td>
                     <td data-label='Total'> S/ ${precioSinDecimales}</td>
                     <td data-label='Metodo'><span class='badge rounded-pill' style='background-color: #${color}'>${metodo}</td>
-                    <td data-label='Estado'><span class='badge rounded-pill' style='background-color: #${colorestado}'>${estado}</td>
+                    <td data-label='Estado'><span class='badge rounded-pill' style='background-color: #${colorestado} '>${estado}</td>
                     <td data-label='Acción'>
-                        <a class='btn btn-sm btn-outline-success' type='button'>
-                        <i class="fa-regular fa-pen-to-square"></i>
-                        </a>
+                        ${accionHtml}
                     </td>
                 </tr>
             `;
+            }
             contador++;
         });
         // Actualizar el valor de txtTotalSearch fuera del bucle
@@ -264,6 +423,86 @@ function listProducts() {
         });
         txtProducto.innerHTML += option;
     })
+}
+
+function anular_venta(idventa){
+    Swal.fire({
+        title: "¿Está seguro de anular la venta?",
+        text: "La venta se guardará como anulada",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Si, anula la venta!"
+    })
+    .then(async (result) => { // Marca la función como async aquí
+        if (result.isConfirmed) {
+            const parametros = new URLSearchParams();
+            parametros.append("op", "change_estate");
+            parametros.append("idventa", idventa);
+            parametros.append("estado", 3);
+            fetch("../controllers/venta.php", {
+                method: 'POST',
+                body: parametros
+            })
+            .then(respuesta => {
+                if (respuesta.ok) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Venta Actualizada',
+                        html: 'Se ha actualizado la venta'
+                    }).then(() => {
+                        listar()
+                    });
+                } else {
+                    throw new Error('Error en la solicitud');
+                }
+            })
+            .catch(error => {
+                console.error(error);
+            });
+        }
+    });
+}
+
+function activar_venta(idventa){
+    Swal.fire({
+        title: "¿Está seguro de activar la venta?",
+        text: "La venta se guardará como activada",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Si, activa la venta!"
+    })
+    .then(async (result) => { // Marca la función como async aquí
+        if (result.isConfirmed) {
+            const parametros = new URLSearchParams();
+            parametros.append("op", "change_estate");
+            parametros.append("idventa", idventa);
+            parametros.append("estado", 1);
+            fetch("../controllers/venta.php", {
+                method: 'POST',
+                body: parametros
+            })
+            .then(respuesta => {
+                if (respuesta.ok) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Venta Actualizada',
+                        html: 'Se ha actualizado la venta'
+                    }).then(() => {
+                        listar()
+                    });
+                } else {
+                    throw new Error('Error en la solicitud');
+                }
+            })
+            .catch(error => {
+                console.error(error);
+            });
+        }
+    });
 }
 
 function total_day(){

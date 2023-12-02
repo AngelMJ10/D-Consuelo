@@ -39,19 +39,20 @@
                         
                     </div>
                     <div class="card-body">
-                    <form>
-                        <h4 id="titulo-register">Registrar Marca</h4>
-                        <div class="row mb-2 mt-3">
-                            <div class="col-md-3">
-                                <div class="form-floating mb-3">
-                                    <input type="text" class="form-control" id="marca" name="nombre" placeholder="nombre">
-                                    <label for="nombre" class="form-label">Marca</label>
+                        <form>
+                            <h4 id="titulo-register">Registrar Marca</h4>
+                            <div class="row mb-2 mt-3">
+                                <div class="col-md-3">
+                                    <div class="form-floating mb-3">
+                                        <input type="text" class="form-control" id="marca" name="nombre" placeholder="nombre">
+                                        <label for="nombre" class="form-label">Marca</label>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
 
-                        <button type="button" id="registrar-marca"  class="btn btn-outline-primary">Agregar</button>
-                    </form>
+                            <button type="button" id="registrar-marca"  class="btn btn-outline-primary">Agregar</button>
+                        </form>
+
                     </div>
                 </div>
             </div>
@@ -80,7 +81,7 @@
                                         <div class="form-floating mb-3">
                                             <select class="form-control" name="" id="estado-buscar">
                                                 <option value="">Seleccione un estado</option>
-                                                <option value="0">Inactivo</option>
+                                                <option value="2">Inactivo</option>
                                                 <option value="1">Activo</option>
                                             </select>
                                         </div>
@@ -139,7 +140,7 @@
                         <div class="form-floating mb-3">
                             <select class="form-control" name="" id="estado-editar">
                                 <option value="">Seleccione un estado</option>
-                                <option value="0">Inactivo</option>
+                                <option value="2">Inactivo</option>
                                 <option value="1">Activo</option>
                             </select>
                         </div>

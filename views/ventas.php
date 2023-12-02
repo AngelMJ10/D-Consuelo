@@ -88,6 +88,7 @@
                                                 <option value="0">Seleccione un estado</option>
                                                 <option value="1">Pagado</option>
                                                 <option value="2">Fiado</option>
+                                                <option value="3">Anulado</option>
                                             </select>
                                         </div>
                                     </div>
@@ -102,9 +103,29 @@
                                             </select>
                                         </div>
                                     </div>
+
+                                    <div class="col-md-3">
+                                        <div class="form-floating mb-3">
+                                            <select class="form-control" name="" id="usuario-buscar">
+                                                <option value="0">Seleccione un usuario</option>
+                                                <option value="5">Miguel</option>
+                                                <option value="6">Consuelo</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-3">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" value="1" id="deuda">
+                                            <label class="form-check-label" for="flexCheckDefault">
+                                                Deuda
+                                            </label>
+                                        </div>
+                                    </div>
+
                                 </div>
                                 <button type="button" id="buscar-venta"  class="btn btn-outline-primary">Buscar</button>
-                                <button type="button" id="limpiar"  class="btn btn-outline-primary">Limpiar</button>
+                                <button type="button" id="limpiar"  class="btn btn-outline-success">Limpiar</button>
                             </form>
                         </div>
                     </div>
@@ -133,7 +154,7 @@
                 <div class="col-md-3">
                     <div class="form-floating mb-3">
                         <input type="text" class="form-control" id="total_day" readonly name="total" placeholder="Total del día">
-                        <label for="precio" class="form-label">Total de día:</label>
+                        <label for="precio" class="form-label">Total:</label>
                     </div>
                 </div>
             </div>

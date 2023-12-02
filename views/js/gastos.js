@@ -21,7 +21,7 @@ function list(){
         datos.forEach(element => {
             const fechaCreate = new Date(element.fecha_creacion);
             const fecha = fechaCreate.toISOString().split('T')[0];
-            const estado = element.estado == 1 ? 'Activo' : element.estado == 0 ? 'Inactivo' : element.estado;
+            const estado = element.estado == 1 ? 'Activo' : element.estado == 2 ? 'Inactivo' : element.estado;
             const precioSinDecimales = parseFloat(element.precio).toString();
             tbody += `
                 <tr>
@@ -99,6 +99,23 @@ function guardarGastos() {
             text: 'Por favor, seleccione una semana',
         });
         return;
+    }
+
+    // Validar si alguna caja de texto está vacía
+    var filas = document.querySelectorAll("#campos .row");
+    for (var i = 0; i < filas.length; i++) {
+        var nombre = filas[i].querySelector('input[name="nombre"]').value;
+        var tipo = filas[i].querySelector('select[name="tipo"]').value;
+        var precio = filas[i].querySelector('input[name="precio"]').value;
+
+        if (nombre.trim() === '' || tipo.trim() === '' || precio.trim() === '') {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Campos incompletos',
+                text: 'Por favor, complete todos los campos',
+            });
+            return;
+        }
     }
 
     Swal.fire({
@@ -205,8 +222,9 @@ function edit() {
                         icon: 'success',
                         title: 'Gasto editado',
                         html: `Se ha actualizado el gasto</b>`
+                    }).then(() => {
+                        list()
                     });
-                    list();
                 }
             })
             .catch(error => {
@@ -248,7 +266,7 @@ function search(){
             console.log(txtTipo.value);
             const fechaCreate = new Date(element.fecha_creacion);
             const fecha = fechaCreate.toISOString().split('T')[0];
-            const estado = element.estado == 1 ? 'Activo' : element.estado == 0 ? 'Inactivo' : element.estado;
+            const estado = element.estado == 1 ? 'Activo' : element.estado == 2 ? 'Inactivo' : element.estado;
             const precioSinDecimales = parseFloat(element.precio).toString();
             tbody += `
                 <tr>

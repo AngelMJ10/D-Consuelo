@@ -5,49 +5,6 @@ let tipo = "B";
 let idProducto = 0;
 let nombres = ``;
 
-// Lista los platos
-function listP(){
-    const parametros = new URLSearchParams();
-    parametros.append("op", "list");
-    parametros.append("tipo", "P");
-    fetch('../controllers/producto.php', {
-        method: 'POST',
-        body: parametros
-    })
-    .then(respuesta => respuesta.json())
-    .then(datos => {
-        tbodyP.innerHTML = "";
-        let contador = 1;
-        let tbody = "";
-        datos.forEach(element => {
-            const fechaCreate = new Date(element.fecha_creacion);
-            const fecha = fechaCreate.toISOString().split('T')[0];
-            const estado = element.estado == 1 ? 'Activo' : element.estado == 0 ? 'Inactivo' : element.estado;
-            const stock = element.stock > 0 ? element.stock : element.tipo == 'P' ? 'Comida' : element.tipo == 'M' ? 'Combo' : element.stock;
-            const color  = element.stock > 0 ? '07853C' : element.tipo == 'P' ? 'CBC731' : element.tipo == 'M' ? 'FF0000' : element.stock;
-            // Formatear el precio con dos decimales fijos
-            const precioSinDecimales = parseFloat(element.precio).toString();
-            tbody += `
-                <tr>
-                    <td data-label='#'>${contador}</td>
-                    <td data-label='Producto'>${element.producto}</td>
-                    <td data-label='Precio'>S/ ${precioSinDecimales}</td>
-                    <td data-label='Fecha'>${fecha}</td>
-                    <td data-label='Stock'><span class='badge rounded-pill' style='background-color: #${color} '>${stock}</td>
-                    <td data-label='Estado'><span class='badge rounded-pill' style='background-color: #005478'>${estado}</td>
-                    <td data-label='Acción'>
-                        <a class='btn btn-sm btn-outline-success' type='button' onclick='get(${element.idproducto})'>
-                        <i class="fa-regular fa-pen-to-square"></i>
-                        </a>
-                    </td>
-                </tr>
-            `;
-            contador++;
-        });
-        tbodyP.innerHTML = tbody;
-    })
-}
-
 // Lista los platos para registrar
 function list_Platos_inactivos() {
     const parametros = new URLSearchParams();
@@ -122,7 +79,7 @@ function habilitar_platos() {
     Swal.fire({
         icon: 'question',
         title: 'Confirmación',
-        text: '¿Está srestaurar los siguientes platos?',
+        text: '¿Está restaurar los siguientes platos?',
         showCancelButton: true,
         confirmButtonText: 'Si',
         cancelButtonText: 'No',
@@ -134,93 +91,6 @@ function habilitar_platos() {
             });
         }
     });
-}
-
-// Lista las bebidas
-function listB(){
-    const parametros = new URLSearchParams();
-    parametros.append("op", "list");
-    parametros.append("tipo", "B");
-    fetch('../controllers/producto.php', {
-        method: 'POST',
-        body: parametros
-    })
-    .then(respuesta => respuesta.json())
-    .then(datos => {
-        tbodyP.innerHTML = "";
-        let contador = 1;
-        let tbody = "";
-        datos.forEach(element => {
-            const fechaCreate = new Date(element.fecha_creacion);
-            const fecha = fechaCreate.toISOString().split('T')[0];
-            const estado = element.estado == 1 ? 'Activo' : element.estado == 0 ? 'Inactivo' : element.estado;
-            const stock = element.stock > 0 ? element.stock : element.stock == null ? 'Comida' : element.stock;
-            const color  = element.stock > 0 ? '07853C' : element.stock == null ? 'C2C2C2' : element.stock;
-            // Formatear el precio con dos decimales fijos
-            const precioSinDecimales = parseFloat(element.precio).toString();
-            tbody += `
-                <tr>
-                    <td data-label='#'>${contador}</td>
-                    <td data-label='Producto'>${element.producto}</td>
-                    <td data-label='Precio'>S/ ${precioSinDecimales}</td>
-                    <td data-label='Fecha'>${fecha}</td>
-                    <td data-label='Stock'><span class='badge rounded-pill' style='background-color: #${color} '>${stock}</td>
-                    <td data-label='Estado'><span class='badge rounded-pill' style='background-color: #005478'>${estado}</td>
-                    <td data-label='Acción'>
-                        <a class='btn btn-sm btn-outline-success' type='button' onclick='get(${element.idproducto})'>
-                        <i class="fa-regular fa-pen-to-square"></i>
-                        </a>
-                    </td>
-                </tr>
-            `;
-            contador++;
-        });
-        tbodyP.innerHTML = tbody;
-    })
-}
-
-// Lista los combos
-function listC(){
-    const parametros = new URLSearchParams();
-    parametros.append("op", "list");
-    parametros.append("tipo", "M");
-    fetch('../controllers/producto.php', {
-        method: 'POST',
-        body: parametros
-    })
-    .then(respuesta => respuesta.json())
-    .then(datos => {
-        tbodyP.innerHTML = "";
-        let contador = 1;
-        let tbody = "";
-        datos.forEach(element => {
-            const fechaCreate = new Date(element.fecha_creacion);
-            const fecha = fechaCreate.toISOString().split('T')[0];
-            const estado = element.estado == 1 ? 'Activo' : element.estado == 0 ? 'Inactivo' : element.estado;
-            const stock = element.stock > 0 ? element.stock : element.tipo == 'P' ? 'Comida' : element.tipo == 'M' ? 'Combo' : element.stock;
-            const color  = element.stock > 0 ? '07853C' : element.tipo == 'P' ? 'CBC731' : element.tipo == 'M' ? 'FF0000' : element.stock;
-            // Formatear el precio con dos decimales fijos
-            const precioSinDecimales = parseFloat(element.precio).toString();
-            console.log(nombres);
-            tbody += `
-                <tr>
-                    <td data-label='#'>${contador}</td>
-                    <td data-label='Producto'>${element.producto}</td>
-                    <td data-label='Precio'>S/ ${precioSinDecimales}</td>
-                    <td data-label='Fecha'>${fecha}</td>
-                    <td data-label='Stock'><span class='badge rounded-pill' style='background-color: #${color} '>${stock}</td>
-                    <td data-label='Estado'><span class='badge rounded-pill' style='background-color: #005478'>${estado}</td>
-                    <td data-label='Acción'>
-                        <a class='btn btn-sm btn-outline-success' type='button' onclick='get(${element.idproducto})'>
-                        <i class="fa-regular fa-pen-to-square"></i>
-                        </a>
-                    </td>
-                </tr>
-            `;
-            contador++;
-        });
-        tbodyP.innerHTML = tbody;
-    })
 }
 
 // Lista todo
@@ -267,8 +137,8 @@ function list(){
 
 // Registra los platos
 function registerP(){
-    const txtProduct = document.querySelector("#producto-plato");
-    const txtPrecio = document.querySelector("#precio-plato");
+    const txtProduct = document.querySelector("#nombre_comida");
+    const txtPrecio = document.querySelector("#precio_comida");
     const parametros = new URLSearchParams();
     parametros.append("op", "registerP");
     parametros.append("producto", txtProduct.value);
@@ -313,10 +183,10 @@ function registerP(){
 
 // Registra las bebidas
 function registerB(){
-    const txtMarca = document.querySelector("#marca");
-    const txtBebida = document.querySelector("#producto");
-    const txtPrecio = document.querySelector("#precio");
-    const txtStock = document.querySelector("#stock");
+    const txtMarca = document.querySelector("#marca_bebida");
+    const txtBebida = document.querySelector("#nombre_bebida");
+    const txtPrecio = document.querySelector("#precio_bebida");
+    const txtStock = document.querySelector("#stock_bebida");
 
     const parametros = new URLSearchParams();
     parametros.append("op", "registerB");
@@ -364,9 +234,9 @@ function registerB(){
 
 // Registra los combos
 function registerC(){
-    const txtProducts1 = document.querySelector('#view-producto-1').value;
-    const txtProducts2 = document.querySelector('#view-producto-2').value;
-    const txtPrecioC = document.querySelector("#precio_combo");
+    const txtProducts1 = document.querySelector('#producto_1_menu').value;
+    const txtProducts2 = document.querySelector('#producto_2_menu').value;
+    const txtPrecioC = document.querySelector("#precio_menu");
     const txtProducts_C = `${txtProducts1} + ${txtProducts2}`;
     const parametros = new URLSearchParams();
     parametros.append("op", "register_combo");
@@ -413,18 +283,18 @@ function registerC(){
 // Función que decide cual función de registro usar
 function register(){
     // Campos de platos
-    const txtProduct = document.querySelector("#producto-plato");
-    const txtPrecio = document.querySelector("#precio-plato");
+    const txtProduct = document.querySelector("#nombre_comida");
+    const txtPrecio = document.querySelector("#precio_comida");
 
     // Campos de bebidas
-    const txtMarca = document.querySelector("#marca");
-    const txtBebida = document.querySelector("#producto");
-    const txtStock = document.querySelector("#stock");
-    const txtPrecioBebida = document.querySelector("#precio");
+    const txtMarca = document.querySelector("#marca_bebida");
+    const txtBebida = document.querySelector("#nombre_bebida");
+    const txtStock = document.querySelector("#stock_bebida");
+    const txtPrecioBebida = document.querySelector("#precio_bebida");
 
-    const txtProducts1 = document.querySelector('#view-producto-1');
-    const txtProducts2 = document.querySelector('#view-producto-2');
-    const txtPrecioC = document.querySelector("#precio_combo");
+    const txtProducts1 = document.querySelector('#producto_1_menu');
+    const txtProducts2 = document.querySelector('#producto_2_menu');
+    const txtPrecioC = document.querySelector("#precio_menu");
 
     if (tipo == "P") {
         if (!txtProduct.value || !txtPrecio.value) {
@@ -467,7 +337,7 @@ function register(){
 
 // Lista las marcas
 function listarMarcas() {
-    const txtMarca = document.querySelector('#marca');
+    const txtMarca = document.querySelector('#marca_bebida');
     const txtMarcaEdit = document.querySelector("#marca-editar");
     const txtMarcaSearch = document.querySelector("#marca-buscar");
     const parametrosURL = new URLSearchParams();
@@ -548,8 +418,8 @@ function search(){
 
 // Lista los platos disponibles para el combo
 function list_products(){
-    const txtProducts1 = document.querySelector('#view-producto-1');
-    const txtProducts2 = document.querySelector('#view-producto-2');
+    const txtProducts1 = document.querySelector('#producto_1_menu');
+    const txtProducts2 = document.querySelector('#producto_2_menu');
     const txtProductoC1 = document.querySelector("#producto-1-editar");
     const txtProductoC2 = document.querySelector("#producto-2-editar");
     const parametros = new URLSearchParams();
@@ -561,7 +431,7 @@ function list_products(){
     })
     .then(respuesta => respuesta.json())
     .then(datos => {
-        let options = "<option value='0'>Seleccione el producto</option>";
+        let options = "<option value=''>Seleccione el producto</option>";
         datos.forEach(element => {
             if (element.tipo == 'P') {
                 options+= `
@@ -595,63 +465,6 @@ function listar_todo(){
         });
         txtProducto.innerHTML = options;
     })
-}
-
-// Arregla la vista para el registro de platos
-function viewRegisterP(){
-    tipo = "P";
-    const vist_platos = document.querySelector("#vista_de_platos")
-    const viewPB = document.querySelector("#vista_pb")
-    const view_combo = document.querySelector("#vista_combo")
-    const titleView = document.querySelector("#titulo-register");
-    const btnRPlato = document.querySelector("#vista-plato");
-    const btnRBebida = document.querySelector("#vista-bebida");
-    // Se agrega la clase d-none a los campos de bebida
-    btnRPlato.classList.add("d-none")
-    btnRBebida.classList.remove("d-none");
-
-    // Se quita la clase d-none de la vista de platos y bebidas 
-    vist_platos.classList.remove("d-none");
-    viewPB.classList.add("d-none");
-    view_combo.classList.add("d-none");
-
-    titleView.textContent = "Registrar Plato";
-}
-
-// Arregla la vista para el registro de bebidas
-function viewRegisterB(){
-    tipo = "B";
-    const vist_platos = document.querySelector("#vista_de_platos")
-    const viewPB = document.querySelector("#vista_pb")
-    const view_combo = document.querySelector("#vista_combo")
-    const titleView = document.querySelector("#titulo-register");
-     // Se remueve la clase d-none a los campos de bebida
-    btnRPlato.classList.remove("d-none")
-    vist_platos.classList.add("d-none");
-    btnRBebida.classList.add("d-none");
-
-    // Se quita la clase d-none de la vista de platos y bebidas 
-    viewPB.classList.remove("d-none");
-    view_combo.classList.add("d-none");
-
-    // Se arreglan las columnas
-    titleView.textContent = "Registrar Bebida";
-}
-
-// Arregla la vista para el registro de combos
-function viewRegisterC(){
-    tipo = "M";
-    const vist_platos = document.querySelector("#vista_de_platos")
-    const titleView = document.querySelector("#titulo-register");
-    const viewPB = document.querySelector("#vista_pb")
-    const view_combo = document.querySelector("#vista_combo")
-     // Se remueve la clase d-none a los campos de bebida
-    viewPB.classList.add("d-none");
-    vist_platos.classList.add("d-none");
-    view_combo.classList.remove("d-none");
-
-    titleView.textContent = "Registrar Combo";
-    console.log(tipo);
 }
 
 // Obtiene los datos del producto
@@ -738,6 +551,14 @@ function edit(){
     console.log(tipo)
 
     if (tipo == "B") {
+        if (!txtMarca.value || !txtProducto.value || !txtPrecio.value || !txtStock.value || !txtEstado.value) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Campos incompletos',
+                text: 'Por favor, complete los campos',
+            });
+            return;
+        }
         parametros.append("op", "edit");
         parametros.append("idmarca", txtMarca.value);
         parametros.append("producto", txtProducto.value);
@@ -765,7 +586,7 @@ function edit(){
                             title: 'Producto editado',
                             html: `El producto <b>${txtProducto.value}</b> ha sido actualizado correctamente.`
                         }).then(() => {
-                            location.reload();
+                            list()
                         });
                     } else{
                         throw new Error('Error en la solicitud');
@@ -784,6 +605,14 @@ function edit(){
     }
 
     if (tipo == "P") {
+        if (!txtProducto.value || !txtPrecio.value || !txtEstado.value) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Campos incompletos',
+                text: 'Por favor, complete los campos',
+            });
+            return;
+        }
         parametros.append("op", "editP");
         parametros.append("producto", txtProducto.value);
         parametros.append("precio", txtPrecio.value);
@@ -809,7 +638,7 @@ function edit(){
                             title: 'Producto editado',
                             html: `El producto <b>${txtProducto.value}</b> ha sido actualizado correctamente.`
                         }).then(() => {
-                            location.reload();
+                            list();
                         });
                     } else{
                         throw new Error('Error en la solicitud');
@@ -828,6 +657,14 @@ function edit(){
     }
 
     if (tipo == "M") {
+        if (!txtProductoC1 || !txtProductoC2 || !txtPrecio.value || !txtEstado.value) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Campos incompletos',
+                text: 'Por favor, seleccione los platos para el combo',
+            });
+            return;
+        }
         parametros.append("op", "editC");
         parametros.append("producto", txtProductoC);
         parametros.append("precio", txtPrecio.value);
@@ -853,7 +690,7 @@ function edit(){
                             title: 'Combo editado',
                             html: `El combo <b>${txtProductoC}</b> ha sido actualizado correctamente.`
                         }).then(() => {
-                            location.reload();
+                            list();
                         });
                     } else{
                         throw new Error('Error en la solicitud');
@@ -923,24 +760,6 @@ list_Platos_inactivos();
 
 const btnSearch = document.querySelector("#buscar-producto");
 btnSearch.addEventListener("click", search);
-
-const btnBebida = document.querySelector("#list-bebidas");
-btnBebida.addEventListener("click", listB);
-
-const btnPlatos = document.querySelector("#list-platos");
-btnPlatos.addEventListener("click", listP);
-
-const btnCombos = document.querySelector("#list-combos");
-btnCombos.addEventListener("click", listC);
-
-const btnRPlato = document.querySelector("#vista-plato");
-btnRPlato.addEventListener("click", viewRegisterP);
-
-const btnRBebida = document.querySelector("#vista-bebida");
-btnRBebida.addEventListener("click", viewRegisterB);
-
-const btnRCombo = document.querySelector("#vista-combo");
-btnRCombo.addEventListener("click", viewRegisterC);
 
 const btnRegistrar = document.querySelector("#registrar-producto");
 btnRegistrar.addEventListener("click", register)

@@ -117,7 +117,7 @@
             $data = [];
             foreach ($datos as $deudas) {
                 foreach ($datosV as $ventas) {
-                    if ($deudas['idventa'] == $ventas['idventa']) {
+                    if ($deudas['idventa'] == $ventas['idventa'] && $ventas['estado'] != 3) {
                         $datav = [
                             "idventa"           => $ventas['idventa'],
                             "iddeudor"          => $deudas['iddeudor'],
@@ -225,12 +225,13 @@
         // Busqueda de deudas que incluye fechas limites
         if ($_POST['op'] == "buscar_deudas") {
             // Recoger los datos del formulario
-            $iddeudor = isset( $_POST['iddeudor']) ? $_POST['iddeudor'] : '';
-            $fecha_inicio = $_POST['fecha_inicio'] . ' 00:00:00';
-            $fecha_fin =  $_POST['fecha_fin'] . ' 23:59:59';
-            $estado = isset($_POST['estado']) ? $_POST['estado'] : '';
-            $total_min = isset($_POST['total_min']) ? $_POST['total_min'] : '';
-            $total_max = isset($_POST['total_max']) ? $_POST['total_max'] : '';
+            $iddeudor       = isset( $_POST['iddeudor']) ? $_POST['iddeudor'] : '';
+            $fecha_inicio   = $_POST['fecha_inicio'] . ' 00:00:00';
+            $fecha_fin      = $_POST['fecha_fin'] . ' 23:59:59';
+            $estado         = isset($_POST['estado']) ? $_POST['estado'] : '';
+            $total_min      = isset($_POST['total_min']) ? $_POST['total_min'] : '';
+            $total_max      = isset($_POST['total_max']) ? $_POST['total_max'] : '';
+
             $datos = $deuda->buscar_deudas();
             $datosV = $venta->list();
             // Inicializar $dataDeuda como un array vacío
@@ -241,18 +242,18 @@
                     $fecha_creacion = $registro['fecha_creacion'];
                     if ($registro['idventa'] == $ventas['idventa']) {
                         if (
-                            (empty($iddeudor)   || $iddeudor == $registro['iddeudor']) &&
-                            (empty($fecha_inicio) || $fecha_creacion >= $fecha_inicio) &&
-                            (empty($fecha_fin)    || $fecha_creacion <= $fecha_fin) &&
-                            (empty($estado)     || $estado == $registro['estado']) &&
-                            (empty($total_min)  || $total_min <= $ventas['total']) &&
-                            (empty($total_max)  || $total_max >= $ventas['total'])
+                            (empty($iddeudor)       || $iddeudor        == $registro['iddeudor']) &&
+                            (empty($fecha_inicio)   || $fecha_creacion  >= $fecha_inicio) &&
+                            (empty($fecha_fin)      || $fecha_creacion  <= $fecha_fin) &&
+                            (empty($estado)         || $estado          == $registro['estado']) &&
+                            (empty($total_min)      || $total_min       <= $ventas['total']) &&
+                            (empty($total_max)      || $total_max       >= $ventas['total'])
                         ){
                             $dataDeuda[] = [
                                 "iddeudor"              => $registro['iddeudor'],
                                 "iddeuda"               => $registro['iddeuda'],
                                 "idventa"               => $ventas['idventa'],
-                                "productos"               => $ventas['productos'],
+                                "productos"             => $ventas['productos'],
                                 "fecha_creacion"        => $registro['fecha_creacion'],
                                 "total"                 => $ventas['total'],
                                 "estado"                => $registro['estado']
