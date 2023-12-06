@@ -2,6 +2,7 @@ const tablaD = document.querySelector("#tabla-deudores");
 const tbodyD = tablaD.querySelector("tbody");
 let idPersona = 0;
 let idDebtor = 0;
+let aporte = 0;
 
 function list(){
     const parametros = new URLSearchParams();
@@ -18,7 +19,7 @@ function list(){
         datos.forEach(element => {
             const estado = element.estado == 1 ? 'No debe' : element.estado == 2 ? 'Debe' : element.estado;
             tbody += `
-                <tr ondblclick='get_debts(${element.iddeudor})'>
+                <tr title='Doble clic, para ver las deudas' ondblclick='get_debts(${element.iddeudor})'>
                     <td data-label='#'>${contador}</td>
                     <td data-label='Nombre'>${element.nombre}</td>
                     <td data-label='Apellidos'>${element.apellidos}</td>
@@ -26,8 +27,11 @@ function list(){
                     <td data-label='Total'>S/ ${element.total}</td>
                     <td data-label='Estado'><span class='badge rounded-pill' style='background-color: #005478'>${estado}</td>
                     <td data-label='Acción'>
-                        <a class='btn btn-sm btn-outline-success' type='button' onclick='get(${element.idpersona})'>
+                        <a class='btn btn-sm btn-outline-success' title='Clic, para editar al deudor' type='button' onclick='get(${element.idpersona})'>
                         <i class="fa-regular fa-pen-to-square"></i>
+                        </a>
+                        <a class='btn btn-sm btn-outline-primary' title='Clic, para ver los pagos' type='button' onclick='get_Pagos(${element.iddeudor})'>
+                        <i class="fa-solid fa-list"></i>
                         </a>
                     </td>
                 </tr>
@@ -65,6 +69,84 @@ function get(id){
     })
     .catch(error => {
         console.error(error);
+    });
+}
+
+// Obtiene el registro de pagos de los deudores
+function get_Pagos(id){
+    const tablaP = document.querySelector("#tabla-pagos");
+    const tbodyP = tablaP.querySelector("tbody");
+    const modalDatos = document.querySelector("#modal-pagos");
+    const bootstrapModal = new bootstrap.Modal(modalDatos);
+    bootstrapModal.show();
+    const parametros = new URLSearchParams();
+    parametros.append("op", "listar_pagos");
+    fetch('../controllers/deuda.php', {
+        method: 'POST',
+        body: parametros
+    })
+    .then(respuesta => respuesta.json())
+    .then(datos => {
+        let tbody = "";
+        tbodyP.innerHTML = "";
+        let contador = 1;
+        datos.forEach(element => {
+            const estado = element.estado == 1 ? 'Activo' : element.estado == 2 ? 'Inactivo' : element.estado;
+            if (id == element.iddeudor) {
+                tbody += `
+                <tr title='Doble clic, para ver las deudas'>
+                    <td data-label='#'>${contador}</td>
+                    <td data-label='Pago'>S/ ${element.pago}</td>
+                    <td data-label='Fecha'>${element.fecha_creacion}</td>
+                    <td data-label='Comentario'>${element.comentario}</td>
+                    <td data-label='Comentario'><span class='badge rounded-pill' style='background-color: #005478'>${estado}</td>
+                    <td data-label='Acción'>
+                        <a class='btn btn-sm btn-outline-primary' title='Clic, para ver los pagos' type='button'>
+                        <i class="fa-solid fa-list"></i>
+                        </a>
+                    </td>
+                </tr>
+            `;
+            contador++;
+            }
+        });
+        tbodyP.innerHTML = tbody;
+        idDebtor = id;
+    })
+}
+
+// Registrar pago
+function registrar_pago(id,pago,deudas){
+    getAporte(id);
+    let opciones = ``;
+    deudas.forEach(element => {
+        opciones += `-${element.total} `;
+    });
+    const comentario = `Pago por monto,deudas saldas: ${opciones} .Aporte ${aporte}`;
+    const parametros = new URLSearchParams();
+    parametros.append("op", "registrar_pago");
+    parametros.append("iddeudor", id);
+    parametros.append("pago", pago);
+    parametros.append("comentario", comentario);
+    fetch("../controllers/deuda.php", {
+        method: 'POST',
+        body: parametros
+    })
+    .then(respuesta => {
+        if (respuesta.ok) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Pago registrado',
+                html: 'Se ha registrado el pago'
+            })
+            return;
+        } else {
+            throw new Error('Error en la solicitud');
+        }
+    })
+    .catch(error => {
+        console.error('Error en la solicitud:', error);
+        // Aquí podrías manejar el error de alguna manera
     });
 }
 
@@ -333,7 +415,6 @@ function get_debts(id){
             
             contador++;
         });
-        console.log(total);
         txttotal.value = total;
         tbodyDeudas.innerHTML = tbody;
         txtDeudores.value= id;
@@ -361,22 +442,6 @@ function getDebtors(){
     })
 }
 
-// Obtiene el aporte del deudor
-function getAporte(id){
-    const txtAporte = document.querySelector("#total-aporte");
-    const parametros = new URLSearchParams();
-    parametros.append("op", "getDebtor");
-    parametros.append("iddeudor", id);
-    fetch("../controllers/deuda.php", {
-        method: 'POST',
-        body: parametros
-    })
-    .then(respuesta => respuesta.json())
-    .then(datos =>{
-        txtAporte.value = datos.aporte;
-    })
-}
-
 // Función para obtener los detalles de las ventas(abre el modal de la venta)
 function get_sale(id){
     const modalCarrito = document.querySelector("#modal-ventas");
@@ -394,7 +459,7 @@ function get_sale(id){
     })
     .then(respuesta => respuesta.json())
     .then(datos => {
-        tbodyD.innerHTML = "";
+        tbodyV.innerHTML = "";
         let tbody = "";
         let contador = 1;
         datos.forEach(element => {
@@ -559,23 +624,40 @@ function pago_por_monto(){
                 method: 'POST',
                 body: parametros
             })
-            .then(respuesta => {
-                if (respuesta.ok) {
+            .then(respuesta => respuesta.json())
+            .then(datos =>{
+                getAporte(idDebtor);
                     Swal.fire({
                         icon: 'success',
                         title: 'Deudas saldadas',
                         html: 'Se ha saldado las deudas'
                     }).then(() => {
                         get_debts(idDebtor)
+                        registrar_pago(idDebtor,txtAporte.value,datos);
                     });
-                } else {
-                    throw new Error('Error en la solicitud');
-                }
+
             })
             .catch(error => {
                 console.error(error);
             });
         }
+    })
+}
+
+// Obtiene el aporte del deudor
+function getAporte(id){
+    const txtAporte = document.querySelector("#total-aporte");
+    const parametros = new URLSearchParams();
+    parametros.append("op", "getDebtor");
+    parametros.append("iddeudor", id);
+    fetch("../controllers/deuda.php", {
+        method: 'POST',
+        body: parametros
+    })
+    .then(respuesta => respuesta.json())
+    .then(datos =>{
+        txtAporte.value = datos.aporte;
+        aporte = datos.aporte;
     })
 }
 
@@ -802,6 +884,57 @@ function search_debtors(){
 
 }
 
+// Función para buscar (incluye fechas limites)
+function buscar_pagos(){
+    const tablaPagos = document.querySelector("#tabla-pagos");
+    const tbodyP = tablaPagos.querySelector("tbody");
+
+    const txtFecha = document.querySelector("#fecha-pago-buscar");
+    const txtFechaL = document.querySelector("#fecha-pago-fin-buscar");
+    const minDeuda = document.querySelector("#minimo-pago-buscar");
+    const maxDeuda = document.querySelector("#maximo-pago-buscar");
+    const txtEstado = document.querySelector("#estado-pago-buscar");
+    const parametros = new URLSearchParams();
+
+    parametros.append("op", "buscar_pagos");
+    parametros.append("iddeudor", idDebtor);
+    parametros.append("fecha_inicio", txtFecha.value);
+    parametros.append("fecha_fin", txtFechaL.value);
+    parametros.append("total_min", minDeuda.value);
+    parametros.append("total_max", maxDeuda.value);
+    parametros.append("estado", txtEstado.value);
+    fetch("../controllers/deuda.php",{
+        method: 'POST',
+        body: parametros
+    })
+    .then(respuesta => respuesta.json())
+    .then(datos => {
+        let tbody = "";
+        tbodyP.innerHTML = "";
+        let contador = 1;
+        datos.forEach(element => {
+            const estado = element.estado == 1 ? 'Activo' : element.estado == 2 ? 'Inactivo' : element.estado;
+            tbody += `
+                <tr title='Doble clic, para ver las deudas'>
+                    <td data-label='#'>${contador}</td>
+                    <td data-label='Pago'>S/ ${element.pago}</td>
+                    <td data-label='Fecha'>${element.fecha_creacion}</td>
+                    <td data-label='Comentario'>${element.comentario}</td>
+                    <td data-label='Comentario'><span class='badge rounded-pill' style='background-color: #005478'>${estado}</td>
+                    <td data-label='Acción'>
+                        <a class='btn btn-sm btn-outline-primary' title='Clic, para ver los pagos' type='button'>
+                        <i class="fa-solid fa-list"></i>
+                        </a>
+                    </td>
+                </tr>
+            `;
+            contador++;
+        });
+        tbodyP.innerHTML = tbody;
+    })
+
+}
+
 function abrirModalMonto(){
     const modalMonto = document.querySelector("#modal-aporte");
     const bootstrapModal = new bootstrap.Modal(modalMonto);
@@ -828,5 +961,8 @@ btnBuscar.addEventListener("click", search_debts)
 
 const btnBuscarDeudores = document.querySelector("#buscar-deudores");
 btnBuscarDeudores.addEventListener("click", search_debtors)
+
+const btnBuscarP = document.querySelector("#buscar-pagos");
+btnBuscarP.addEventListener("click", buscar_pagos)
 
 list();

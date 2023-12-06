@@ -228,7 +228,7 @@ require_once 'Conexion.php';
             }
         }
 
-        // Registra una deeuda
+        // Registra una deuda
         public function register_debt($data = []){
             try {
                 $query = "INSERT INTO deuda (iddeudor,idventa,comentario)
@@ -243,6 +243,38 @@ require_once 'Conexion.php';
                 die($e->getMessage());
             }
         }
+
+        // PAGOS
+
+        // Lista los gastos
+        public function listar_pagos(){
+            try {
+                $query = "SELECT * FROM pagos";
+                $consulta = $this->conexion->prepare($query);
+                $consulta->execute();
+                $datos = $consulta->fetchAll(PDO::FETCH_ASSOC);
+                return $datos;
+            } catch (Exception $e) {
+                die($e->getMessage());
+            }
+        }
+
+        // Registra un pago del deudor
+        public function registrar_pago($data = []){
+            try {
+                $query = "INSERT INTO pagos(iddeudor,pago,comentario)
+                VALUES(?,?,?)";
+                $consulta = $this->conexion->prepare($query);
+                $consulta->execute(array(
+                    $data['iddeudor'],
+                    $data['pago'],
+                    $data['comentario']
+                ));
+            } catch (Exception $e) {
+                die($e->getMessage());
+            }
+        }
+
 
     }
 

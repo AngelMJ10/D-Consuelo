@@ -282,6 +282,7 @@ async function validarStock(id, cantidad) {
     }
 }
 
+// Valida el stock
 async function validarCantidadStock() {
     let filasExistente = tbodyCarro.querySelectorAll("tr");
     for (let i = 0; i < filasExistente.length; i++) {

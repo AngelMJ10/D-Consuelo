@@ -222,10 +222,23 @@ INSERT INTO semana(fecha_inicio,fecha_fin)
 VALUES('2023-11-13','2023-11-25');
 
 SELECT * FROM semana
-SELECT ven.idventa,ped.idpedido, COUNT(dtp.idproducto) AS productos,dtp.idDetallePedido,ven.idusuario, ven.metodo, ven.total, ven.fecha_creacion,ven.estado
-                FROM venta ven
-                INNER JOIN pedido ped ON ped.idpedido = ven.idpedido
-                INNER JOIN detalle_pedido dtp ON dtp.idpedido = ped.idpedido
-                INNER JOIN producto pro ON pro.idproducto = dtp.idproducto
-                GROUP BY ven.idventa, ven.total, ven.fecha_creacion
-                ORDER BY ven.fecha_creacion DESC
+
+
+-------------------------------
+
+CREATE TABLE pagos
+(
+	idpago			SMALLINT 	AUTO_INCREMENT PRIMARY KEY,
+	iddeudor		SMALLINT 	NOT NULL,
+	pago			DECIMAL(6,2)	NOT NULL,
+	estado          	CHAR(1)     	NOT NULL DEFAULT '1', -- 1 es activo y 2 es inactivo
+	comentario		VARCHAR(200)	NULL,
+	fecha_creacion  	DATETIME    NOT NULL DEFAULT NOW(),
+	fecha_update    	DATETIME    	NULL,
+	CONSTRAINT fk_iddeudores_pg FOREIGN KEY(iddeudor) REFERENCES deudores (iddeudor)
+)ENGINE = INNODB;
+
+INSERT INTO pagos(iddeudor,pago)
+VALUES(11,20);
+TRUNCATE TABLE pagos
+SELECT * FROM pagos WHERE iddeudor = 10;

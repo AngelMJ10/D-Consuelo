@@ -284,6 +284,104 @@
         </div>
     </div>
 
+    <!-- Modal para ver los pagos del deudor -->
+    <div class="modal fade" id="modal-pagos" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog modal-fullscreen">
+            <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="staticBackdropLabel">Registro de pagos</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+
+            <div class="accordion" id="acordion1">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="headingOne">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#filtros" aria-expanded="true" aria-controls="collapseOne">
+                            Filtros
+                            </button>
+                        </h2>
+                        <div id="filtros" class="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#acordion1">
+                            <div class="accordion-body mb-3">
+                                <form>
+                                    <div class="row mb-2 mt-2">
+
+                                        <div class="col-md-3">
+                                            <div class="form-floating mb-3">
+                                                <input type="date" class="form-control" id="fecha-pago-buscar" name="Plato" placeholder="Plato">
+                                                <label for="Plato" class="form-label">Fecha</label>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-3">
+                                            <div class="form-floating mb-3">
+                                                <input type="date" class="form-control" id="fecha-pago-fin-buscar" name="precio" placeholder="Precio">
+                                                <label for="precio" class="form-label">Fecha Límite</label>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-3">
+                                            <div class="form-floating mb-3">
+                                                <input type="number" class="form-control" id="minimo-pago-buscar" name="Plato" placeholder="Plato">
+                                                <label for="Plato" class="form-label">Minimo</label>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-3">
+                                            <div class="form-floating mb-3">
+                                                <input type="number" class="form-control" id="maximo-pago-buscar" name="Plato" placeholder="Plato">
+                                                <label for="Plato" class="form-label">Máximo</label>
+                                            </div>
+                                        </div>
+
+                                    </div>
+
+                                    <div class="row">
+
+                                        <div class="col-md-3">
+                                            <div class="form-floating mb-3">
+                                                <select class="form-control" name="" id="estado-pago-buscar">
+                                                    <option value="">Seleccione un estado</option>
+                                                    <option value="1">Activo</option>
+                                                    <option value="2">Inactivo</option>
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                    </div>
+
+                                    <button type="button" id="buscar-pagos"  class="btn btn-outline-primary">Buscar</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="table-responsive mt-3" id="tabla-pagos">
+                    <table class="table table-hover text-center"> 
+
+                        <thead>
+                            <th>#</th>
+                            <th>Pago</th>
+                            <th>Fecha</th>
+                            <th>Comentario</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </thead>
+
+                        <tbody>
+                        </tbody>
+                    
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Modal de ventas que debe -->
     <div class="modal fade" id="modal-ventas" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg">

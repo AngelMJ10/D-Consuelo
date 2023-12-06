@@ -148,6 +148,7 @@ function search(){
             })
             .then(respuesta => respuesta.json())
             .then(datos => {
+                txtTotalSearch.value = 0;
                 let total = 0;
                 tbodyV.innerHTML = "";
                 let contador = 1;
@@ -236,12 +237,12 @@ function search2(){
     })
     .then(respuesta => respuesta.json())
     .then(datos => {
+        txtTotalSearch.value = 0;
         let total = 0;
         tbodyV.innerHTML = "";
         let contador = 1;
         let tbody = "";
         datos.forEach(element => {
-            total += parseFloat(element.total);
             // Formatear el precio con dos decimales fijos
             const precioSinDecimales = parseFloat(element.total).toString();
             const estado = element.estado == 1 ? 'Pagado' : element.estado == 2 ? 'Fiado' : element.estado == 3 ? 'Anulado' : element.estado;
@@ -263,6 +264,7 @@ function search2(){
 
             if (txtDeuda.checked) {
                 if (element.deuda == 1) {
+                    total += parseFloat(element.total);
                     tbody += `
                     <tr title='Doble clic, para ver la venta' ondblclick="get(${element.idventa})">
                         <td data-label='#'>${contador}</td>
@@ -279,6 +281,7 @@ function search2(){
                     contador++;
                 }
             }else{
+                total += parseFloat(element.total);
                 tbody += `
                 <tr title='Doble clic, para ver la venta' ondblclick="get(${element.idventa})">
                     <td data-label='#'>${contador}</td>

@@ -171,13 +171,20 @@
                 $data[] = $datav;
             }
 
+            $dataDeudas = [];
+            // Se cambia el estado de la deuda y además se guarda el aporte en caso sobre el monto
             foreach ($data as $registro) {
                 if ($registro['estado'] == 1) {
                     if ($totalAporte >= $registro['total']) {
+                        $dataD = [
+                            "iddeuda"   => $registro['iddeuda'],
+                            "total"     => $registro['total']
+                            ];
                         $totalAporte -= $registro['total'];
                         // Cambia el estado de la deuda a 2
                         $deuda->change_estate_debt(["estado" => 2, "iddeuda" => $registro['iddeuda']]);
                         $venta->change_estate(["estado" => 1, "idventa" => $registro['idventa']]);
+                        $dataDeudas[] = $dataD;
                     }
                 }
             }
@@ -186,6 +193,7 @@
             $nuevoAporte = $totalAporte;
             // Y lo actualizamos
             $deuda->update_aporte(["aporte" => $nuevoAporte, "iddeudor" => $datosDeudor['iddeudor']]);
+            echo json_encode($dataDeudas);
         }
 
         // Obtener los datos del deudor con el id de la venta
@@ -387,12 +395,13 @@
         // Cambia el estado del deudor
         if ($_POST['op'] == "change_estate_deptor") {
             $datos = [
-                "estado"        => $_POST['estado'],
-                "iddeudor"        => $_POST['iddeudor']
+                "estado"            => $_POST['estado'],
+                "iddeudor"          => $_POST['iddeudor']
             ];
             $deuda->change_estate($datos);
         }
 
+        // Verifica si el deudor solo tiene deudas en estado 2 para cambiarle de estado a "No debe"
         if ($_POST['op'] == "list_debtor_debts") {
             // Lista los deudores
             $datos = $deuda->listDepdtors();
@@ -421,6 +430,60 @@
                     ]);
                 }
             }
+        }
+
+        // PAGOS
+
+        // Lista los pagos de los deudores
+        if ($_POST['op'] == "listar_pagos") {
+            $datos = $deuda->listar_pagos();
+            echo json_encode($datos);
+        }
+
+        // Lista los pagos de los deudores
+        if ($_POST['op'] == "registrar_pago") {
+
+            $data = [
+                "iddeudor"          => $_POST['iddeudor'],
+                "pago"              => $_POST['pago'],
+                "comentario"        => $_POST['comentario']
+            ];
+            $datos = $deuda->registrar_pago($data);
+        }
+
+        // Buscar los pagos
+        if ($_POST['op'] == "buscar_pagos") {
+            $iddeudor  =    isset($_POST['iddeudor']) ? $_POST['iddeudor'] : '';
+            $fecha_inicio   = $_POST['fecha_inicio'] . ' 00:00:00';
+            $fecha_fin      = $_POST['fecha_fin'] . ' 23:59:59';
+            $estado    =    isset($_POST['estado']) ? $_POST['estado'] : '';
+            $total_min =    isset($_POST['total_min']) ? $_POST['total_min'] : '';
+            $total_max =    isset($_POST['total_max']) ? $_POST['total_max'] : '';
+
+            $datosP = $deuda->listar_pagos();
+            $dataPagos = [];
+
+            foreach ($datosP as $pagos) {
+                $fecha_creacion = $pagos['fecha_creacion'];
+                if (
+                    (empty($iddeudor)       || $iddeudor == $pagos['iddeudor']) &&
+                    (empty($fecha_inicio)   || $fecha_creacion  >= $fecha_inicio) &&
+                    (empty($fecha_fin)      || $fecha_creacion  <= $fecha_fin) &&
+                    (empty($estado)         || $estado == $pagos['estado']) &&
+                    (empty($total_min)      || $total_min <= $pagos['pago']) &&
+                    (empty($total_max)      || $total_max >= $pagos['pago'])
+                ) {
+                    $dataPagos[] = [
+                        "idpago"            => $pagos['idpago'],
+                        "iddeudor"          => $pagos['iddeudor'],
+                        "pago"              => $pagos['pago'],
+                        "fecha_creacion"    => $pagos['fecha_creacion'],
+                        "estado"            => $pagos['estado'],
+                        "comentario"        => $pagos['comentario']
+                    ];
+                }
+            }
+            echo json_encode($dataPagos);
         }
 
     }
