@@ -101,7 +101,7 @@ VALUES(1,'Inka kola 1/2 litro','B',2,9),(2,'Cerveza Cristal 650 ml','B',6,12),
 	(3,'Cifrut 1/2 litro','B',1.50,9);
 	
 UPDATE producto SET estado = 0 WHERE tipo = 'M' AND tipo = 'P' 
-SELECT * FROM producto WHERE tipo = 'B';
+6
 SELECT * FROM producto WHERE tipo = 'P';
 SELECT * FROM producto WHERE tipo = 'M';
 SELECT * FROM producto WHERE idmarca = 1;
@@ -240,5 +240,4 @@ CREATE TABLE pagos
 
 INSERT INTO pagos(iddeudor,pago)
 VALUES(11,20);
-TRUNCATE TABLE pagos
 SELECT * FROM pagos WHERE iddeudor = 10;

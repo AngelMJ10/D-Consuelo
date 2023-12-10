@@ -43,7 +43,6 @@
                     </div>
                     <div class="card-body">
                         <form>
-                            <h4 id="titulo-register">Registrar Bebidas</h4>
 
                             <p>
                                 <a class="btn btn-outline-primary" data-bs-toggle="collapse" href="#vista_bebida" role="button" aria-expanded="false" aria-controls="collapseExample">
@@ -58,6 +57,7 @@
                             </p>
 
                             <div class="collapse mb-3" id="vista_bebida">
+                                <h4 id="titulo-register">Registrar Bebidas</h4>
                                 <div class="card card-body">
                                     <div class="row mb-2 mt-3">
                                         <div class="col-md-3">
@@ -88,10 +88,16 @@
                                         </div>
 
                                     </div>
+
+                                    <div class="btn-group col-md-3">
+                                        <button type="button" class="btn btn-outline-primary" id="registrar-bebida">Registrar</button>
+                                    </div>
+
                                 </div>
                             </div>
 
                             <div class="collapse mb-3" id="vista_comida">
+                                <h4 id="titulo-register">Registrar comida</h4>
                                 <div class="card card-body">
                                     <div class="row mb-2 mt-3">
 
@@ -115,11 +121,17 @@
                                         </div>
 
                                     </div>
-                                    <button type="button" id="restaurar-plato" class=" btn btn-outline-danger">Restaurar</button>
+
+                                    <div class="btn-group col-md-3">
+                                        <button type="button" id="restaurar-plato" class=" btn btn-outline-danger">Restaurar</button>
+                                        <button type="button" class="btn btn-outline-primary" id="registrar-comida">Registrar</button>
+                                    </div>
+                                    
                                 </div>
                             </div>
 
                             <div class="collapse mb-3" id="vista_menu">
+                                <h4 id="titulo-register">Registrar Menú</h4>
                                 <div class="card card-body">
                                     <div class="row mb-2 mt-3">
 
@@ -145,10 +157,13 @@
                                         </div>
 
                                     </div>
+
+                                    <div class="btn-group col-md-3">
+                                        <button type="button" class="btn btn-outline-primary" id="registrar-combo">Registrar</button>
+                                    </div>
+
                                 </div>
                             </div>
-
-                            <button type="button" class="btn btn-outline-primary" id="registrar-producto">Registrar</button>
                         </form>
                     </div>
                 </div>
@@ -204,7 +219,7 @@
                                             <div class="form-floating mb-3">
                                                 <select class="form-control" name="" id="estado-buscar">
                                                     <option value="">Seleccione un estado</option>
-                                                    <option value="0">Inactivo</option>
+                                                    <option value="2">Inactivo</option>
                                                     <option value="1">Activo</option>
                                                 </select>
                                             </div>
@@ -243,7 +258,8 @@
 
     </div>
 
-    <div class="modal fade" id="modal-editar" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <!-- Modal de bebida -->
+    <div class="modal fade" id="modal-b-editar" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
             <div class="modal-header">
@@ -252,62 +268,168 @@
             </div>
             <div class="modal-body">
                 <form>
-                    <div class="row mb-2 mt-2">
-                        <p class="fs-5 fw-semibold d-none" id="texto-combo"></p>
-                        <div class="col-md-3" id="view-marca-editar">
-                            <div class="form-floating mb-3">
-                                <select class="form-control" name="" id="marca-editar">
-                                </select>
+
+                    <div id="vista-bebida">
+                        <div class="row">
+
+                            <div class="col-md-3">
+                                <div class="form-floating mb-3">
+                                    <select class="form-control" name="" id="marca-editar">
+                                    </select>
+                                </div>
                             </div>
+
+                            <div class="col-md-3">
+                                <div class="form-floating mb-3">
+                                    <input type="text" class="form-control" id="bebida-editar" name="producto" placeholder="Plato">
+                                    <label for="Plato" class="form-label">Bebida</label>
+                                </div>
+                            </div>
+
+                            <div class="col-md-3">
+                                <div class="form-floating mb-3">
+                                    <input type="number" class="form-control" id="precio-b-editar" name="precio" placeholder="Precio">
+                                    <label for="precio" class="form-label">Precio</label>
+                                </div>
+                            </div>
+
+                            <div class="col-md-3">
+                                <div class="form-floating mb-3">
+                                    <input type="number" class="form-control" id="stock-editar" name="precio" placeholder="Precio">
+                                    <label for="precio" class="form-label">Stock</label>
+                                </div>
+                            </div>
+
                         </div>
 
-                        <div class="col-md-3 d-none" id="view-combo-producto-editar">
-                            <div class="form-floating mb-3">
-                                <select class="form-control" name="" id="producto-1-editar">
-                                </select>
-                            </div>
-                        </div>
-
-                        <div class="col-md-3 d-none" id="view-combo-producto-2-editar">
-                            <div class="form-floating mb-3">
-                                <select class="form-control" name="" id="producto-2-editar">
-                                </select>
-                            </div>
-                        </div>
-
-                        <div class="col-md-3" id="view-producto-editar">
-                            <div class="form-floating mb-3">
-                                <input type="text" class="form-control" id="producto-editar" name="producto" placeholder="Plato">
-                                <label for="Plato" class="form-label">Producto</label>
-                            </div>
-                        </div>
-                        <div class="col-md-3" id="view-precio-editar">
-                            <div class="form-floating mb-3">
-                                <input type="number" class="form-control" id="precio-editar" name="precio" placeholder="Precio">
-                                <label for="precio" class="form-label">Precio</label>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="form-floating mb-3">
-                                <select class="form-control" name="" id="estado-editar">
-                                    <option value="">Seleccione un estado</option>
-                                    <option value="0">Inactivo</option>
-                                    <option value="1">Activo</option>
-                                </select>
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="form-floating mb-3">
+                                    <select class="form-control" name="" id="estado-b-editar">
+                                        <option value="">Seleccione un estado</option>
+                                        <option value="2">Inactivo</option>
+                                        <option value="1">Activo</option>
+                                    </select>
+                                </div>
                             </div>
                         </div>
                     </div>
 
-                    <div class="row mb-2 mt-2">
-                        <div class="col-md-3" id="view-stock-editar">
-                            <div class="form-floating mb-3">
-                                <input type="number" class="form-control" id="stock-editar" name="precio" placeholder="Precio">
-                                <label for="precio" class="form-label">Stock</label>
+                    <button type="button" id="editar-bebida"  class="btn btn-outline-primary">Editar</button>
+
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de comida -->
+    <div class="modal fade" id="modal-p-editar" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="staticBackdropLabel">Editar Datos</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form>
+
+                    <div id="vista-comida">
+                        <div class="row">
+
+                            <div class="col-md-4">
+                                <div class="form-floating mb-3">
+                                    <input type="text" class="form-control" id="comida-editar" name="producto" placeholder="Plato">
+                                    <label for="Plato" class="form-label">Comida</label>
+                                </div>
                             </div>
+
+                            <div class="col-md-4">
+                                <div class="form-floating mb-3">
+                                    <input type="number" class="form-control" id="precio-p-editar" name="precio" placeholder="Precio">
+                                    <label for="precio" class="form-label">Precio</label>
+                                </div>
+                            </div>
+
+                            <div class="col-md-4">
+                                <div class="form-floating mb-3">
+                                    <select class="form-control" name="" id="estado-p-editar">
+                                        <option value="">Seleccione un estado</option>
+                                        <option value="2">Inactivo</option>
+                                        <option value="1">Activo</option>
+                                    </select>
+                                </div>
+                            </div>
+
                         </div>
+
                     </div>
 
-                    <button type="button" id="editar-producto"  class="btn btn-outline-primary">Editar</button>
+                    <button type="button" id="editar-comida"  class="btn btn-outline-primary">Editar</button>
+
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de combos -->
+    <div class="modal fade" id="modal-c-editar" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="staticBackdropLabel">Editar Datos</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form>
+
+                    <div id="vista-menu">
+                        <p id="texto-combo"></p>
+                        <div class="row">
+
+                            <div class="col-md-3">
+                                <div class="form-floating mb-3">
+                                    <select class="form-control" name="" id="producto-1-editar">
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="col-md-3">
+                                <div class="form-floating mb-3">
+                                    <select class="form-control" name="" id="producto-2-editar">
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="col-md-3">
+                                <div class="form-floating mb-3">
+                                    <input type="number" class="form-control" id="precio-c-editar" name="precio" placeholder="Precio">
+                                    <label for="precio" class="form-label">Precio</label>
+                                </div>
+                            </div>
+
+                            <div class="col-md-3">
+                                <div class="form-floating mb-3">
+                                    <select class="form-control" name="" id="estado-c-editar">
+                                        <option value="">Seleccione un estado</option>
+                                        <option value="2">Inactivo</option>
+                                        <option value="1">Activo</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <button type="button" id="editar-combo"  class="btn btn-outline-primary">Editar</button>
 
                 </form>
             </div>

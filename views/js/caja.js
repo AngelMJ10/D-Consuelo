@@ -8,8 +8,9 @@ const listaC = document.querySelector("#lista-combos");
 // Listar platos
 function listP(){
     const parametros = new URLSearchParams();
-    parametros.append("op", "list");
+    parametros.append("op", "listar");
     parametros.append("tipo", "P");
+    parametros.append("estado", 1);
     fetch('../controllers/producto.php', {
         method: 'POST',
         body: parametros
@@ -59,8 +60,9 @@ function listP(){
 // Listar bebidas
 function listB(){
     const parametros = new URLSearchParams();
-    parametros.append("op", "list");
+    parametros.append("op", "listar");
     parametros.append("tipo", "B");
+    parametros.append("estado", 1);
     fetch('../controllers/producto.php', {
         method: 'POST',
         body: parametros
@@ -112,8 +114,9 @@ function listB(){
 // Listar combos
 function listC(){
     const parametros = new URLSearchParams();
-    parametros.append("op", "list");
+    parametros.append("op", "listar");
     parametros.append("tipo", "M");
+    parametros.append("estado", 1);
     fetch('../controllers/producto.php', {
         method: 'POST',
         body: parametros
@@ -182,6 +185,7 @@ function limpiarC() {
     listaC.classList.remove('d-none');
 }
 
+// Deshabilita la bebida en caso que el stock esté en 0
 function validarStocks(){
     const parametros = new URLSearchParams();
     parametros.append("op", "disable_product")

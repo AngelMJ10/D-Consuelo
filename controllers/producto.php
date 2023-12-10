@@ -5,11 +5,20 @@
     if (isset($_POST['op'])) {
         $producto = new Producto();
 
-        // Lista de un tipo de producto
-        if ($_POST['op'] == "list") {
-            $data = ["tipo"     => $_POST['tipo']];
-            $datos = $producto->list($data);
-            echo json_encode($datos);
+        if ($_POST['op'] == "listar") {
+            $tipo = isset($_POST['tipo']) ? $_POST['tipo'] : '';
+            $estado = isset($_POST['estado']) ? $_POST['estado'] : '';
+            $datos = $producto->listar();
+            $data = [];
+            foreach ($datos as $productos) {
+                if (
+                    (empty($tipo)   || $tipo == $productos['tipo']) &&
+                    (empty($estado) || $estado === $productos['estado']) 
+                ) {
+                    $data[] = $productos;
+                }
+            }
+            echo json_encode($data);
         }
 
         // Trae dos registros
@@ -22,51 +31,19 @@
             echo json_encode($datos);
         }
 
-        //  Lista todos los productos
-        if ($_POST['op'] == "listAll") {
-            $datos = $producto->listAll();
-            echo json_encode($datos);
-        }
-
-        //  Lista todos los productos inactivos
-        if ($_POST['op'] == "listAll_inactive") {
-            $datos = $producto->listAll_inactive();
-            echo json_encode($datos);
-        }
-
-        //  Lista todos los productos
-        if ($_POST['op'] == "list_All_estate") {
-            $datos = $producto->list_All_estate();
-            echo json_encode($datos);
-        }
-
-        // Registra las bebidas
-        if ($_POST['op'] == "registerB") {
+        // Registra los productos
+        if ($_POST['op'] == "registrar") {
+            // Crear un array con los datos, permitiendo valores nulos si están vacíos
             $data = [
-                "idmarca"       => $_POST['idmarca'],
-                "producto"      => $_POST['producto'],
-                "precio"        => $_POST['precio'],
-                "stock"         => $_POST['stock']
+                "idmarca"       => empty($_POST['idmarca']) ? null : $_POST['idmarca'],
+                "producto"      => empty($_POST['producto']) ? null : $_POST['producto'],
+                "tipo"          => empty($_POST['tipo']) ? null : $_POST['tipo'],
+                "precio"        => empty($_POST['precio']) ? null : $_POST['precio'],
+                "stock"         => empty($_POST['stock']) ? null : $_POST['stock']
             ];
-            $producto->registerB($data);
-        }
 
-        // Registra los platos
-        if ($_POST['op'] == "registerP") {
-            $data = [
-                "producto"      => $_POST['producto'],
-                "precio"        => $_POST['precio']
-            ];
-            $producto->registerP($data);
-        }
-
-        // Registra los combos
-        if ($_POST['op'] == "register_combo") {
-            $data = [
-                "producto"      => $_POST['producto'],
-                "precio"        => $_POST['precio']
-            ];
-            $producto->register_combo($data);
+            // Llamar al método registrar
+            $producto->registrar($data);
         }
 
         // Busca los productos
@@ -90,42 +67,16 @@
         }
 
         // Edita el producto
-        if ($_POST['op'] == "edit") {
+        if ($_POST['op'] == "editar") {
             $data = [
-                "idmarca"       => $_POST['idmarca'],
-                "producto"      => $_POST['producto'],
-                "precio"        => $_POST['precio'],
-                "stock"         => $_POST['stock'],
-                "estado"        => $_POST['estado'],
-                "idproducto"    => $_POST['idproducto'],
+                "idmarca"       => empty($_POST['idmarca']) ? null : $_POST['idmarca'],
+                "producto"      => empty($_POST['producto']) ? null : $_POST['producto'],
+                "estado"          => empty($_POST['estado']) ? null : $_POST['estado'],
+                "precio"        => empty($_POST['precio']) ? null : $_POST['precio'],
+                "stock"         => empty($_POST['stock']) ? null : $_POST['stock'],
+                "idproducto"    => empty($_POST['idproducto']) ? null : $_POST['idproducto']
             ];
-            $producto->edit($data);
-        }
-
-        // Edita el plato
-        if ($_POST['op'] == "editP") {
-            $data = [
-                "idmarca"       => null,
-                "producto"      => $_POST['producto'],
-                "precio"        => $_POST['precio'],
-                "stock"         => null,
-                "estado"        => $_POST['estado'],
-                "idproducto"    => $_POST['idproducto'],
-            ];
-            $producto->edit($data);
-        }
-
-        // Edita el combo
-        if ($_POST['op'] == "editC") {
-            $data = [
-                "idmarca"       => null,
-                "producto"      => $_POST['producto'],
-                "precio"        => $_POST['precio'],
-                "stock"         => null,
-                "estado"        => $_POST['estado'],
-                "idproducto"    => $_POST['idproducto'],
-            ];
-            $producto->edit($data);
+            $producto->editar($data);
         }
 
         // Descuenta el stock
@@ -143,24 +94,25 @@
             $producto->deleteStock($datos);
         }
 
-        // Deshabilita el producto
+        // Deshabilita el producto(datosbebida nos da los ids de los productos con stock 0)
         if ($_POST['op'] == 'disable_product') {
             $datosBebida = $producto->empty_stock();
             foreach ($datosBebida as $registro) {
-                $datos = ["idproducto" => $registro['idproducto']];
-                $producto->disable_product($datos);
+                $datos = [
+                    "estado" => 2,
+                    "idproducto" => $registro['idproducto']
+                ];
+                $producto->change_estado($datos);
             }
         }
 
-        // Deshabilita los productos de tipo "M" y "P"
-        if ($_POST['op'] == "disable_products") {
-            $producto->disable_products();
-        }
-
-        // Habilida los productos conforme su ID
-        if ($_POST['op'] == "active_products") {
-            $data = ["idproducto" => $_POST['idproducto']];
-            $producto->active_products($data);
+        // Cambia el estado del producto
+        if ($_POST['op'] == 'change_estado') {
+            $datos = [
+                "estado" => $_POST['estado'],
+                "idproducto" => $_POST['idproducto']
+            ];
+            $producto->change_estado($datos);
         }
 
     }

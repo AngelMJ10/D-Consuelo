@@ -38,21 +38,31 @@
             $datos = $gasto->editar($data);
         }
 
-        if ($_POST['op'] == 'search') {
-            $data = [
-                'gasto'     => isset($_POST['gasto']) ? $_POST['gasto'] : '',
-                'idsemana'  => isset($_POST['idsemana']) ? $_POST['idsemana'] : '',
-                'precio'    => isset($_POST['precio']) ? $_POST['precio'] : '',
-                'tipo'      => isset($_POST['tipo']) ? $_POST['tipo'] : '',
-                'estado'    => isset($_POST['estado']) ? $_POST['estado'] : ''
-            ];
+        if ($_POST['op'] == "buscar") {
+            $gastoN = isset($_POST['gastoN']) ? $_POST['gastoN'] : '';
+            $idsemana = isset($_POST['idsemana']) ? $_POST['idsemana'] : '';
+            $precio = isset($_POST['precio']) ? $_POST['precio'] : '';
+            $tipo = isset($_POST['tipo']) ? $_POST['tipo'] : '';
+            $estado = isset($_POST['estado']) ? $_POST['estado'] : '';
         
-            $resultados = $gasto->search($data);
+            $datos = $gasto->listar();
+            $data = [];
         
-            // Puedes hacer algo con los resultados, como imprimirlos o devolverlos como JSON
-            echo json_encode($resultados);
+            foreach ($datos as $gastos) {
+                // Modificamos la condición para verificar si la subcadena está presente en gasto (insensible a mayúsculas y minúsculas)
+                if (
+                    (empty($gastoN) || stripos($gastos['gasto'], $gastoN) !== false) &&
+                    (empty($idsemana) || $idsemana == $gastos['idsemana']) &&
+                    (empty($precio) || $precio == $gastos['precio']) &&
+                    (empty($tipo) || $tipo == $gastos['tipo']) &&
+                    (empty($estado) || $estado == $gastos['estado'])
+                ) {
+                    $data[] = $gastos;
+                }
+            }
+        
+            echo json_encode($data);
         }
-        
 
     }
 

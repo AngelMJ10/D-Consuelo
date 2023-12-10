@@ -4,11 +4,14 @@ const lista_platos = document.querySelector("#platos-inactivos")
 let tipo = "B";
 let idProducto = 0;
 let nombres = ``;
+let  idsActivos = [];
+let  idsSTR = "";
 
 // Lista los platos para registrar
 function list_Platos_inactivos() {
     const parametros = new URLSearchParams();
-    parametros.append("op", "listAll_inactive");
+    parametros.append("op", "listar");
+    parametros.append("estado", 2);
     fetch('../controllers/producto.php', {
         method: 'POST',
         body: parametros
@@ -27,8 +30,6 @@ function list_Platos_inactivos() {
     });
 }
 
-let  idsActivos = [];
-let  idsSTR = "";
 // Agrega los IDS que vayamos seleccionando en el array
 function seleccionar() {
     idsActivos = [];
@@ -46,8 +47,9 @@ function seleccionar() {
 // Función para habilitar el plato con su ID
 function habilitar_plato(id){
     const parametros = new URLSearchParams();
-    parametros.append("op", "active_products");
+    parametros.append("op", "change_estado");
     parametros.append("idproducto", id)
+    parametros.append("estado", 1)
     fetch("../controllers/producto.php", {
         method: 'POST',
         body: parametros
@@ -93,10 +95,11 @@ function habilitar_platos() {
     });
 }
 
-// Lista todo
+// Lista todos los productos con estado 1
 function list(){
     const parametros = new URLSearchParams();
-    parametros.append("op", "listAll");
+    parametros.append("op", "listar");
+    parametros.append("estado", 1);
     fetch('../controllers/producto.php', {
         method: 'POST',
         body: parametros
@@ -106,14 +109,16 @@ function list(){
         tbodyP.innerHTML = "";
         let contador = 1;
         let tbody = "";
+        datos.sort((a, b) => a.tipo.localeCompare(b.tipo));
         datos.forEach(element => {
             const fechaCreate = new Date(element.fecha_creacion);
             const fecha = fechaCreate.toISOString().split('T')[0];
-            const estado = element.estado == 1 ? 'Activo' : element.estado == 0 ? 'Inactivo' : element.estado;
+            const estado = element.estado == 1 ? 'Activo' : element.estado == 2 ? 'Inactivo' : element.estado;
             const stock = element.stock > 0 ? element.stock : element.tipo == 'P' ? 'Comida' : element.tipo == 'M' ? 'Combo' : element.stock;
             const color  = element.stock > 0 ? '07853C' : element.tipo == 'P' ? 'CBC731' : element.tipo == 'M' ? 'FF0000' : element.stock;
             // Formatear el precio con dos decimales fijos
             const precioSinDecimales = parseFloat(element.precio).toString();
+
             tbody += `
                 <tr>
                     <td data-label='#'>${contador}</td>
@@ -124,7 +129,10 @@ function list(){
                     <td data-label='Estado'><span class='badge rounded-pill' style='background-color: #005478'>${estado}</td>
                     <td data-label='Acción'>
                         <a class='btn btn-sm btn-outline-success' type='button' onclick='get(${element.idproducto})'>
-                        <i class="fa-regular fa-pen-to-square"></i>
+                            <i class="fa-regular fa-pen-to-square"></i>
+                        </a>
+                        <a class='btn btn-sm btn-outline-danger' onclick='change_estado(${element.idproducto},2,"${element.producto}")' title='Desactivar producto' type='button'>
+                            <i class="fa-solid fa-trash"></i>
                         </a>
                     </td>
                 </tr>
@@ -139,8 +147,19 @@ function list(){
 function registerP(){
     const txtProduct = document.querySelector("#nombre_comida");
     const txtPrecio = document.querySelector("#precio_comida");
+
+    if (!txtProduct.value || !txtPrecio.value) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Campos incompletos',
+            text: 'Por favor, complete los campos de la comida',
+        })
+        return;
+    }
+
     const parametros = new URLSearchParams();
-    parametros.append("op", "registerP");
+    parametros.append("op", "registrar");
+    parametros.append("tipo", "P");
     parametros.append("producto", txtProduct.value);
     parametros.append("precio", txtPrecio.value);
     Swal.fire({
@@ -188,9 +207,19 @@ function registerB(){
     const txtPrecio = document.querySelector("#precio_bebida");
     const txtStock = document.querySelector("#stock_bebida");
 
+    if (!txtMarca.value || !txtBebida.value || !txtPrecio.value || !txtStock.value) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Campos incompletos',
+            text: 'Por favor, complete los campos de la bebida',
+        })
+        return;
+    }
+
     const parametros = new URLSearchParams();
     parametros.append("op", "registerB");
     parametros.append("idmarca", txtMarca.value);
+    parametros.append("tipo", "B");
     parametros.append("producto", txtBebida.value);
     parametros.append("precio", txtPrecio.value);
     parametros.append("stock", txtStock.value);
@@ -238,8 +267,19 @@ function registerC(){
     const txtProducts2 = document.querySelector('#producto_2_menu').value;
     const txtPrecioC = document.querySelector("#precio_menu");
     const txtProducts_C = `${txtProducts1} + ${txtProducts2}`;
+
+    if (!txtProducts1 || !txtProducts2 || !txtPrecioC) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Campos incompletos',
+            text: 'Por favor, complete los campos del combo',
+        })
+        return;
+    }
+
     const parametros = new URLSearchParams();
     parametros.append("op", "register_combo");
+    parametros.append("tipo", "C");
     parametros.append("producto", txtProducts_C);
     parametros.append("precio", txtPrecioC.value);
     Swal.fire({
@@ -278,61 +318,6 @@ function registerC(){
             });
         }
     })
-}
-
-// Función que decide cual función de registro usar
-function register(){
-    // Campos de platos
-    const txtProduct = document.querySelector("#nombre_comida");
-    const txtPrecio = document.querySelector("#precio_comida");
-
-    // Campos de bebidas
-    const txtMarca = document.querySelector("#marca_bebida");
-    const txtBebida = document.querySelector("#nombre_bebida");
-    const txtStock = document.querySelector("#stock_bebida");
-    const txtPrecioBebida = document.querySelector("#precio_bebida");
-
-    const txtProducts1 = document.querySelector('#producto_1_menu');
-    const txtProducts2 = document.querySelector('#producto_2_menu');
-    const txtPrecioC = document.querySelector("#precio_menu");
-
-    if (tipo == "P") {
-        if (!txtProduct.value || !txtPrecio.value) {
-            Swal.fire({
-                icon: 'warning',
-                title: 'Campos incompletos',
-                text: 'Por favor, complete los campos',
-            }).then(() => {
-                location.reload();
-            });
-        }
-        registerP();
-    }
-
-    if (tipo == "B") {
-        if (!txtMarca.value || !txtBebida.value || !txtStock.value || !txtPrecioBebida.value) {
-            Swal.fire({
-                icon: 'warning',
-                title: 'Campos incompletos',
-                text: 'Por favor, complete los campos',
-            });
-            return;
-        }
-        registerB();
-    }
-
-    if (tipo == "M") {
-        if (!txtProducts1.value || !txtProducts2.value || !txtPrecioC.value) {
-            Swal.fire({
-                icon: 'warning',
-                title: 'Campos incompletos',
-                text: 'Por favor, complete los campos',
-            });
-            return;
-        }
-        registerC();
-    }
-
 }
 
 // Lista las marcas
@@ -387,14 +372,26 @@ function search(){
         tbodyP.innerHTML = "";
         let contador = 1;
         let tbody = "";
+        datos.sort((a, b) => a.tipo.localeCompare(b.tipo));
         datos.forEach(element => {
             const fechaCreate = new Date(element.fecha_creacion);
             const fecha = fechaCreate.toISOString().split('T')[0];
-            const estado = element.estado == 1 ? 'Activo' : element.estado == 0 ? 'Inactivo' : element.estado;
+            const estado = element.estado == 1 ? 'Activo' : element.estado == 2 ? 'Inactivo' : element.estado;
             const stock = element.stock > 0 ? element.stock : element.tipo == 'P' ? 'Comida' : element.tipo == 'M' ? 'Combo' : element.stock;
             const color  = element.stock > 0 ? '07853C' : element.tipo == 'P' ? 'CBC731' : element.tipo == 'M' ? 'FF0000' : element.stock;
             // Formatear el precio con dos decimales fijos
             const precioSinDecimales = parseFloat(element.precio).toString();
+            if (element.estado == 2) {
+                accionHtml = `
+                    <a class='btn btn-sm btn-outline-success' onclick='change_estado(${element.idproducto},1,"${element.producto}")' title='Habilitar producto' type='button' data-idventa='${element.idventa}'>
+                        <i class="fa-solid fa-check"></i>
+                    </a>`;
+            } else {
+                accionHtml = `
+                    <a class='btn btn-sm btn-outline-danger' onclick='change_estado(${element.idproducto},2,"${element.producto}")' title='Desactivar producto' type='button'>
+                        <i class="fa-solid fa-trash"></i>
+                    </a>`;
+            }
             tbody += `
                 <tr>
                     <td data-label='#'>${contador}</td>
@@ -405,8 +402,9 @@ function search(){
                     <td data-label='Estado'><span class='badge rounded-pill' style='background-color: #005478'>${estado}</td>
                     <td data-label='Acción'>
                         <a class='btn btn-sm btn-outline-success' type='button' onclick='get(${element.idproducto})'>
-                        <i class="fa-regular fa-pen-to-square"></i>
+                            <i class="fa-regular fa-pen-to-square"></i>
                         </a>
+                        ${accionHtml}
                     </td>
                 </tr>
             `;
@@ -423,8 +421,9 @@ function list_products(){
     const txtProductoC1 = document.querySelector("#producto-1-editar");
     const txtProductoC2 = document.querySelector("#producto-2-editar");
     const parametros = new URLSearchParams();
-    parametros.append("op", "list");
+    parametros.append("op", "listar");
     parametros.append("tipo", "P");
+    parametros.append("estado", 1);
     fetch('../controllers/producto.php', {
         method: 'POST',
         body: parametros
@@ -450,13 +449,14 @@ function list_products(){
 function listar_todo(){
     const txtProducto = document.querySelector("#producto-buscar");
     const parametros = new URLSearchParams();
-    parametros.append("op", "list_All_estate");
+    parametros.append("op", "listar");
     fetch('../controllers/producto.php', {
         method: 'POST',
         body: parametros
     })
     .then(respuesta => respuesta.json())
     .then(datos => {
+        datos.sort((a, b) => a.producto.localeCompare(b.producto));
         let options = "<option value='0'>Seleccione el producto</option>";
         datos.forEach(element => {
             options+= `
@@ -469,22 +469,30 @@ function listar_todo(){
 
 // Obtiene los datos del producto
 function get(id){
-    // Cajas de texto
-    const txtMarca = document.querySelector("#marca-editar");
-    const txtProducto = document.querySelector("#producto-editar");
-    const txtPrecio = document.querySelector("#precio-editar");
-    const txtStock = document.querySelector("#stock-editar");
-    const txtEstado = document.querySelector("#estado-editar");
-    const txtProductoC1 = document.querySelector("#texto-combo");
-    // Columnas
-    const viewMarca = document.querySelector("#view-marca-editar");
-    const viewProducto = document.querySelector("#view-producto-editar");
-    const viewPrecio = document.querySelector("#view-precio-editar");
-    const viewStock = document.querySelector("#view-stock-editar");
-    const viewProducto1 = document.querySelector("#view-combo-producto-editar");
-    const viewProducto2 = document.querySelector("#view-combo-producto-2-editar");
-    // Modal
-    const modal = document.querySelector("#modal-editar");
+    // Modales
+    //Modal de bebida
+    const modalB = document.querySelector("#modal-b-editar");
+        // Cajas de texto
+        const txtMarca = document.querySelector("#marca-editar");
+        const txtBebida = document.querySelector("#bebida-editar");
+        const txtPrecioB = document.querySelector("#precio-b-editar");
+        const txtStock = document.querySelector("#stock-editar");
+        const txtEstadoB = document.querySelector("#estado-b-editar");
+
+    //Modal de comidas
+    const modalP = document.querySelector("#modal-p-editar");
+        // Cajas de texto
+        const txtComida = document.querySelector("#comida-editar");
+        const txtPrecioP = document.querySelector("#precio-p-editar");
+        const txtEstadoP = document.querySelector("#estado-p-editar");
+
+    //Modal de combos
+    const modalC = document.querySelector("#modal-c-editar");
+        // Cajas de texto
+        const txtProductoC1 = document.querySelector("#texto-combo");
+        const txtPrecioC = document.querySelector("#precio-c-editar");
+        const txtEstadoC = document.querySelector("#estado-c-editar");
+
     const parametros = new URLSearchParams();
     parametros.append("op", "get");
     parametros.append("idproducto", id);
@@ -494,262 +502,256 @@ function get(id){
     })
     .then(respuesta => respuesta.json())
     .then(datos => {
-        const bootstrapModal = new bootstrap.Modal(modal);
-        bootstrapModal.show();
-        if (datos.tipo == "P") {
-            viewMarca.classList.add("d-none");
-            viewStock.classList.add("d-none");
-            viewPrecio.classList.add("col-md-4");
-            viewProducto.classList.add("col-md-4");
-            viewProducto1.classList.add("d-none");
-            viewProducto2.classList.add("d-none");
-            txtProductoC1.classList.add("d-none");
-        }
-        if (datos.tipo == "B") {
-            viewMarca.classList.remove("d-none");
-            viewStock.classList.remove("d-none");
-            viewPrecio.classList.remove("col-md-4");
-            viewProducto.classList.remove("col-md-4");
-            viewProducto1.classList.add("d-none");
-            viewProducto2.classList.add("d-none");
-            txtProductoC1.classList.add("d-none");
-        }
-        if (datos.tipo == "M") {
-            viewMarca.classList.add("d-none");
-            viewStock.classList.add("d-none");
-            viewProducto.classList.add("d-none");
-            viewProducto1.classList.remove("d-none");
-            viewProducto2.classList.remove("d-none");
-            txtProductoC1.classList.remove("d-none");
-        }
         idProducto = datos.idproducto;
-        txtMarca.value = datos.idmarca;
-        txtProducto.value = datos.producto;
-        txtProductoC1.textContent = `Combo: ${datos.producto}`;
-        txtPrecio.value = datos.precio;
-        txtStock.value = datos.stock;
-        txtEstado.value = datos.estado
-        console.log(idProducto)
-        tipo = datos.tipo;
+
+        if (datos.tipo == "P") {
+            const bootstrapModal = new bootstrap.Modal(modalP);
+            bootstrapModal.show();
+            txtComida.value = datos.producto;
+            txtPrecioP.value = datos.precio;
+            txtEstadoP.value = datos.estado;
+        }
+
+        if (datos.tipo == "B") {
+            const bootstrapModal = new bootstrap.Modal(modalB);
+            bootstrapModal.show();
+            txtMarca.value = datos.idmarca;
+            txtBebida.value = datos.producto;
+            txtPrecioB.value = datos.precio;
+            txtStock.value = datos.stock;
+            txtEstadoB.value = datos.estado;
+        }
+
+        if (datos.tipo == "M") {
+            const bootstrapModal = new bootstrap.Modal(modalC);
+            bootstrapModal.show();
+            txtProductoC1.innerHTML = `Combo: <b>${datos.producto}</b>`;
+            txtPrecioC.value = datos.precio;
+            txtEstadoC.value = datos.estado;
+        }
+
     })
 }
 
-// Edita el producto
-function edit(){
-    // Cajas de texto
+// Editar bebida
+function editar_bebida(){
     const txtMarca = document.querySelector("#marca-editar");
-    const txtProducto = document.querySelector("#producto-editar");
-    const txtPrecio = document.querySelector("#precio-editar");
+    const txtBebida = document.querySelector("#bebida-editar");
+    const txtPrecioB = document.querySelector("#precio-b-editar");
     const txtStock = document.querySelector("#stock-editar");
-    const txtEstado = document.querySelector("#estado-editar");
+    const txtEstadoB = document.querySelector("#estado-b-editar");
+    if (!txtMarca.value || !txtBebida.value || !txtPrecioB.value || !txtStock.value || !txtEstadoB.value) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Campos incompletos',
+            text: 'Por favor, complete los campos',
+        });
+        return;
+    }
+    const parametros = new URLSearchParams();
+    parametros.append("op", "editar");
+    parametros.append("idmarca", txtMarca.value);
+    parametros.append("producto", txtBebida.value);
+    parametros.append("precio", txtPrecioB.value);
+    parametros.append("stock", txtStock.value);
+    parametros.append("estado", txtEstadoB.value);
+    parametros.append("idproducto", idProducto);
+    Swal.fire({
+        icon: 'question',
+        title: 'Confirmación',
+        text: '¿Está seguro de los datos ingresados?',
+        showCancelButton: true,
+        confirmButtonText: 'Si',
+        cancelButtonText: 'No',
+    }).then((result) => {
+        if (result.isConfirmed) {
+            fetch("../controllers/producto.php", {
+                method: "POST",
+                body: parametros
+            })
+            .then(respuesta =>{
+                if(respuesta.ok){
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Producto editado',
+                        html: `El producto <b>${txtBebida.value}</b> ha sido actualizado correctamente.`
+                    }).then(() => {
+                        list()
+                    });
+                } else{
+                    throw new Error('Error en la solicitud');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                Swal.alert({
+                    icon: 'Error',
+                    title: 'Error al actualizar el producto',
+                    text: 'Ocurrió un error al actualizar el producto. Por favor intentelo nuevamente.'
+                })
+            });
+        }
+    })
+}
 
+// Editar comida
+function editar_comida(){
+    const txtComida = document.querySelector("#comida-editar");
+    const txtPrecioP = document.querySelector("#precio-p-editar");
+    const txtEstadoP = document.querySelector("#estado-p-editar");
+    if (!txtComida.value || !txtPrecioP.value || !txtEstadoP.value) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Campos incompletos',
+            text: 'Por favor, complete los campos',
+        });
+        return;
+    }
+    const parametros = new URLSearchParams();
+    parametros.append("op", "editar");
+    parametros.append("producto", txtComida.value);
+    parametros.append("precio", txtPrecioP.value);
+    parametros.append("estado", txtEstadoP.value);
+    parametros.append("idproducto", idProducto);
+    Swal.fire({
+        icon: 'question',
+        title: 'Confirmación',
+        text: '¿Está seguro de los datos ingresados?',
+        showCancelButton: true,
+        confirmButtonText: 'Si',
+        cancelButtonText: 'No',
+    }).then((result) => {
+        if (result.isConfirmed) {
+            fetch("../controllers/producto.php", {
+                method: "POST",
+                body: parametros
+            })
+            .then(respuesta =>{
+                if(respuesta.ok){
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Producto editado',
+                        html: `El producto <b>${txtComida.value}</b> ha sido actualizado correctamente.`
+                    }).then(() => {
+                        list();
+                    });
+                } else{
+                    throw new Error('Error en la solicitud');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                Swal.alert({
+                    icon: 'Error',
+                    title: 'Error al actualizar el producto',
+                    text: 'Ocurrió un error al actualizar el producto. Por favor intentelo nuevamente.'
+                })
+            });
+        }
+    })
+}
+
+// Editar combo
+function editar_combo(){
     const txtProductoC1 = document.querySelector("#producto-1-editar").value;
     const txtProductoC2 = document.querySelector("#producto-2-editar").value;
+    const txtPrecioC = document.querySelector("#precio-c-editar");
+    const txtEstadoC = document.querySelector("#estado-c-editar");
     const txtProductoC = `${txtProductoC1} + ${txtProductoC2}`;
-    
+    if (!txtProductoC1 || !txtProductoC2 || !txtPrecioC.value || !txtEstadoC.value) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Campos incompletos',
+            text: 'Por favor, seleccione los platos para el combo',
+        });
+        return;
+    }
     const parametros = new URLSearchParams();
-    console.log(tipo)
-
-    if (tipo == "B") {
-        if (!txtMarca.value || !txtProducto.value || !txtPrecio.value || !txtStock.value || !txtEstado.value) {
-            Swal.fire({
-                icon: 'warning',
-                title: 'Campos incompletos',
-                text: 'Por favor, complete los campos',
+    parametros.append("op", "editar");
+    parametros.append("producto", txtProductoC);
+    parametros.append("precio", txtPrecioC.value);
+    parametros.append("estado", txtEstadoC.value);
+    parametros.append("idproducto", idProducto);
+    Swal.fire({
+        icon: 'question',
+        title: 'Confirmación',
+        text: '¿Está seguro de los datos ingresados?',
+        showCancelButton: true,
+        confirmButtonText: 'Si',
+        cancelButtonText: 'No',
+    }).then((result) => {
+        if (result.isConfirmed) {
+            fetch("../controllers/producto.php", {
+                method: "POST",
+                body: parametros
+            })
+            .then(respuesta =>{
+                if(respuesta.ok){
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Combo editado',
+                        html: `El combo <b>${txtProductoC}</b> ha sido actualizado correctamente.`
+                    }).then(() => {
+                        list();
+                    });
+                } else{
+                    throw new Error('Error en la solicitud');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                Swal.alert({
+                    icon: 'Error',
+                    title: 'Error al actualizar el combo',
+                    text: 'Ocurrió un error al actualizar el producto. Por favor intentelo nuevamente.'
+                })
             });
-            return;
         }
-        parametros.append("op", "edit");
-        parametros.append("idmarca", txtMarca.value);
-        parametros.append("producto", txtProducto.value);
-        parametros.append("precio", txtPrecio.value);
-        parametros.append("stock", txtStock.value);
-        parametros.append("estado", txtEstado.value);
-        parametros.append("idproducto", idProducto);
-        Swal.fire({
-            icon: 'question',
-            title: 'Confirmación',
-            text: '¿Está seguro de los datos ingresados?',
-            showCancelButton: true,
-            confirmButtonText: 'Si',
-            cancelButtonText: 'No',
-        }).then((result) => {
-            if (result.isConfirmed) {
-                fetch("../controllers/producto.php", {
-                    method: "POST",
-                    body: parametros
-                })
-                .then(respuesta =>{
-                    if(respuesta.ok){
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Producto editado',
-                            html: `El producto <b>${txtProducto.value}</b> ha sido actualizado correctamente.`
-                        }).then(() => {
-                            list()
-                        });
-                    } else{
-                        throw new Error('Error en la solicitud');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    Swal.alert({
-                        icon: 'Error',
-                        title: 'Error al actualizar el producto',
-                        text: 'Ocurrió un error al actualizar el producto. Por favor intentelo nuevamente.'
-                    })
-                });
-            }
-        })
-    }
-
-    if (tipo == "P") {
-        if (!txtProducto.value || !txtPrecio.value || !txtEstado.value) {
-            Swal.fire({
-                icon: 'warning',
-                title: 'Campos incompletos',
-                text: 'Por favor, complete los campos',
-            });
-            return;
-        }
-        parametros.append("op", "editP");
-        parametros.append("producto", txtProducto.value);
-        parametros.append("precio", txtPrecio.value);
-        parametros.append("estado", txtEstado.value);
-        parametros.append("idproducto", idProducto);
-        Swal.fire({
-            icon: 'question',
-            title: 'Confirmación',
-            text: '¿Está seguro de los datos ingresados?',
-            showCancelButton: true,
-            confirmButtonText: 'Si',
-            cancelButtonText: 'No',
-        }).then((result) => {
-            if (result.isConfirmed) {
-                fetch("../controllers/producto.php", {
-                    method: "POST",
-                    body: parametros
-                })
-                .then(respuesta =>{
-                    if(respuesta.ok){
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Producto editado',
-                            html: `El producto <b>${txtProducto.value}</b> ha sido actualizado correctamente.`
-                        }).then(() => {
-                            list();
-                        });
-                    } else{
-                        throw new Error('Error en la solicitud');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    Swal.alert({
-                        icon: 'Error',
-                        title: 'Error al actualizar el producto',
-                        text: 'Ocurrió un error al actualizar el producto. Por favor intentelo nuevamente.'
-                    })
-                });
-            }
-        })
-    }
-
-    if (tipo == "M") {
-        if (!txtProductoC1 || !txtProductoC2 || !txtPrecio.value || !txtEstado.value) {
-            Swal.fire({
-                icon: 'warning',
-                title: 'Campos incompletos',
-                text: 'Por favor, seleccione los platos para el combo',
-            });
-            return;
-        }
-        parametros.append("op", "editC");
-        parametros.append("producto", txtProductoC);
-        parametros.append("precio", txtPrecio.value);
-        parametros.append("estado", txtEstado.value);
-        parametros.append("idproducto", idProducto);
-        Swal.fire({
-            icon: 'question',
-            title: 'Confirmación',
-            text: '¿Está seguro de los datos ingresados?',
-            showCancelButton: true,
-            confirmButtonText: 'Si',
-            cancelButtonText: 'No',
-        }).then((result) => {
-            if (result.isConfirmed) {
-                fetch("../controllers/producto.php", {
-                    method: "POST",
-                    body: parametros
-                })
-                .then(respuesta =>{
-                    if(respuesta.ok){
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Combo editado',
-                            html: `El combo <b>${txtProductoC}</b> ha sido actualizado correctamente.`
-                        }).then(() => {
-                            list();
-                        });
-                    } else{
-                        throw new Error('Error en la solicitud');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    Swal.alert({
-                        icon: 'Error',
-                        title: 'Error al actualizar el combo',
-                        text: 'Ocurrió un error al actualizar el producto. Por favor intentelo nuevamente.'
-                    })
-                });
-            }
-        })
-    }
+    })
 }
 
 // Función para deshabilitar los productos
-function disable_products() {
+function change_estado(id,estado,producto) {
     const parametros = new URLSearchParams();
-    parametros.append("op", "disable_products");
-    fetch('../controllers/producto.php', {
-        method: 'POST',
-        body: parametros
-    })
-    .then(respuesta => {
-        if(respuesta.ok){
-            console.log("SE PUDO")
-        } else{
-            throw new Error('Error en la solicitud');
+    parametros.append("op", "change_estado");
+    parametros.append("estado", estado);
+    parametros.append("idproducto", id);
+    Swal.fire({
+        icon: 'question',
+        title: 'Confirmación',
+        html: `¿Está seguro de cambiar el estado del producto <b>${producto}</b>?`,
+        showCancelButton: true,
+        confirmButtonText: 'Si',
+        cancelButtonText: 'No',
+    }).then((result) => {
+        if (result.isConfirmed) {
+            fetch('../controllers/producto.php', {
+                method: 'POST',
+                body: parametros
+            })
+            .then(respuesta => {
+                if(respuesta.ok){
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Producto actualizado',
+                        html: `El producto <b>${producto}</b> ha sido actualizado correctamente.`
+                    }).then(() => {
+                        list()
+                    });
+                } else{
+                    throw new Error('Error en la solicitud');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                Swal.alert({
+                    icon: 'Error',
+                    title: 'Error al actualizar el producto',
+                    text: 'Ocurrió un error al actualizar el producto. Por favor intentelo nuevamente.'
+                })
+            });
         }
     })
-}
-
-// Función para programar la ejecución diaria a las 00:00 horas
-function ejecutarDiariamente() {
-    // Llama a disable_products inmediatamente
-    disable_products();
-
-    const horaEjecucion = new Date();
-
-    // Establecer la hora de ejecución diaria a las 00:00:00
-    horaEjecucion.setHours(0, 0, 0, 0);
-
-    // Calcular los milisegundos hasta la próxima ejecución
-    let milisegundosHastaEjecucion = horaEjecucion.getTime() - Date.now();
-    if (milisegundosHastaEjecucion < 0) {
-        // Si la hora de ejecución ya ha pasado hoy, establecer la hora de ejecución para mañana
-        horaEjecucion.setDate(horaEjecucion.getDate() + 1);
-        milisegundosHastaEjecucion = horaEjecucion.getTime() - Date.now();
-    }
-
-    // Establecer el intervalo para la próxima ejecución
-    setTimeout(() => {
-        // Ejecutar disable_products y volver a programar la próxima ejecución
-        disable_products();
-        ejecutarDiariamente();
-    }, milisegundosHastaEjecucion);
 }
 
 list();
@@ -758,14 +760,33 @@ list_products();
 listar_todo();
 list_Platos_inactivos();
 
+// Busca los productos
 const btnSearch = document.querySelector("#buscar-producto");
 btnSearch.addEventListener("click", search);
 
-const btnRegistrar = document.querySelector("#registrar-producto");
-btnRegistrar.addEventListener("click", register)
+// Registrar las comidas
+const btnRegistrarP = document.querySelector("#registrar-comida");
+btnRegistrarP.addEventListener("click", registerP)
 
-const btnEditarProducto = document.querySelector("#editar-producto");
-btnEditarProducto.addEventListener("click", edit);
+// Registrar las bebidas
+const btnRegistrarB = document.querySelector("#registrar-bebida");
+btnRegistrarB.addEventListener("click", registerB)
+
+// Registrar los combos
+const btnRegistrarC = document.querySelector("#registrar-combo");
+btnRegistrarC.addEventListener("click", registerC)
+
+// Registrar las bebidas
+const btn_edit_b = document.querySelector("#editar-bebida");
+btn_edit_b.addEventListener("click", editar_bebida);
+
+// Registrar las comidas
+const btn_edit_p = document.querySelector("#editar-comida");
+btn_edit_p.addEventListener("click", editar_comida);
+
+// Registrar los combos
+const btn_edit_c = document.querySelector("#editar-combo");
+btn_edit_c.addEventListener("click", editar_combo);
 
 const btnRestaurar = document.querySelector("#restaurar-plato");
 btnRestaurar.addEventListener("click", habilitar_platos)

@@ -275,6 +275,19 @@ require_once 'Conexion.php';
             }
         }
 
+        // Cambia el estado del pago
+        public function cambiar_estado_pago($data = []){
+            try {
+                $query = "UPDATE pagos set estado = ? where idpago = ?";
+                $consulta = $this->conexion->prepare($query);
+                $consulta->execute(array(
+                    $data['estado'],
+                    $data['idpago']
+                ));
+            } catch (Exception $e) {
+                die($e->getMessage());
+            }
+        }
 
     }
 

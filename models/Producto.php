@@ -9,23 +9,10 @@ require_once 'Conexion.php';
             $this->conexion = parent::getConexion();
         }
 
-        // Listar pero solo un tipo
-        public function list($data = []){
+        // Lista todo
+        public function listar(){
             try {
-                $query = "SELECT * FROM producto WHERE tipo = ? and estado = 1";
-                $consulta = $this->conexion->prepare($query);
-                $consulta->execute(array($data['tipo']));
-                $datos = $consulta->fetchAll(PDO::FETCH_ASSOC);
-                return $datos;
-            } catch (Exception $e) {
-                die($e->getMessage());
-            }
-        }
-
-        // Listar todos los tipos
-        public function listAll_inactive(){
-            try {
-                $query = "SELECT * FROM producto WHERE estado = 0 order by producto ASC";
+                $query = "SELECT * FROM producto";
                 $consulta = $this->conexion->prepare($query);
                 $consulta->execute();
                 $datos = $consulta->fetchAll(PDO::FETCH_ASSOC);
@@ -53,70 +40,17 @@ require_once 'Conexion.php';
             }
         }
 
-        // Listar todos los tipos
-        public function listAll(){
+        // Registra un producto
+        public function registrar($data = []){
             try {
-                $query = "SELECT * FROM producto WHERE estado = 1";
-                $consulta = $this->conexion->prepare($query);
-                $consulta->execute();
-                $datos = $consulta->fetchAll(PDO::FETCH_ASSOC);
-                return $datos;
-            } catch (Exception $e) {
-                die($e->getMessage());
-            }
-        }
-
-        // Listar todo *
-        public function list_All_estate(){
-            try {
-                $query = "SELECT * FROM producto order by producto ASC";
-                $consulta = $this->conexion->prepare($query);
-                $consulta->execute();
-                $datos = $consulta->fetchAll(PDO::FETCH_ASSOC);
-                return $datos;
-            } catch (Exception $e) {
-                die($e->getMessage());
-            }
-        }
-
-        // Registrar Bebidas
-        public function registerB($data = []){
-            try {
-                $query = "INSERT INTO producto(idmarca,producto,tipo,precio,stock) values(?,?,'B',?,?)";
+                $query = "INSERT INTO producto(idmarca,producto,tipo,precio,stock) values(?,?,?,?,?)";
                 $consulta = $this->conexion->prepare($query);
                 $consulta->execute(array(
                     $data['idmarca'],
                     $data['producto'],
+                    $data['tipo'],
                     $data['precio'],
                     $data['stock']
-                ));
-            } catch (Exception $e) {
-                die($e->getMessage());
-            }
-        }
-
-        // Registrar Platos
-        public function registerP($data = []){
-            try {
-                $query = "INSERT INTO producto(producto,precio,tipo) values(?,?,'P')";
-                $consulta = $this->conexion->prepare($query);
-                $consulta->execute(array(
-                    $data['producto'],
-                    $data['precio']
-                ));
-            } catch (Exception $e) {
-                die($e->getMessage());
-            }
-        }
-
-        // Registra el combo o menú
-        public function register_combo($data = []){
-            try {
-                $query = "INSERT INTO producto(producto,precio,tipo) values(?,?,'M')";
-                $consulta = $this->conexion->prepare($query);
-                $consulta->execute(array(
-                    $data['producto'],
-                    $data['precio']
                 ));
             } catch (Exception $e) {
                 die($e->getMessage());
@@ -137,7 +71,7 @@ require_once 'Conexion.php';
         }
 
         // Edita el producto
-        public function edit($data = []){
+        public function editar($data = []){
             try {
                 $query = "UPDATE producto SET idmarca = ?, producto = ?, precio = ?, stock = ?, estado = ? where idproducto = ?";
                 $consulta = $this->conexion->prepare($query);
@@ -226,24 +160,14 @@ require_once 'Conexion.php';
         }
 
         // Inhabilita los productos de stock 0
-        public function disable_product($data = []){
+        public function change_estado($data = []){
             try {
-                $query = "UPDATE producto set estado = 0 where idproducto = ?";
+                $query = "UPDATE producto set estado = ? where idproducto = ?";
                 $consulta = $this->conexion->prepare($query);
                 $consulta->execute(array(
+                    $data['estado'],
                     $data['idproducto']
                 ));
-            } catch (Exception $e) {
-                die($e->getMessage());
-            }
-        }
-
-        // Deshabilita los productos de tipo "M" y "P"
-        public function disable_products(){
-            try {
-                $query = "UPDATE producto set estado = 0 where tipo = 'M' OR tipo = 'P' ";
-                $consulta = $this->conexion->prepare($query);
-                $consulta->execute();
             } catch (Exception $e) {
                 die($e->getMessage());
             }

@@ -184,6 +184,7 @@
                         // Cambia el estado de la deuda a 2
                         $deuda->change_estate_debt(["estado" => 2, "iddeuda" => $registro['iddeuda']]);
                         $venta->change_estate(["estado" => 1, "idventa" => $registro['idventa']]);
+                        // Se almacena en una array las deudas a la cuales de pagaron
                         $dataDeudas[] = $dataD;
                     }
                 }
@@ -454,6 +455,7 @@
         // Buscar los pagos
         if ($_POST['op'] == "buscar_pagos") {
             $iddeudor  =    isset($_POST['iddeudor']) ? $_POST['iddeudor'] : '';
+            $fecha = isset($_POST['fecha']) ? $_POST['fecha'] : '';
             $fecha_inicio   = $_POST['fecha_inicio'] . ' 00:00:00';
             $fecha_fin      = $_POST['fecha_fin'] . ' 23:59:59';
             $estado    =    isset($_POST['estado']) ? $_POST['estado'] : '';
@@ -481,9 +483,35 @@
                         "estado"            => $pagos['estado'],
                         "comentario"        => $pagos['comentario']
                     ];
+                }else{
+                    if (
+                        (empty($iddeudor)       || $iddeudor == $pagos['iddeudor']) &&
+                        (empty($estado)         || $estado == $pagos['estado']) &&
+                        (empty($total_min)      || $total_min <= $pagos['pago']) &&
+                        (empty($total_max)      || $total_max >= $pagos['pago'])
+                    ) {
+                        $dataPagos[] = [
+                            "idpago"            => $pagos['idpago'],
+                            "iddeudor"          => $pagos['iddeudor'],
+                            "pago"              => $pagos['pago'],
+                            "fecha_creacion"    => $pagos['fecha_creacion'],
+                            "estado"            => $pagos['estado'],
+                            "comentario"        => $pagos['comentario']
+                        ];
+                    }
                 }
             }
             echo json_encode($dataPagos);
+        }
+
+        // Cambia el estado del pago
+        if ($_POST['op'] == "cambiar_estado_pago") {
+            $data = [
+                "estado"    => $_POST['estado'],
+                "idpago"    => $_POST['idpago']
+            ];
+
+            $deuda->cambiar_estado_pago($data);
         }
 
     }

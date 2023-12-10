@@ -165,7 +165,7 @@ function search(){
     const txtPrecio = document.querySelector("#precio-buscar");
     const txtEstado = document.querySelector("#estado-buscar");
     const parametros = new URLSearchParams();
-    parametros.append("op", "search");
+    parametros.append("op", "buscar");
     parametros.append("gasto", txtGastos.value);
     parametros.append("idsemana", txtSemana.value);
     parametros.append("precio", txtPrecio.value);

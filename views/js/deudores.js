@@ -92,21 +92,32 @@ function get_Pagos(id){
         let contador = 1;
         datos.forEach(element => {
             const estado = element.estado == 1 ? 'Activo' : element.estado == 2 ? 'Inactivo' : element.estado;
+            let btnEstado = ``;
             if (id == element.iddeudor) {
+                if (element.estado == 1) {
+                    btnEstado =`<a class='btn btn-sm btn-outline-danger' onclick='cambiar_estado_pago(${element.idpago}, 2, ${element.pago})' 
+                                    title='Clic, para anular pago' type='button'>
+                                    <i class="fas fa-times-circle"></i>
+                                </a>`;
+                }else{
+                    btnEstado =`<a class='btn btn-sm btn-outline-primary' onclick='cambiar_estado_pago(${element.idpago}, 1, ${element.pago})'
+                                    title='Clic, para habilitar pago' type='button'>
+                                    <i class="fa-solid fa-check"></i>
+                                </a>`;
+                }
+                
                 tbody += `
-                <tr title='Doble clic, para ver las deudas'>
-                    <td data-label='#'>${contador}</td>
-                    <td data-label='Pago'>S/ ${element.pago}</td>
-                    <td data-label='Fecha'>${element.fecha_creacion}</td>
-                    <td data-label='Comentario'>${element.comentario}</td>
-                    <td data-label='Comentario'><span class='badge rounded-pill' style='background-color: #005478'>${estado}</td>
-                    <td data-label='Acción'>
-                        <a class='btn btn-sm btn-outline-primary' title='Clic, para ver los pagos' type='button'>
-                        <i class="fa-solid fa-list"></i>
-                        </a>
-                    </td>
-                </tr>
-            `;
+                    <tr title='Doble clic, para ver las deudas'>
+                        <td data-label='#'>${contador}</td>
+                        <td data-label='Pago'>S/ ${element.pago}</td>
+                        <td data-label='Fecha'>${element.fecha_creacion}</td>
+                        <td data-label='Comentario'>${element.comentario}</td>
+                        <td data-label='Comentario'><span class='badge rounded-pill' style='background-color: #005478'>${estado}</td>
+                        <td data-label='Acción'>
+                            ${btnEstado} 
+                        </td>
+                    </tr>
+                `;
             contador++;
             }
         });
@@ -115,13 +126,143 @@ function get_Pagos(id){
     })
 }
 
+// Función para poder obtener las deudas(abre el modal de deudas)
+function get_debts(id){
+    const txtDeudores = document.querySelector("#deudores-buscar");
+    const txttotal = document.querySelector("#total-deuda")
+    const tablaDeudas = document.querySelector("#tabla-deudas");
+    const tbodyDeudas = tablaDeudas.querySelector("tbody");
+    const modal = document.querySelector("#modal-deudas");
+    const bootstrapModal = new bootstrap.Modal(modal);
+    const parametros = new URLSearchParams();
+    parametros.append("op", "get_debts");
+    parametros.append("iddeudor", id);
+    fetch("../controllers/deuda.php", {
+        method: 'POST',
+        body: parametros
+    })
+    .then(respuesta => respuesta.json())
+    .then(datos =>{
+        getAporte(id);
+        let contador = 1;
+        bootstrapModal.show();
+        let tbody = "";
+        let total = 0
+        datos.forEach(element => {
+            if (element.estado == 1) {
+                total += parseFloat(element.total);
+            }
+            idDebtor = element.iddeudor
+            const fechaCreate = new Date(element.fecha_creacion);
+            const fecha = fechaCreate.toISOString().split('T')[0];
+            const estado = element.estado == 1 ? 'No pagado' : element.estado == 2 ? 'Pagado' : element.estado;
+            if (element.estado == 1) {
+                tbody += `
+                    <tr ondblclick ='get_sale(${element.idventa})'>
+                        <td data-label='#'>${contador}</td>
+                        <td data-label='Productos'>${element.productos}</td>
+                        <td data-label='Total'>S/ ${element.total}</td>
+                        <td data-label='Fecha'>${element.fecha_creacion}</td>
+                        <td data-label='Estado'><span class='badge rounded-pill' style='background-color: #005478'>${estado}</td>
+                        <td data-label='Acción'>
+                            <a class='btn btn-sm btn-outline-success' title='Clic, para saldar la deuda'
+                                onclick='pay(${element.iddeuda}, ${element.idventa},${element.total})' type='button'>
+                                <i class="fa-solid fa-cash-register"></i>
+                            </a>
+                        </td>
+                    </tr>
+                `;
+            }else{
+                tbody += `
+                    <tr ondblclick ='get_sale(${element.idventa})'>
+                        <td data-label='#'>${contador}</td>
+                        <td data-label='Productos'>${element.productos}</td>
+                        <td data-label='Total'>S/ ${element.total}</td>
+                        <td data-label='Fecha'>${element.fecha_creacion}</td>
+                        <td data-label='Estado'><span class='badge rounded-pill' style='background-color: #005478'>${estado}</td>
+                        <td data-label='Acción'>
+                            <a class='btn btn-sm btn-outline-primary' title='Clic, para reactivar la deuda' 
+                                onclick='reactivar_deuda(${element.iddeuda}, ${element.idventa})' type='button'>
+                                <i class="fa-solid fa-money-bill"></i>
+                            </a>
+                        </td>
+                    </tr>
+                `;
+            }
+            
+            contador++;
+        });
+        txttotal.value = total;
+        tbodyDeudas.innerHTML = tbody;
+        txtDeudores.value= id;
+    })
+}
+
+// Cambia el estado del pago(en caso que se quiera deshabilitar el pago)
+function cambiar_estado_pago(id, estado,pago){
+    let pregunta = ``;
+    let confirmacion = ``;
+    let mensaje = ``;
+    const parametros = new URLSearchParams();
+    parametros.append("op", "cambiar_estado_pago");
+    parametros.append("iddeuda", id);
+    parametros.append("estado", estado);
+    if (estado == 2) {
+        pregunta = `¿Está seguro de anular el pago de <b>S/${pago}</b>?`;
+        confirmacion = `Pago anulado`;
+        mensaje = `Se ha anulado el pago de <b>S/. ${pago}</b>`;
+    }else{
+        pregunta = `¿Está seguro de habilitar el pago de <b>S/${pago}</b>?`;
+        confirmacion = `Pago habilitado`;
+        mensaje = `Se habilitado el pago de <b>S/. ${pago}</b>`;
+    }
+    Swal.fire({
+        icon: 'question',
+        title: 'Confirmación',
+        html: `${pregunta}`,
+        showCancelButton: true,
+        confirmButtonText: 'Si',
+        cancelButtonText: 'No',
+    })
+    .then((result) => {
+        if (result.isConfirmed) {
+            fetch("../controllers/deuda.php", {
+                method: 'POST',
+                body: parametros
+            })
+            .then(respuesta => {
+                if (respuesta.ok) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: `${confirmacion}`,
+                        html: `${mensaje}`
+                    })
+                } else {
+                    throw new Error('Error en la solicitud');
+                }
+            })
+            .catch(error => {
+                console.error(error);
+            });
+        }
+    })
+    
+}
+
 // Registrar pago
 function registrar_pago(id,pago,deudas){
     getAporte(id);
     let opciones = ``;
-    deudas.forEach(element => {
-        opciones += `-${element.total} `;
-    });
+    // Verificar si deudas es un array
+    if (Array.isArray(deudas)) {
+        deudas.forEach(element => {
+            opciones += `-${element.total} `;
+        });
+    } else {
+        opciones += `-${deudas} `;
+    }
+
+    
     const comentario = `Pago por monto,deudas saldas: ${opciones} .Aporte ${aporte}`;
     const parametros = new URLSearchParams();
     parametros.append("op", "registrar_pago");
@@ -278,7 +419,7 @@ function register_deudor(){
 }
 
 // Función para pagar la deuda
-function pay(iddeuda, idventa){
+function pay(iddeuda, idventa,total){
     Swal.fire({
         icon: 'question',
         title: 'Confirmación',
@@ -291,6 +432,7 @@ function pay(iddeuda, idventa){
         if (result.isConfirmed) {
             await pay_debt(iddeuda);
             await pay_sale(idventa);
+            registrar_pago(idDebtor,total,total);
             get_debts(idDebtor);
             list();
         }
@@ -347,78 +489,6 @@ async function pay_sale(idventa){
     .catch(error => {
         console.error(error);
     });
-}
-
-// Función para poder obtener las deudas(abre el modal de deudas)
-function get_debts(id){
-    const txtDeudores = document.querySelector("#deudores-buscar");
-    const txttotal = document.querySelector("#total-deuda")
-    const tablaDeudas = document.querySelector("#tabla-deudas");
-    const tbodyDeudas = tablaDeudas.querySelector("tbody");
-    const modal = document.querySelector("#modal-deudas");
-    const bootstrapModal = new bootstrap.Modal(modal);
-    const parametros = new URLSearchParams();
-    parametros.append("op", "get_debts");
-    parametros.append("iddeudor", id);
-    fetch("../controllers/deuda.php", {
-        method: 'POST',
-        body: parametros
-    })
-    .then(respuesta => respuesta.json())
-    .then(datos =>{
-        getAporte(id);
-        let contador = 1;
-        bootstrapModal.show();
-        let tbody = "";
-        let total = 0
-        datos.forEach(element => {
-            if (element.estado == 1) {
-                total += parseFloat(element.total);
-            }
-            idDebtor = element.iddeudor
-            const fechaCreate = new Date(element.fecha_creacion);
-            const fecha = fechaCreate.toISOString().split('T')[0];
-            const estado = element.estado == 1 ? 'No pagado' : element.estado == 2 ? 'Pagado' : element.estado;
-            if (element.estado == 1) {
-                tbody += `
-                <tr ondblclick ='get_sale(${element.idventa})'>
-                    <td data-label='#'>${contador}</td>
-                    <td data-label='Productos'>${element.productos}</td>
-                    <td data-label='Total'>S/ ${element.total}</td>
-                    <td data-label='Fecha'>${element.fecha_creacion}</td>
-                    <td data-label='Estado'><span class='badge rounded-pill' style='background-color: #005478'>${estado}</td>
-                    <td data-label='Acción'>
-                        <a class='btn btn-sm btn-outline-success' title='Clic, para saldar la deuda'
-                            onclick='pay(${element.iddeuda}, ${element.idventa})' type='button'>
-                            <i class="fa-solid fa-cash-register"></i>
-                        </a>
-                    </td>
-                </tr>
-            `;
-            }else{
-                tbody += `
-                <tr ondblclick ='get_sale(${element.idventa})'>
-                    <td data-label='#'>${contador}</td>
-                    <td data-label='Productos'>${element.productos}</td>
-                    <td data-label='Total'>S/ ${element.total}</td>
-                    <td data-label='Fecha'>${element.fecha_creacion}</td>
-                    <td data-label='Estado'><span class='badge rounded-pill' style='background-color: #005478'>${estado}</td>
-                    <td data-label='Acción'>
-                        <a class='btn btn-sm btn-outline-primary' title='Clic, para reactivar la deuda' 
-                            onclick='reactivar_deuda(${element.iddeuda}, ${element.idventa})' type='button'>
-                            <i class="fa-solid fa-money-bill"></i>
-                        </a>
-                    </td>
-                </tr>
-            `;
-            }
-            
-            contador++;
-        });
-        txttotal.value = total;
-        tbodyDeudas.innerHTML = tbody;
-        txtDeudores.value= id;
-    })
 }
 
 // Ingresa los deudores a los select
@@ -663,7 +733,6 @@ function getAporte(id){
 
 // Función para buscar (incluye fechas limites)
 function search_debts(){
-    console.log("HOLA");
     const txttotal = document.querySelector("#total-deuda")
     const tablaDeudas = document.querySelector("#tabla-deudas");
     const tbodyDeudas = tablaDeudas.querySelector("tbody");
@@ -914,21 +983,34 @@ function buscar_pagos(){
         let contador = 1;
         datos.forEach(element => {
             const estado = element.estado == 1 ? 'Activo' : element.estado == 2 ? 'Inactivo' : element.estado;
-            tbody += `
-                <tr title='Doble clic, para ver las deudas'>
-                    <td data-label='#'>${contador}</td>
-                    <td data-label='Pago'>S/ ${element.pago}</td>
-                    <td data-label='Fecha'>${element.fecha_creacion}</td>
-                    <td data-label='Comentario'>${element.comentario}</td>
-                    <td data-label='Comentario'><span class='badge rounded-pill' style='background-color: #005478'>${estado}</td>
-                    <td data-label='Acción'>
-                        <a class='btn btn-sm btn-outline-primary' title='Clic, para ver los pagos' type='button'>
-                        <i class="fa-solid fa-list"></i>
-                        </a>
-                    </td>
-                </tr>
-            `;
+            let btnEstado = ``;
+            if (idDebtor == element.iddeudor) {
+                if (element.estado == 1) {
+                    btnEstado =`<a class='btn btn-sm btn-outline-danger' onclick='cambiar_estado_pago(${element.idpago}, 2, ${element.pago})' 
+                                    title='Clic, para anular pago' type='button'>
+                                    <i class="fas fa-times-circle"></i>
+                                </a>`;
+                }else{
+                    btnEstado =`<a class='btn btn-sm btn-outline-primary' onclick='cambiar_estado_pago(${element.idpago}, 1, ${element.pago})'
+                                    title='Clic, para habilitar pago' type='button'>
+                                    <i class="fa-solid fa-check"></i>
+                                </a>`;
+                }
+                
+                tbody += `
+                    <tr title='Doble clic, para ver las deudas'>
+                        <td data-label='#'>${contador}</td>
+                        <td data-label='Pago'>S/ ${element.pago}</td>
+                        <td data-label='Fecha'>${element.fecha_creacion}</td>
+                        <td data-label='Comentario'>${element.comentario}</td>
+                        <td data-label='Comentario'><span class='badge rounded-pill' style='background-color: #005478'>${estado}</td>
+                        <td data-label='Acción'>
+                            ${btnEstado} 
+                        </td>
+                    </tr>
+                `;
             contador++;
+            }
         });
         tbodyP.innerHTML = tbody;
     })
